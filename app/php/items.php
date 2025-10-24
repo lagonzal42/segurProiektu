@@ -1,15 +1,16 @@
 <?php
-    $hostname = "localhost";
+    $hostname = "127.0.0.1";
+    $port = 3306;
     $username = "admin";
     $password = "test";
     $db = "database";
 
-    $conn = mysqli_connect($hostname, $username, $password, $db);
-    if ($conn -> connect_error) {
-        die("Database connection failed: " . $conn->connect_error);
+    $conn = mysqli_connect($hostname, $username, $password, $db, $port);
+    if (!$conn) {
+        die("Database connection failed: " . mysqli_connect_error());
     }
 
-    $query = mysqli_query($conn, "SELECT * FROM babarrunak");
+    $query = mysqli_query($conn, "SELECT * FROM babarrunak")
         or die (mysqli_error($conn));
 
     while ($row = mysqli_fetch_array($query)) {
