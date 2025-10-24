@@ -55,7 +55,7 @@ $result = $conn->query($sql);
                     <td><?= htmlspecialchars($row['id']) ?></td>
                     <td><?= htmlspecialchars($row['izena']) ?></td>
                     <td>
-                        <a href="http://localhost:81/delete?id=<?= $row['id'] ?>"
+                        <a href="http://localhost:81/delete_item?id=<?= $row['id'] ?>"
                            onclick="return confirm('¿Seguro que deseas eliminar el producto con ID <?= $row['id'] ?>?');">
                            🗑️ Eliminar
                         </a>
