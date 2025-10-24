@@ -26,6 +26,6 @@ fclean:
 	fi
 
 rebuild:
-	@docker-compose up --build
+	@docker-compose up --build -d
 
 re: stop fclean all
