@@ -1,11 +1,21 @@
+
+  
+<!DOCTYPE html>
+<html lang="eu">
+<head>
+    <meta charset="UTF-8">
+    <title>Babarrunak</title>
+</head>
+<body>
+    <h1>Babarrunak</h1>
+    
 <?php
-    $hostname = "127.0.0.1";
-    $port = 3306;
+    $hostname = "db";
     $username = "admin";
     $password = "test";
     $db = "database";
 
-    $conn = mysqli_connect($hostname, $username, $password, $db, $port);
+    $conn = mysqli_connect($hostname, $username, $password, $db);
     if (!$conn) {
         die("Database connection failed: " . mysqli_connect_error());
     }
@@ -20,17 +30,6 @@
               </div>";
     }
 ?>
-  
-<!DOCTYPE html>
-<html lang="eu">
-<head>
-    <meta charset="UTF-8">
-    <title>Babarrunak</title>
-</head>
-<body>
-    <h1>Babarrunak</h1>
-    
-
 
 
 </body>
