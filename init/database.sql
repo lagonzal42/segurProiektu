@@ -3,8 +3,15 @@
 -- ------------------------------------------------------
 -- Server version	10.11.13-MariaDB-0ubuntu0.24.04.1
 
-CREATE DATABASE IF NOT EXISTS `segurproiektua`;
+CREATE DATABASE IF NOT EXISTS `segurproiektua`
+  DEFAULT CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+
 USE `segurproiektua`;
+
+-- 👇 Asegura que las conexiones usen UTF-8
+SET NAMES utf8mb4;
+SET CHARACTER SET utf8mb4;
 
 
 DROP TABLE IF EXISTS `babarrunak`;
@@ -16,7 +23,7 @@ CREATE TABLE `babarrunak` (
   `Kolorea` varchar(20) DEFAULT NULL,
   `Egozketa_denb_min` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `erabiltzaileak`;
 
@@ -27,7 +34,7 @@ CREATE TABLE `erabiltzaileak` (
   `Jaio_Data` date DEFAULT NULL,
   `Email` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`NAN`)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 --
@@ -40,7 +47,7 @@ CREATE TABLE `usuarios` (
   `id` int(11) NOT NULL,
   `nombre` text NOT NULL,
   PRIMARY KEY (`id`)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `usuarios` VALUES
 (1,'mikel'),
