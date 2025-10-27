@@ -13,7 +13,7 @@
     $hostname = "db";
     $username = "admin";
     $password = "test";
-    $db = "database";
+    $db = "segurproiektua";
 
     $conn = mysqli_connect($hostname, $username, $password, $db);
     if (!$conn) {
