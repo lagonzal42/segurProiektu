@@ -15,13 +15,17 @@
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $iz_abz = $_POST['iz_abz'];
     $pas = $_POST['pas'];
+    $nan = $_POST['nan'];
 
-    // 🚨 Consulta NO segura (susceptible a inyección SQL)
     $sql = "SELECT * FROM erabiltzaileak WHERE Izen_Abizen = '$iz_abz' AND Pasahitza = '$pas'";
     $resultado = mysqli_query($conn, $sql);
 
     if (mysqli_num_rows($resultado) > 0) {
         echo "✅ Los datos son exactamente iguales.";
+        $token = hash("sha256", "$nan");
+        $sql = "UPDATE erabiltzaileak SET token = '$token' WHERE Izen_Abizen = '$iz_abz' AND Pasahitza = '$pas'";
+        $resultado = mysqli_query($conn, $sql);
+        
     } else {
         echo "❌ Datos incorrectos.";
     }
