@@ -13,7 +13,7 @@ function datuakegiaztatu() {
 
 
     if (nan.length < 9 || nan.length > 9) {
-        window.alert("NA-aren luzera ez da egokia.")
+        window.alert("NAN-aren luzera ez da egokia.")
         return false;
     }
     else if (!nanRegex.test(nan)) {
