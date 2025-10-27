@@ -33,6 +33,7 @@ CREATE TABLE `erabiltzaileak` (
   `Telefonoa` int(9) DEFAULT NULL,
   `Jaio_Data` varchar(10) DEFAULT NULL,
   `Email` varchar(50) DEFAULT NULL,
+  `Pasahitza` varchar(40) NOT NULL,
   `token` varchar(256),
   PRIMARY KEY (`NAN`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -73,9 +74,10 @@ INSERT INTO `babarrunak` (`id`, `Izena`, `Jatorria`, `Kolorea`, `Egozketa_denb_m
   (15, 'Frijol negro', 'México', 'beltza', 55);
 
 
-INSERT INTO `erabiltzaileak` (`Izen_Abizen`, `Nan`, `Telefonoa`, `Jaio_Data`, `Email`, `Pasahitza`) VALUES
-  ('Larrain Gonzalez','12345678Z', '123456789', '2000-01-05', 'larragonzalez@gmail.com', 1234),
-  ('Surya Ortega', '23456789D', '234567891', '2001-02-06', 'sur.ort3ga@gmail.com', 4567),
-  ('Erlantz Loriz', '34567891H', '345678912', '2002-03-07', 'erl4nt1oriz@gmail.com', 9876),
-  ('Gaizka Divasson', '45678912S', '456789123', '2003-04-08', 'divasson.gaizka@gmail.com', 3883),
-  ('Asier Barrio', '56789123F', '567891234', '2004-05-09', 'as.barr1o@gmail.com', 2121);
+INSERT INTO `erabiltzaileak` (`Izen_Abizen`, `Nan`, `Telefonoa`, `Jaio_Data`, `Email`, `Pasahitza`, `token`) VALUES
+  ('Larrain Gonzalez','12345678Z', '123456789', '2000-01-05', 'larragonzalez@gmail.com', 1234, null),
+  ('Surya Ortega', '23456789D', '234567891', '2001-02-06', 'sur.ort3ga@gmail.com', 4567, null),
+  ('Erlantz Loriz', '34567891H', '345678912', '2002-03-07', 'erl4nt1oriz@gmail.com', 9876, null),
+  ('Gaizka Divasson', '45678912S', '456789123', '2003-04-08', 'divasson.gaizka@gmail.com', 3883, null),
+  ('Asier Barrio', '56789123F', '567891234', '2004-05-09', 'as.barr1o@gmail.com', 2121, null);
+

@@ -7,11 +7,9 @@
   $conn = mysqli_connect($hostname, $username, $password, $db);
   if (!$conn) {
     die("Database connection failed: " . mysqli_connect_error());
-  } else {
-    echo "<script>console.log('Database connected successfully');</script>";
   }
 
-  $message = ""; // Initialize the message variable
+  $mezua = ""; 
   
   if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $iz_abz = $_POST['iz_abz'];
@@ -26,13 +24,12 @@
 
 
     if ($conn->query($sql) === TRUE) {
-      $message = "<span style='color: green;'>Erregistroa ondo gorde da!</span>";
+      $mezua = "<span style='color: green;'>Erregistroa ondo gorde da!</span>";
     } else {
-      // Check for duplicate key error
       if ($conn->errno == 1062) {
-        $message = "<span style='color: red;'>Errorea: NAN edo Email-a dagoeneko existitzen da.</span>";
+        $mezua = "<span style='color: red;'>Errorea: NAN-a dagoeneko existitzen da.</span>";
       } else {
-        $message = "<span style='color: red;'>Errorea: " . $conn->error . "</span>";
+        $mezua = "<span style='color: red;'>Errorea: " . $conn->error . "</span>";
       }
     }
 
