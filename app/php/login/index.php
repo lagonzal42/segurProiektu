@@ -7,8 +7,6 @@
   $conn = mysqli_connect($hostname, $username, $password, $db);
   if (!$conn) {
     die("Database connection failed: " . mysqli_connect_error());
-  } else {
-    echo "<script>console.log('Database connected successfully');</script>";
   }
 
 
@@ -20,7 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $resultado = mysqli_query($conn, $sql);
 
     if (mysqli_num_rows($resultado) > 0) {
-        echo "✅ Los datos son exactamente iguales.";
+        echo "Datu berdinak dira.";
 
         $row = mysqli_fetch_assoc($resultado);
         $nan = $row['NAN'];
@@ -36,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </script>
     ";
     }else{
-        echo "❌ Datos incorrectos.";
+        echo "Datu okerrak.";
     }
 }
 
