@@ -47,7 +47,7 @@ $result = $conn->query($sql);
         <tr>
             <th>ID</th>
             <th>Izena</th>
-            <th>Acción</th>
+            <th>Ezabaketa</th>
         </tr>
         <?php if ($result->num_rows > 0): ?>
             <?php while ($row = $result->fetch_assoc()): ?>
@@ -56,14 +56,14 @@ $result = $conn->query($sql);
                     <td><?= htmlspecialchars($row['Izena']) ?></td>
                     <td>
                         <a href="http://localhost:81/delete_item?id=<?= $row['id'] ?>"
-                           onclick="return confirm('¿Seguro que deseas eliminar el producto con ID <?= $row['id'] ?>?');">
-                           🗑️ Eliminar
+                           onclick="return confirm('Ezabatu nahi duzu <?= $row['id'] ?> produktua?');">
+                           🗑️ Ezabatu
                         </a>
                     </td>
                 </tr>
             <?php endwhile; ?>
         <?php else: ?>
-            <tr><td colspan="3">No hay productos registrados.</td></tr>
+            <tr><td colspan="3">Ez dago produkturik.</td></tr>
         <?php endif; ?>
     </table>
 </body>
