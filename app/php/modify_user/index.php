@@ -4,7 +4,6 @@ $username = "admin";
 $password = "test";
 $db = "segurproiektua";
 
-// Conexión a la base de datos
 $conn = new mysqli($hostname, $username, $password, $db);
 if ($conn->connect_error) {
     die("Error de conexión: " . $conn->connect_error);
@@ -13,11 +12,9 @@ if ($conn->connect_error) {
 $user = null;
 $message = "";
 
-// Verificar si se ha pasado el parámetro 'user'
 if (isset($_GET['user'])) {
     $nan = $_GET['user'];
 
-    // Si se envió el formulario, actualizar los datos
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $nombre = $_POST['Izen_Abizen'] ?? '';
         $telefono = $_POST['Telefonoa'] ?? '';
@@ -28,9 +25,9 @@ if (isset($_GET['user'])) {
         $update_stmt->bind_param("sssss", $nombre, $telefono, $fecha, $email, $nan);
 
         if ($update_stmt->execute()) {
-            $message = "<p style='color:green;'>✅ Datos actualizados correctamente.</p>";
+            $message = "<p style='color:green;'>✅ Datuak eguneratu dira.</p>";
         } else {
-            $message = "<p style='color:red;'>❌ Error al actualizar: " . htmlspecialchars($update_stmt->error) . "</p>";
+            $message = "<p style='color:red;'>❌ Errore bat gertatu da: " . htmlspecialchars($update_stmt->error) . "</p>";
         }
 
         $update_stmt->close();
@@ -54,7 +51,7 @@ $conn->close();
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Modificar usuario</title>
+    <title>Erabiltzailea Aldatu</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 30px; }
         form { width: 50%; }
@@ -64,27 +61,27 @@ $conn->close();
     </style>
 </head>
 <body>
-    <h2>Modificar datos del usuario</h2>
+    <h2>Erabiltzailearen Datuak Aldatu</h2>
     <?= $message ?>
 
     <?php if ($user): ?>
         <form id="user_modify_form" method="post">
-            <label for="Izen_Abizen">Nombre completo</label>
+            <label for="Izen_Abizen">Izen Abizena</label>
             <input type="text" id="Izen_Abizen" name="Izen_Abizen" value="<?= htmlspecialchars($user['Izen_Abizen']) ?>" required>
 
-            <label for="Telefonoa">Teléfono</label>
+            <label for="Telefonoa">Telefonoa</label>
             <input type="text" id="Telefonoa" name="Telefonoa" value="<?= htmlspecialchars($user['Telefonoa']) ?>">
 
-            <label for="Jaio_Data">Fecha de nacimiento</label>
+            <label for="Jaio_Data">Jaiotze Data</label>
             <input type="date" id="Jaio_Data" name="Jaio_Data" value="<?= htmlspecialchars($user['Jaio_Data']) ?>">
 
             <label for="Email">Email</label>
             <input type="email" id="Email" name="Email" value="<?= htmlspecialchars($user['Email']) ?>">
 
-            <button type="submit" id="user_modify_submit">Guardar cambios</button>
+            <button type="submit" id="user_modify_submit">Aldaketak Gorde</button>
         </form>
     <?php else: ?>
-        <p style="color:red;">❌ Usuario no encontrado. Verifica el NAN proporcionado.</p>
+        <p style="color:red;">❌ Erabiltzailea ez da aurkitu. Ziurtatu NAN-a onargarria dela.</p>
     <?php endif; ?>
 </body>
 </html>
