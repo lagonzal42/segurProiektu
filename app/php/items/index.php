@@ -9,20 +9,6 @@ if ($conn->connect_error) {
     die("Error de conexión: " . $conn->connect_error);
 }
 
-if (isset($_GET['id'])) {
-    $id = intval($_GET['id']);
-    $stmt = $conn->prepare("DELETE FROM babarrunak WHERE id = ?");
-    $stmt->bind_param("i", $id);
-
-    if ($stmt->execute()) {
-        echo "<p style='color:green;'>✅ $id babarruna borratu da.</p>";
-    } else {
-        echo "<p style='color:red;'>❌ Errore bat gertatu da babarruna borratzean" . $stmt->error . "</p>";
-    }
-
-    $stmt->close();
-}
-
 $sql = "SELECT * FROM babarrunak ORDER BY id DESC";
 $result = $conn->query($sql);
 ?>
@@ -47,16 +33,20 @@ $result = $conn->query($sql);
         <tr>
             <th>Izena</th>
             <th>Jatorria</th>
+            <th>Kolorea</th>
+            <th>Egozketa denbora</th>
         </tr>
         <?php if ($result->num_rows > 0): ?>
             <?php while ($row = $result->fetch_assoc()): ?>
                 <tr>
                     <td><?= htmlspecialchars($row['Izena']) ?></td>
                     <td><?= htmlspecialchars($row['Jatorria']) ?></td>
+                    <td><?= htmlspecialchars($row['Kolorea']) ?></td>
+                    <td><?= htmlspecialchars($row['Egozketa_denb_min']) ?></td>
                 </tr>
             <?php endwhile; ?>
         <?php else: ?>
-            <tr><td colspan="3">No hay productos registrados.</td></tr>
+            <tr><td colspan="3">Ez dago produkturik.</td></tr>
         <?php endif; ?>
     </table>
     <a href="add_items">
