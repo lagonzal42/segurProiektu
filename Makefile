@@ -4,7 +4,7 @@ all:
 	@echo "Web irudia sortzen Dockerfiletik"
 	@docker build -t="web" .
 	@echo "Docker kontainerrak abiarazten"
-	@docker compose up -d
+	@docker-compose up -d
 	@echo "Docker kontainerrak abiarazi dira"
 
 stop:
