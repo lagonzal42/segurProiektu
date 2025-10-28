@@ -23,7 +23,7 @@ CREATE TABLE `babarrunak` (
   `Kolorea` varchar(20) DEFAULT NULL,
   `Egozketa_denb_min` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `erabiltzaileak`;
 
@@ -34,7 +34,6 @@ CREATE TABLE `erabiltzaileak` (
   `Jaio_Data` varchar(10) DEFAULT NULL,
   `Email` varchar(50) DEFAULT NULL,
   `Pasahitza` varchar(40) NOT NULL,
-  `token` varchar(256),
   `token` varchar(256),
   PRIMARY KEY (`NAN`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -51,7 +50,7 @@ CREATE TABLE `usuarios` (
   `id` int(11) NOT NULL,
   `nombre` text NOT NULL,
   PRIMARY KEY (`id`)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `usuarios` VALUES
 (1,'mikel'),
