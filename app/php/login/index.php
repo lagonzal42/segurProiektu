@@ -1,4 +1,6 @@
 <?php
+  session_start(); // Inicia la sesión
+
   $hostname = "db";
   $username = "admin";
   $password = "test";
@@ -9,8 +11,7 @@
     die("Database connection failed: " . mysqli_connect_error());
   }
 
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+  if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $iz_abz = $_POST['iz_abz'];
     $pas = $_POST['pas'];
 
@@ -18,26 +19,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $resultado = mysqli_query($conn, $sql);
 
     if (mysqli_num_rows($resultado) > 0) {
-        echo "Datu berdinak dira.";
-
         $row = mysqli_fetch_assoc($resultado);
-        $nan = $row['NAN'];
+        $_SESSION['nan'] = $row['NAN'];
+        $_SESSION['iz_abz'] = $row['Izen_Abizen'];
 
-
-        $token = hash("sha256", "$nan");
-        $sql = "UPDATE erabiltzaileak SET token = '$token' WHERE NAN = '$nan'";
-        $resultado = mysqli_query($conn, $sql);
-
-        echo "
-        <script>
-            localStorage.setItem('userToken', '$token');
-        </script>
-    ";
-    }else{
+        // Redirige a modify_user con el parámetro user
+        header("Location: /show_user?user=" . urlencode($row['NAN']));
+        exit();
+    } else {
         echo "Datu okerrak.";
     }
-}
-
+  }
 ?>
 
 

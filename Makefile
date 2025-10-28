@@ -8,7 +8,7 @@ all:
 	@echo "Docker kontainerrak abiarazi dira"
 
 stop:
-	@docker compose down
+	@docker-compose down
 	@echo "Docker kontainerrak gelditu dira"
 
 fclean:
@@ -25,6 +25,6 @@ fclean:
 	fi
 
 rebuild:
-	@docker compose up --build -d
+	@docker-compose up --build -d
 
 re: stop fclean all

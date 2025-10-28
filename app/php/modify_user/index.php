@@ -1,4 +1,11 @@
 <?php
+session_start();
+
+if (!isset($_SESSION['nan']) || $_SESSION['nan'] !== ($_GET['user'] ?? null)) {
+    header("Location: /login");
+    exit();
+}
+
 $hostname = "db";
 $username = "admin";
 $password = "test";
@@ -25,7 +32,8 @@ if (isset($_GET['user'])) {
         $update_stmt->bind_param("sssss", $nombre, $telefono, $fecha, $email, $nan);
 
         if ($update_stmt->execute()) {
-            $message = "<p style='color:green;'>✅ Datuak eguneratu dira.</p>";
+            header("Location: /show_user?user=" . urlencode($nan));
+            exit();
         } else {
             $message = "<p style='color:red;'>❌ Errore bat gertatu da: " . htmlspecialchars($update_stmt->error) . "</p>";
         }

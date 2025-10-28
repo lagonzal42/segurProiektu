@@ -1,4 +1,6 @@
 <?php
+session_start(); // Añade esto para acceder a la sesión
+
 $hostname = "db";
 $username = "admin";
 $password = "test";
@@ -41,6 +43,7 @@ $conn->close();
         table { border-collapse: collapse; width: 50%; margin-top: 10px; }
         th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
         th { background-color: #f2f2f2; }
+        .modify-btn { margin-top: 20px; padding: 10px 15px; font-size: 16px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -55,6 +58,12 @@ $conn->close();
             <tr><td>Jaiotze Data</td><td><?= htmlspecialchars($user['Jaio_Data']) ?></td></tr>
             <tr><td>Email</td><td><?= htmlspecialchars($user['Email']) ?></td></tr>
         </table>
+        <?php if (isset($_SESSION['nan'])): ?>
+            <form action="/modify_user" method="get">
+                <input type="hidden" name="user" value="<?= htmlspecialchars($_SESSION['nan']) ?>">
+                <button type="submit" class="modify-btn">Aldatu Nire Datuak</button>
+            </form>
+        <?php endif; ?>
     <?php else: ?>
         <p style="color:red;">❌ Erabiltzailea ez da aurkitu. Ziurtatu NAN-a onargarria dela.</p>
     <?php endif; ?>
