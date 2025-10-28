@@ -16,8 +16,8 @@ $user = null;
 $message = "";
 
 // 2. Lógica de Lectura, Edición y Actualización
-if (isset($_GET['user'])) {
-    $id = $_GET['user'];
+if (isset($_GET['id'])) {
+    $id = $_GET['id'];
 
     // Si se envió el formulario (POST), procesar la actualización
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -31,7 +31,7 @@ if (isset($_GET['user'])) {
         // Nota: asumo que id es un string 's' o quizás un entero 'i' si la BD lo define así.
         // Lo dejo como 'sssss' como en tu código original, pero podrías cambiar el último a 'i'
         // si id es un entero.
-        $update_stmt->bind_param("sssss", $izena, $jatorria, $kolorea, $denbora, $id);
+        $update_stmt->bind_param("ssssi", $izena, $jatorria, $kolorea, $denbora, $id);
 
         if ($update_stmt->execute()) {
             $message = "<p style='color:green;'>✅ Datuak eguneratu dira.</p>";
@@ -44,11 +44,11 @@ if (isset($_GET['user'])) {
 
     // Obtener datos actuales del usuario para mostrarlos en el formulario
     $stmt = $conn->prepare("SELECT id, Izena, Jatorria, Kolorea, Egozketa_denb_min FROM babarrunak WHERE id = ?");
-    $stmt->bind_param("s", $id);
+    $stmt->bind_param("i", $id);
     $stmt->execute();
-    $result = $stmt->get_result();
-    if ($result->num_rows > 0) {
-        $user = $result->fetch_assoc();
+    $result_user = $stmt->get_result();
+    if ($result_user->num_rows > 0) {
+        $user = $result_user->fetch_assoc();
     }
     $stmt->close();
 }
@@ -85,7 +85,7 @@ $result = $conn->query($sql);
         <hr>
         <h3>Aldatu Babarruna: ID #<?= htmlspecialchars($user['id']) ?></h3>
         
-        <form method="POST" action="?user=<?= htmlspecialchars($user['id']) ?>">
+        <form method="POST" action="?id=<?= htmlspecialchars($user['id']) ?>">
             <div>
                 <label for="Izena">Izena:</label>
                 <input type="text" id="Izena" name="Izena" value="<?= htmlspecialchars($user['Izena']) ?>" required>
@@ -128,8 +128,7 @@ $result = $conn->query($sql);
                     <td><?= htmlspecialchars($row['Kolorea']) ?></td>
                     <td><?= htmlspecialchars($row['Egozketa_denb_min']) ?></td>
                     <td>
-                        <a href="?user=<?= $row['id'] ?>"
-                           onclick="return confirm('Aldatu nahi duzu <?= $row['Izena'] ?> produktua?');">
+                        <a href="?id=<?= $row['id'] ?>">
                            Aldatu
                         </a>
                     </td>

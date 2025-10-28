@@ -8,7 +8,6 @@ $db = "segurproiektua";
 // Conexión a la base de datos
 $conn = new mysqli($hostname, $username, $password, $db);
 if ($conn->connect_error) {
-    // Es buena práctica no revelar detalles del error en producción
     die("Error de conexión: " . $conn->connect_error);
 }
 
@@ -16,12 +15,12 @@ $user = null;
 $message = "";
 
 // 2. Lógica de Lectura, Edición y Actualización
-if (isset($_GET['user'])) {
-    $id = $_GET['user'];
+if (isset($_GET['id'])) {
+    $id = $_GET['id'];
 
     // Obtener datos actuales del usuario para mostrarlos en el formulario
     $stmt = $conn->prepare("SELECT id, Izena, Jatorria, Kolorea, Egozketa_denb_min FROM babarrunak WHERE id = ?");
-    $stmt->bind_param("s", $id);
+    $stmt->bind_param("i", $id);
     $stmt->execute();
     $result = $stmt->get_result();
     if ($result->num_rows > 0) {
@@ -62,7 +61,7 @@ $result = $conn->query($sql);
         <hr>
         <h3>Babarruna: ID #<?= htmlspecialchars($user['id']) ?></h3>
         
-        <form method="POST" action="?user=<?= htmlspecialchars($user['id']) ?>">
+        <form method="POST" action="?id=<?= htmlspecialchars($user['id']) ?>">
             <div>
                 <label for="Izena">Izena:</label>
                 <input type="text" id="Izena" name="Izena" value="<?= htmlspecialchars($user['Izena']) ?>" readonly>
@@ -96,8 +95,7 @@ $result = $conn->query($sql);
                     <td><?= htmlspecialchars($row['id']) ?></td>
                     <td><?= htmlspecialchars($row['Izena']) ?></td>
                     <td>
-                        <a href="?user=<?= $row['id'] ?>"
-                           onclick="return confirm('Ikusi nahi duzu <?= $row['Izena'] ?> produktua?');">
+                        <a href="?id=<?= $row['id'] ?>">
                            Ikusi
                         </a>
                     </td>
@@ -111,6 +109,5 @@ $result = $conn->query($sql);
 </html>
 
 <?php
-// 5. Cerrar Conexión
 $conn->close();
 ?>
