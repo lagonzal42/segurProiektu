@@ -1,7 +1,4 @@
 function datuakegiaztatu() {
-
-    console.log("Datuak egiaztatzen...");
-
     var nan = document.querySelector('input[name="nan"]').value;
     var tlnf = document.querySelector('input[name="tlnf"]').value;
     var jaiodata = document.querySelector('input[name="jaiodata"]').value;
