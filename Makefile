@@ -4,13 +4,12 @@ all:
 	@echo "Web irudia sortzen Dockerfiletik"
 	@docker build -t="web" .
 	@echo "Docker kontainerrak abiarazten"
-	@docker-compose up -d
+	@docker compose up -d
 	@echo "Docker kontainerrak abiarazi dira"
 
 stop:
-	@docker-compose down
+	@docker compose down
 	@echo "Docker kontainerrak gelditu dira"
-
 
 fclean:
 	@echo "Dockerren cacheak eta sareak ezabatuko dira"
@@ -26,6 +25,6 @@ fclean:
 	fi
 
 rebuild:
-	@docker-compose up --build -d
+	@docker compose up --build -d
 
 re: stop fclean all
