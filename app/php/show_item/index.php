@@ -1,244 +1,116 @@
+<?php
+// 1. Configuración de la Base de Datos
+$hostname = "db";
+$username = "admin";
+$password = "test";
+$db = "segurproiektua";
+
+// Conexión a la base de datos
+$conn = new mysqli($hostname, $username, $password, $db);
+if ($conn->connect_error) {
+    // Es buena práctica no revelar detalles del error en producción
+    die("Error de conexión: " . $conn->connect_error);
+}
+
+$user = null;
+$message = "";
+
+// 2. Lógica de Lectura, Edición y Actualización
+if (isset($_GET['user'])) {
+    $id = $_GET['user'];
+
+    // Obtener datos actuales del usuario para mostrarlos en el formulario
+    $stmt = $conn->prepare("SELECT id, Izena, Jatorria, Kolorea, Egozketa_denb_min FROM babarrunak WHERE id = ?");
+    $stmt->bind_param("s", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows > 0) {
+        $user = $result->fetch_assoc();
+    }
+    $stmt->close();
+}
+
+// Obtener todos los datos para la tabla (se ejecuta siempre)
+$sql = "SELECT * FROM babarrunak ORDER BY id DESC";
+$result = $conn->query($sql);
+?>
+
 <!DOCTYPE html>
-<html lang="eu">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Babarrun lista</title>
+    <title>Babarrunak Ikusi</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
-            margin: 0;
-            padding: 20px;
-        }
-        h1, h2 {
-            color: #4a4a4a;
-            border-bottom: 2px solid #005a9c;
-            padding-bottom: 5px;
-        }
-        .container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-        #list-container {
-            flex: 1;
-            min-width: 250px;
-            background: #fff;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        #editor-container {
-            flex: 2;
-            min-width: 300px;
-            background: #fff;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        #babarrun-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-        #babarrun-list li {
-            padding: 12px 15px;
-            border-bottom: 1px solid #eee;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        #babarrun-list li:hover {
-            background-color: #f0f8ff;
-        }
-        #babarrun-list li.selected {
-            background-color: #007bff;
-            color: white;
-            font-weight: bold;
-        }
-        .form-field {
-            margin-bottom: 15px;
-        }
-        .form-field label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        .form-field input[type="text"],
-        .form-field input[type="number"] {
-            width: 100%;
-            padding: 10px;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        .form-field input[readonly] {
-            background-color: #eee;
-            cursor: not-allowed;
-        }
-        button {
-            background-color: #007bff;
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.2s;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        #message-area {
-            margin-top: 15px;
-            font-weight: bold;
-        }
-        .error { color: #dc3545; }
-        .success { color: #28a745; }
+        body { font-family: Arial, sans-serif; margin: 30px; }
+        table { border-collapse: collapse; width: 60%; margin-top: 20px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        a { color: #007bff; text-decoration: none; }
+        a.delete { color: red; }
+        a:hover { text-decoration: underline; }
+        input[type="text"], input[type="number"] { padding: 5px; margin-top: 5px; width: 100%; box-sizing: border-box; }
+        form { background: #f9f9f9; padding: 20px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 20px; width: 50%; }
+        button { padding: 10px 15px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; }
     </style>
 </head>
 <body>
-
-    <h1>Babarrunak</h1>
-
-    <div class="container">
+    <h2>Babarrunak</h2>
+    
+    <?= $message ?>
+    
+    <?php if ($user): ?>
+        <hr>
+        <h3>Babarruna: ID #<?= htmlspecialchars($user['id']) ?></h3>
         
-        <div id="list-container">
-            <h2>Babarrun Zerrenda</h2>
-            <ul id="babarrun-list">
-                </ul>
-        </div>
+        <form method="POST" action="?user=<?= htmlspecialchars($user['id']) ?>">
+            <div>
+                <label for="Izena">Izena:</label>
+                <input type="text" id="Izena" name="Izena" value="<?= htmlspecialchars($user['Izena']) ?>" readonly>
+            </div>
+            <div>
+                <label for="Jatorria">Jatorria:</label>
+                <input type="text" id="Jatorria" name="Jatorria" value="<?= htmlspecialchars($user['Jatorria']) ?>" readonly>
+            </div>
+            <div>
+                <label for="Kolorea">Kolorea:</label>
+                <input type="text" id="Kolorea" name="Kolorea" value="<?= htmlspecialchars($user['Kolorea']) ?>" readonly>
+            </div>
+            <div>
+                <label for="Egozketa_denb_min">Egozketa denbora (min):</label>
+                <input type="number" id="Egozketa_denb_min" name="Egozketa_denb_min" value="<?= htmlspecialchars($user['Egozketa_denb_min']) ?>" readonly>
+            </div>
+        </form>
+        <hr>
+    <?php endif; ?>
 
-        <div id="editor-container">
-            <h2>Babarrunen espezifikazioak</h2>
-            <form id="editor-form" style="display: none;">
-                
-                <div class="form-field">
-                    <label for="field-id">ID:</label>
-                    <input type="text" id="field-id" name="id" readonly>
-                </div>
-                
-                <div class="form-field">
-                    <label for="field-izena">Izena:</label>
-                    <input type="text" id="field-izena" name="Izena" required readonly>
-                </div>
-
-                <div class="form-field">
-                    <label for="field-jatorria">Jatorria:</label>
-                    <input type="text" id="field-jatorria" name="Jatorria" readonly>
-                </div>
-
-                <div class="form-field">
-                    <label for="field-kolorea">Kolorea:</label>
-                    <input type="text" id="field-kolorea" name="Kolorea" readonly>
-                </div>
-
-                <div class="form-field">
-                    <label for="field-denbora">Egozketa denb (min):</label>
-                    <input type="number" id="field-denbora" name="Egozketa_denb_min" readonly>
-                </div>
-
-            </form>
-            <p id="editor-placeholder">Sakatu zerrendako babarrun bat bere datuak ikusteko.</p>
-        </div>
-
-    </div>
-
-    <script>
-        // --- 1. DATUEN BILTEGIA (GLOBAL) ---
-        // PHP-tik jasotako datuak hemen gordeko ditugu
-        let babarrunakDataStore = [];
-
-        // --- 2. HTML ELEMENTUEN ERREFERENTZIAK ---
-        const listElement = document.getElementById('babarrun-list');
-        const formElement = document.getElementById('editor-form');
-        const editorPlaceholder = document.getElementById('editor-placeholder');
-        const messageArea = document.getElementById('message-area');
-
-        // Formularioaren eremuak
-        const fieldId = document.getElementById('field-id');
-        const fieldIzena = document.getElementById('field-izena');
-        const fieldJatorria = document.getElementById('field-jatorria');
-        const fieldKolorea = document.getElementById('field-kolorea');
-        const fieldDenbora = document.getElementById('field-denbora');
-
-        // --- 3. FUNTZIO NAGUSIAK ---
-
-        /**
-         * Datu basea 'api.php'-ri eskatu eta zerrenda HTML-an kargatzen du.
-         */
-        async function loadBabarrunakList() {
-            try {
-                // Egin GET eskaera bat gure api.php-ri
-                const response = await fetch('api.php');
-                if (!response.ok) {
-                    throw new Error('Errorea datuak eskuratzean: ' + response.statusText);
-                }
-                const data = await response.json();
-
-                // Gorde datuak gure biltegi globalean
-                babarrunakDataStore = data;
-
-                // Garbitu aurreko zerrenda
-                listElement.innerHTML = '';
-                
-                if (data.length === 0) {
-                    listElement.innerHTML = '<li>Ez dago babarrunik datu basean. Gehitu batzuk phpMyAdmin-en.</li>';
-                    return;
-                }
-
-                // Sortu 'li' elementuak
-                data.forEach(babarrun => {
-                    const li = document.createElement('li');
-                    li.textContent = babarrun.Izena;
-                    li.dataset.id = babarrun.id;
-                    
-                    li.addEventListener('click', () => {
-                        displayDetails(parseInt(babarrun.id));
-                        
-                        document.querySelectorAll('#babarrun-list li').forEach(item => {
-                            item.classList.remove('selected');
-                        });
-                        li.classList.add('selected');
-                    });
-                    
-                    listElement.appendChild(li);
-                });
-
-            } catch (error) {
-                listElement.innerHTML = `<li>Errorea zerrenda kargatzean: ${error.message}</li>`;
-            }
-        }
-
-        /**
-         * Biltegi lokaletik, babarrun baten datuak formularioan bistaratzen ditu.
-         */
-        function displayDetails(id) {
-            // Aurkitu babarruna gure datu-biltegi lokalean
-            const babarrun = babarrunakDataStore.find(b => b.id === id);
-            
-            if (babarrun) {
-                formElement.style.display = 'block';
-                editorPlaceholder.style.display = 'none';
-
-                fieldId.value = babarrun.id;
-                fieldIzena.value = babarrun.Izena;
-                fieldJatorria.value = babarrun.Jatorria || '';
-                fieldKolorea.value = babarrun.Kolorea || '';
-                fieldDenbora.value = babarrun.Egozketa_denb_min || '';
-            }
-        }
-
-        // --- 4. HASIERAKO EXEKUZIOA ---
-
-        document.addEventListener('DOMContentLoaded', () => {
-            loadBabarrunakList();
-        });
-
-    </script>
-
+    <h3>Babarrun Zerrenda</h3>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Izena</th>
+            <th>  </th>
+        </tr>
+        <?php if ($result->num_rows > 0): ?>
+            <?php while ($row = $result->fetch_assoc()): ?>
+                <tr>
+                    <td><?= htmlspecialchars($row['id']) ?></td>
+                    <td><?= htmlspecialchars($row['Izena']) ?></td>
+                    <td>
+                        <a href="?user=<?= $row['id'] ?>"
+                           onclick="return confirm('Ikusi nahi duzu <?= $row['Izena'] ?> produktua?');">
+                           Ikusi
+                        </a>
+                    </td>
+                </tr>
+            <?php endwhile; ?>
+        <?php else: ?>
+            <tr><td colspan="6">Ez dago produkturik.</td></tr>
+        <?php endif; ?>
+    </table>
 </body>
 </html>
+
+<?php
+// 5. Cerrar Conexión
+$conn->close();
+?>
