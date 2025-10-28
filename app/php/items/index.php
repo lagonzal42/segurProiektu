@@ -59,33 +59,9 @@ $result = $conn->query($sql);
             <tr><td colspan="3">No hay productos registrados.</td></tr>
         <?php endif; ?>
     </table>
-
-
-
-
-<?php
-/*
-    $hostname = "db";
-    $username = "admin";
-    $password = "test";
-    $db = "segurproiektua";
-
-    $conn = mysqli_connect($hostname, $username, $password, $db);
-    if (!$conn) {
-        die("Database connection failed: " . mysqli_connect_error());
-    }
-
-    $query = mysqli_query($conn, "SELECT * FROM babarrunak")
-        or die (mysqli_error($conn));
-
-    while ($row = mysqli_fetch_array($query)) {
-        echo "<div class='item'>
-                <h3>" . $row['Izena'] . "</h3>
-                <p>" . $row['Jatorria'] . "</p>
-              </div>";
-    }
-*/
-?>
+    <a href="add_items.php">
+        <button>Gehitu babarrunak</button>
+    </a>
 
 </body>
 </html>
