@@ -59,7 +59,7 @@ $result = $conn->query($sql);
             <tr><td colspan="3">No hay productos registrados.</td></tr>
         <?php endif; ?>
     </table>
-    <a href="add_items.php">
+    <a href="add_items">
         <button>Gehitu babarrunak</button>
     </a>
 
