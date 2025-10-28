@@ -11,16 +11,16 @@ if ($conn->connect_error) {
 
 if (isset($_GET['id'])) {
     $id = intval($_GET['id']);
-/* bertsio segurua    $stmt = $conn->prepare("DELETE FROM productos WHERE id = ?");
+    $stmt = $conn->prepare("DELETE FROM babarrunak WHERE id = ?");
     $stmt->bind_param("i", $id);
 
     if ($stmt->execute()) {
-        echo "<p style='color:green;'>✅ Producto con ID $id eliminado correctamente.</p>";
+        echo "<p style='color:green;'>✅ $id babarruna borratu da.</p>";
     } else {
-        echo "<p style='color:red;'>❌ Error al eliminar el producto: " . $stmt->error . "</p>";
+        echo "<p style='color:red;'>❌ Errore bat gertatu da babarruna borratzean" . $stmt->error . "</p>";
     }
 
-    $stmt->close();*/
+    $stmt->close();
 }
 
 $sql = "SELECT * FROM babarrunak ORDER BY id DESC";
@@ -31,7 +31,7 @@ $result = $conn->query($sql);
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Gestión de productos</title>
+    <title>Borratu datuak</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 30px; }
         table { border-collapse: collapse; width: 60%; margin-top: 10px; }
@@ -42,28 +42,28 @@ $result = $conn->query($sql);
     </style>
 </head>
 <body>
-    <h2>Listado de productos</h2>
+    <h2>Babarrunak</h2>
     <table>
         <tr>
             <th>ID</th>
-            <th>Nombre</th>
-            <th>Acción</th>
+            <th>Izena</th>
+            <th>Ezabaketa</th>
         </tr>
         <?php if ($result->num_rows > 0): ?>
             <?php while ($row = $result->fetch_assoc()): ?>
                 <tr>
                     <td><?= htmlspecialchars($row['id']) ?></td>
-                    <td><?= htmlspecialchars($row['izena']) ?></td>
+                    <td><?= htmlspecialchars($row['Izena']) ?></td>
                     <td>
                         <a href="http://localhost:81/delete_item?id=<?= $row['id'] ?>"
-                           onclick="return confirm('¿Seguro que deseas eliminar el producto con ID <?= $row['id'] ?>?');">
-                           🗑️ Eliminar
+                           onclick="return confirm('Ezabatu nahi duzu <?= $row['id'] ?> produktua?');">
+                           🗑️ Ezabatu
                         </a>
                     </td>
                 </tr>
             <?php endwhile; ?>
         <?php else: ?>
-            <tr><td colspan="3">No hay productos registrados.</td></tr>
+            <tr><td colspan="3">Ez dago produkturik.</td></tr>
         <?php endif; ?>
     </table>
 </body>

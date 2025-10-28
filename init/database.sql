@@ -23,7 +23,7 @@ CREATE TABLE `babarrunak` (
   `Kolorea` varchar(20) DEFAULT NULL,
   `Egozketa_denb_min` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+);
 
 DROP TABLE IF EXISTS `erabiltzaileak`;
 
@@ -49,7 +49,7 @@ CREATE TABLE `usuarios` (
   `id` int(11) NOT NULL,
   `nombre` text NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+);
 
 INSERT INTO `usuarios` VALUES
 (1,'mikel'),
