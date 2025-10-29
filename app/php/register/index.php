@@ -126,16 +126,16 @@
   <h1>Erabiltzaileen erregistroa</h1>
   <form id="register_form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="POST">
     IZEN ABIZEN: <input type="text" name="iz_abz" placeholder="Izen Abizen" required><br>
-    NAN: <input type="text" name="nan" placeholder="NAN" required><br>
-    TELEFONOA: <input type="tel" name="tlnf" placeholder="Telefonoa" required><br>
-    JAIOTZE DATA: <input type="text" name="jaiodata" placeholder="Jaiotze Data" required><br>
-    EMAIL: <input type="email" name="mail" placeholder="Email" required><br>
+    NAN: <input type="text" name="nan" placeholder="12345678Z" required><br>
+    TELEFONOA: <input type="tel" name="tlnf" placeholder="111111111" required><br>
+    JAIOTZE DATA: <input type="text" name="jaiodata" placeholder="uuuu-hh-ee" required><br>
+    EMAIL: <input type="email" name="mail" placeholder="adibidea@adibidez.eus" required><br>
     PASAHITZA: <input type="password" name="pas" placeholder="Pasahitza" required><br>
     <button id="register_submit" type="button" onclick="datuakegiaztatu()">Sartu</button>
     <button id="register_ezabatu" type="reset">Ezabatu</button>
     <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
   </form>
-  <?php echo $message; ?>
+  <?php echo $mezua; ?>
 </body>
 </html>
 
