@@ -1,6 +1,6 @@
 # ISSKS Proiektua
 
-Repositorio honetan garatutako web aplikazioaren beharrezko fitxategi guztiak aurki daitezke.\
+Repositorio honetan garatutako web aplikazioaren beharrezko fitxategi guztiak aurki daitezke.
 
 ## Taldekideak
 - Larrain Gonzalez
