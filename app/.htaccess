@@ -1,0 +1,9 @@
+# Activa mod_rewrite
+RewriteEngine On
+
+# Si el archivo o directorio no existe
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Reescribe las peticiones sin extensión a su .php correspondiente
+RewriteRule ^([^/]+)$ $1.php [L]
