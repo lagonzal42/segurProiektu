@@ -30,6 +30,14 @@ function datuakegiaztatu() {
         window.alert("Email-a ez da egokia.")
         return false;
     } 
+    else if (mail.length > 50) {
+        window.alert("Email-a luzeegia da.")
+        return false;
+    }
+    else if (!konprobatunan(nan)){
+        window.alert("NAN hori ez da existitzen.")
+        return false;
+    } 
     
     if(!jaioRegex.test(jaiodata)){
         window.alert("Jaiotze data ez da egokia.")
@@ -37,7 +45,12 @@ function datuakegiaztatu() {
     }
     
     if(!izenRegex.test(izen)){
-        window.alert("Izen hori ez da onartzen")
+        window.alert("Izen hori ez da onartzen.")
+        console.log(pas)
+        return false;
+    }
+    else if(izen.length > 50){
+        window.alert("Izena luzeegia da.")
         console.log(pas)
         return false;
     }
@@ -46,7 +59,28 @@ function datuakegiaztatu() {
         window.alert("Pasahitza ezin da hutsik egon.");
         return false;
     }
+    else if(pas.length > 40){
+        window.alert("Pasahitza luzeegia da.")
+        console.log(pas)
+        return false;
+    }
 
     document.getElementById('register_form').submit();
 
+}
+
+function konprobatunan(nan){
+    var existitzen = false;
+    zenb = nan.substring(0, nan.length - 1);
+    letra = nan.substring(nan.length - 1, nan.length);
+
+    letrak = "TRWAGMYFPDXBNJZSQVHLCKET";
+    kalkulatuta = letrak.charAt(zenb % 23);
+
+    if(kalkulatuta != letra){
+        return existitzen;
+    }
+    else{
+        return !existitzen;
+    }
 }
