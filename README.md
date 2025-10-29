@@ -38,7 +38,7 @@ Azkenik, web sistema probatzeko hurrego komandoa exekutatzen dugu terminalean:
 ```sh
 sudo docker-compose up
 ```
-http://localhost:81-ra nabigatzailetik sartzen bagara, web sistemaren "Home" orrialdera eramango gaitu.  
+http://localhost:81 -ra nabigatzailetik sartzen bagara, web sistemaren "Home" orrialdera eramango gaitu.  
 
 **REPOSITORIOAN DAGOEN PDF ARTXIBOAN JARRAIPENA AURKITZEN DA.**
 
