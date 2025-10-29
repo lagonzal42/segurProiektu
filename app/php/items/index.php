@@ -41,8 +41,6 @@ $result = $conn->query($sql);
                 <tr>
                     <td><?= htmlspecialchars($row['Izena']) ?></td>
                     <td><?= htmlspecialchars($row['Jatorria']) ?></td>
-                    <td><?= htmlspecialchars($row['Kolorea']) ?></td>
-                    <td><?= htmlspecialchars($row['Egozketa_denb_min']) ?></td>
                 </tr>
             <?php endwhile; ?>
         <?php else: ?>
