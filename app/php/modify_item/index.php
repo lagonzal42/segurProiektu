@@ -26,31 +26,21 @@ if (isset($_GET['id'])) {
         $kolorea = $_POST['Kolorea'] ?? '';
         $denbora = $_POST['Egozketa_denb_min'] ?? '';
 
-        // Preparar la consulta de UPDATE (Uso de consultas preparadas para seguridad)
-        $update_stmt = $conn->prepare("UPDATE babarrunak SET Izena = ?, Jatorria = ?, Kolorea = ?, Egozketa_denb_min = ? WHERE id = ?");
-        // Nota: asumo que id es un string 's' o quizás un entero 'i' si la BD lo define así.
-        // Lo dejo como 'sssss' como en tu código original, pero podrías cambiar el último a 'i'
-        // si id es un entero.
-        $update_stmt->bind_param("ssssi", $izena, $jatorria, $kolorea, $denbora, $id);
-
-        if ($update_stmt->execute()) {
+        // Query insegura (vulnerable a SQL Injection)
+        $sql = "UPDATE babarrunak SET Izena = '$izena', Jatorria = '$jatorria', Kolorea = '$kolorea', Egozketa_denb_min = '$denbora' WHERE id = $id";
+        if ($conn->query($sql)) {
             $message = "<p style='color:green;'>✅ Datuak eguneratu dira.</p>";
         } else {
-            $message = "<p style='color:red;'>❌ Errore bat gertatu da: " . htmlspecialchars($update_stmt->error) . "</p>";
+            $message = "<p style='color:red;'>❌ Errore bat gertatu da: " . htmlspecialchars($conn->error) . "</p>";
         }
-
-        $update_stmt->close();
     }
 
-    // Obtener datos actuales del usuario para mostrarlos en el formulario
-    $stmt = $conn->prepare("SELECT id, Izena, Jatorria, Kolorea, Egozketa_denb_min FROM babarrunak WHERE id = ?");
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-    $result_user = $stmt->get_result();
-    if ($result_user->num_rows > 0) {
+    // Obtener datos actuales del usuario para mostrarlos en el formulario (inseguro)
+    $sql = "SELECT id, Izena, Jatorria, Kolorea, Egozketa_denb_min FROM babarrunak WHERE id = $id";
+    $result_user = $conn->query($sql);
+    if ($result_user && $result_user->num_rows > 0) {
         $user = $result_user->fetch_assoc();
     }
-    $stmt->close();
 }
 
 // Obtener todos los datos para la tabla (se ejecuta siempre)

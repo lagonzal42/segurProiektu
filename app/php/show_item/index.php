@@ -18,15 +18,12 @@ $message = "";
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
 
-    // Obtener datos actuales del usuario para mostrarlos en el formulario
-    $stmt = $conn->prepare("SELECT id, Izena, Jatorria, Kolorea, Egozketa_denb_min FROM babarrunak WHERE id = ?");
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($result->num_rows > 0) {
+    // Query insegura (vulnerable a SQL Injection)
+    $sql = "SELECT id, Izena, Jatorria, Kolorea, Egozketa_denb_min FROM babarrunak WHERE id = $id";
+    $result = $conn->query($sql);
+    if ($result && $result->num_rows > 0) {
         $user = $result->fetch_assoc();
     }
-    $stmt->close();
 }
 
 // Obtener todos los datos para la tabla (se ejecuta siempre)
