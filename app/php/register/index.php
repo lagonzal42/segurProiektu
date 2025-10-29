@@ -43,9 +43,11 @@
   <title>Erregistroa</title>
 </head>
 
-<script type="text/javascript" src="register.js"></script>
 
 <body>
+
+  <script src="/php/register/register.js"></script>
+
   <h1>Erabiltzaileen erregistroa</h1>
   <form id="register_form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="POST">
     IZEN ABIZEN: <input type="text" name="iz_abz" placeholder="Izen Abizen" required><br>

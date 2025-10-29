@@ -40,7 +40,7 @@
   <title>Identifikazioa</title>
 </head>
 
-<script type="text/javascript" src="login.js"></script>
+<script type="text/javascript" src="/php/login/login.js"></script>
 
 <body>
   <h1>Erabiltzaileen identifikazioa</h1>
