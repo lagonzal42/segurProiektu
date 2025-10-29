@@ -23,7 +23,7 @@
         $_SESSION['nan'] = $row['NAN'];
         $_SESSION['iz_abz'] = $row['Izen_Abizen'];
 
-        // Redirige a modify_user con el parámetro user
+        //berbideraketa erabiltzailearen informaziora
         header("Location: /show_user?user=" . urlencode($row['NAN']));
         exit();
     } else {

@@ -17,19 +17,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $denbora = trim($_POST["denbora"] ?? '');
 
     if ($izena !== '' && $jatorria !== '' && $kolorea !== '' && $denbora !== '') {
-        $stmt = $conn->prepare("INSERT INTO babarrunak (Izena, Jatorria, Kolorea, Egozketa_denb_min) VALUES (?, ?, ?, ?)");
-        if (!$stmt) {
-            die("Error en prepare(): " . $conn->error);
-        }
-        $stmt->bind_param("sssi", $izena, $jatorria, $kolorea, $denbora);
-
-        if ($stmt->execute()) {
+        // Query insegura (vulnerable a SQL Injection)
+        $sql = "INSERT INTO babarrunak (Izena, Jatorria, Kolorea, Egozketa_denb_min) VALUES ('$izena', '$jatorria', '$kolorea', $denbora)";
+        if ($conn->query($sql)) {
             echo "<p style='color:green;'>✅ Babarruna ondo gehitu da!</p>";
         } else {
-            echo "<p style='color:red;'>❌ Errore bat gertatu da: " . htmlspecialchars($stmt->error) . "</p>";
+            echo "<p style='color:red;'>❌ Errore bat gertatu da: " . htmlspecialchars($conn->error) . "</p>";
         }
-
-        $stmt->close();
     } else {
         echo "<p style='color:red;'>❌ Datu guztiak bete behar dira.</p>";
     }
@@ -73,4 +67,3 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <?php
 $conn->close();
 ?>
-    

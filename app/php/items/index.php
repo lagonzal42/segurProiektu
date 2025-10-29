@@ -33,8 +33,6 @@ $result = $conn->query($sql);
         <tr>
             <th>Izena</th>
             <th>Jatorria</th>
-            <th>Kolorea</th>
-            <th>Egozketa denbora</th>
         </tr>
         <?php if ($result->num_rows > 0): ?>
             <?php while ($row = $result->fetch_assoc()): ?>

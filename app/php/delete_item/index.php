@@ -9,19 +9,17 @@ if ($conn->connect_error) {
     die("Error de conexión: " . $conn->connect_error);
 }
 
-// Borrado de registro si se pasa el parámetro id
-if (isset($_GET['id'])) {
-    $id = intval($_GET['id']);
-    $stmt = $conn->prepare("DELETE FROM babarrunak WHERE id = ?");
-    $stmt->bind_param("i", $id);
 
-    if ($stmt->execute()) {
+if (isset($_GET['id'])) {
+    $id = $_GET['id'];
+
+    // Query insegurua
+    $sql = "DELETE FROM babarrunak WHERE id = $id";
+    if ($conn->query($sql)) {
         echo "<p style='color:green;'>✅ $id babarruna borratu da.</p>";
     } else {
-        echo "<p style='color:red;'>❌ Errore bat gertatu da babarruna borratzean: " . htmlspecialchars($stmt->error) . "</p>";
+        echo "<p style='color:red;'>❌ Errore bat gertatu da babarruna borratzean: " . htmlspecialchars($conn->error) . "</p>";
     }
-
-    $stmt->close();
 }
 
 // Obtener todos los registros
@@ -46,28 +44,30 @@ $result = $conn->query($sql);
 <body>
     <h2>Babarrunak</h2>
 
-    <!-- Formulario para eliminar por ID -->
+    <!-- IDs ezabatzeko formularioa -->
     <form method="get" action="">
         <label for="id">Ezabatzeko ID-a:</label>
         <input type="number" name="id" id="id" min="1" required>
         <button type="submit" id="item_delete_submit">Ezabatu</button>
     </form>
-
+    <!-- balioak erakusteko taula -->
     <table>
         <tr>
             <th>ID</th>
             <th>Izena</th>
         </tr>
-        <?php if ($result->num_rows > 0): ?>
-            <?php while ($row = $result->fetch_assoc()): ?>
-                <tr>
-                    <td><?= htmlspecialchars($row['id']) ?></td>
-                    <td><?= htmlspecialchars($row['Izena']) ?></td>
-                </tr>
-            <?php endwhile; ?>
-        <?php else: ?>
-            <tr><td colspan="2">Ez dago produkturik.</td></tr>
-        <?php endif; ?>
+        <?php
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                echo "<tr>";
+                echo "<td>" . htmlspecialchars($row['id']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['Izena']) . "</td>";
+                echo "</tr>";
+            }
+        } else {
+            echo "<tr><td colspan='2'>Ez dago produkturik.</td></tr>";
+        }
+        ?>
     </table>
 </body>
 </html>

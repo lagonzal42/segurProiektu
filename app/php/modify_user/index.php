@@ -28,28 +28,20 @@ if (isset($_GET['user'])) {
         $fecha = $_POST['Jaio_Data'] ?? '';
         $email = $_POST['Email'] ?? '';
 
-        $update_stmt = $conn->prepare("UPDATE erabiltzaileak SET Izen_Abizen = ?, Telefonoa = ?, Jaio_Data = ?, Email = ? WHERE NAN = ?");
-        $update_stmt->bind_param("sssss", $nombre, $telefono, $fecha, $email, $nan);
-
-        if ($update_stmt->execute()) {
+        $sql = "UPDATE erabiltzaileak SET Izen_Abizen = '$nombre', Telefonoa = '$telefono', Jaio_Data = '$fecha', Email = '$email' WHERE NAN = '$nan'";
+        if ($conn->query($sql)) {
             header("Location: /show_user?user=" . urlencode($nan));
             exit();
         } else {
-            $message = "<p style='color:red;'>❌ Errore bat gertatu da: " . htmlspecialchars($update_stmt->error) . "</p>";
+            $message = "<p style='color:red;'>❌ Errore bat gertatu da: " . htmlspecialchars($conn->error) . "</p>";
         }
-
-        $update_stmt->close();
     }
 
-    // Obtener datos actuales del usuario
-    $stmt = $conn->prepare("SELECT Izen_Abizen, NAN, Telefonoa, Jaio_Data, Email FROM erabiltzaileak WHERE NAN = ?");
-    $stmt->bind_param("s", $nan);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($result->num_rows > 0) {
+    $sql = "SELECT Izen_Abizen, NAN, Telefonoa, Jaio_Data, Email FROM erabiltzaileak WHERE NAN = '$nan'";
+    $result = $conn->query($sql);
+    if ($result && $result->num_rows > 0) {
         $user = $result->fetch_assoc();
     }
-    $stmt->close();
 }
 
 $conn->close();

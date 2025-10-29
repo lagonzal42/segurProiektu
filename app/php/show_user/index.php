@@ -14,18 +14,14 @@ if ($conn->connect_error) {
 if (isset($_GET['user'])) {
     $nan = $_GET['user'];
 
-    $stmt = $conn->prepare("SELECT Izen_Abizen, NAN, Telefonoa, Jaio_Data, Email FROM erabiltzaileak WHERE NAN = ?");
-    $stmt->bind_param("s", $nan);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    $sql = "SELECT Izen_Abizen, NAN, Telefonoa, Jaio_Data, Email FROM erabiltzaileak WHERE NAN = '$nan'";
+    $result = $conn->query($sql);
 
-    if ($result->num_rows > 0) {
+    if ($result && $result->num_rows > 0) {
         $user = $result->fetch_assoc();
     } else {
         $user = null;
     }
-
-    $stmt->close();
 } else {
     $user = null;
 }
