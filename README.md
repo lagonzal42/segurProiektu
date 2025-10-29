@@ -9,7 +9,7 @@ Repositorio honetan garatutako web aplikazioaren beharrezko fitxategi guztiak au
 - Erlantz Loriz
 - Asier Barrio
 
-## [Docker](https://www.docker.com/) hedaketa proiektuaren garapenerako
+## Docker hedaketa proiektuaren garapenerako
 ### Docker instalatu
 Lehenengo terminalean hurrengo komandoa exekutatuko dugu:
 ```sh
@@ -46,4 +46,29 @@ Web sistemaren saioa ixteko hurrengo komandoa exekutatu behar dugu beste termina
 ```sh
 sudo docker-compose down
 ```
+## Makefile erabiliz
+Gure web sistemaren repositorioan Makefile artxibo bat dugu, proiektua modu errazagoan kudetzen laguntzen diguna.
+
+### Komandoak
+
+#### all
+Komando honek lehenengo gure proiektuaren irudia sortzen du, web izenekoa.
+Ondoren "container"-ak abiarazten ditu, http://localhost:81 -ean.
+
+#### stop
+Komando honek "container"-ak gelditzeko balio du.
+
+#### fclean
+Hirugarrenak proiektuarekiko zerikusia duten fitxategiak borratzen ditu, alegia datubasea hasierara bueltatzen du eta docker-ekiko zerikusia duten sareak eta cache-ak ezabatzeaz arduratzen da.
+
+#### rebuild
+Proiektua birkonpilatzen du, gero abiarazteko.
+
+#### re
+Hiru komando bata bestearen atzean exekutatzen ditu.
+Lehenengo stop, "container"-ak gelditzeko.
+Ondoren flcean, artxiboak hasierara bueltatzeko eta borratzeko
+Azkenik all, web irudia sortu berriro eta abiarazten du.
+
+
 
