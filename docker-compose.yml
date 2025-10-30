@@ -9,8 +9,6 @@ services:
         - db
       volumes:
         - ./app:/var/www/html/
-      environment:
-        - ALLOW_OVERRIDE=true
 
    db:
      image: mariadb:10.8.2
