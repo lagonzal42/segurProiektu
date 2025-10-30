@@ -52,20 +52,20 @@ Gure web sistemaren repositorioan Makefile artxibo bat dugu, proiektua modu erra
 
 ### Komandoak
 
-#### all
+#### make all / make
 Komando honek lehenengo gure proiektuaren irudia sortzen du, web izenekoa.
 Ondoren "container"-ak abiarazten ditu, http://localhost:81 -ean.
 
-#### stop
+#### make stop
 Komando honek "container"-ak gelditzeko balio du.
 
-#### fclean
+#### make fclean
 Hirugarrenak proiektuarekiko zerikusia duten fitxategiak borratzen ditu, alegia datubasea hasierara bueltatzen du eta docker-ekiko zerikusia duten sareak eta cache-ak ezabatzeaz arduratzen da.
 
-#### rebuild
+#### make rebuild
 Proiektua birkonpilatzen du, gero abiarazteko.
 
-#### re
+#### make re
 Hiru komando bata bestearen atzean exekutatzen ditu.
 Lehenengo stop, "container"-ak gelditzeko.
 Ondoren flcean, artxiboak hasierara bueltatzeko eta borratzeko
