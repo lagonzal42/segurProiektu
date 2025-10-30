@@ -109,32 +109,38 @@ $result = $conn->query($sql);
     </style>
 </head>
 <body>
-    <h2>Babarrunak</h2>
+    <h1>Babarrunak</h1>
 
     <!-- IDs ezabatzeko formularioa -->
     <form method="get" action="">
         <label for="id">Ezabatzeko ID-a:</label>
-        <input type="number" name="id" id="id" min="1" required>
+        <input type="text" name="id" id="id" min="1" required>
         <button type="submit" id="item_delete_submit">Ezabatu</button>
         <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
     </form>
     <!-- balioak erakusteko taula -->
     <table>
         <tr>
+            <!-- Taularen leheengo errenkada -->
             <th>ID</th>
             <th>Izena</th>
         </tr>
+        <!-- Informazio errenkadak -->
         <?php
-        if ($result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
+        // errenkadak badaude
+        if ($result->num_rows > 0) 
+        {
+            //errenkada bakoitzeko
+            while ($row = $result->fetch_assoc())
+            {
                 echo "<tr>";
                 echo "<td>" . htmlspecialchars($row['id']) . "</td>";
                 echo "<td>" . htmlspecialchars($row['Izena']) . "</td>";
                 echo "</tr>";
             }
-        } else {
+        } 
+        else // ez badago errenkadarik
             echo "<tr><td colspan='2'>Ez dago produkturik.</td></tr>";
-        }
         ?>
     </table>
 </body>
