@@ -1,32 +1,32 @@
 <?php
-// 1. Configuración de la Base de Datos
+// 1. Datu-basearen konfigurazioa 
 $hostname = "db";
 $username = "admin";
 $password = "test";
 $db = "segurproiektua";
 
-// Conexión a la base de datos
+// Datu-basearen konexioa
 $conn = new mysqli($hostname, $username, $password, $db);
 if ($conn->connect_error) {
-    // Es buena práctica no revelar detalles del error en producción
+    // Jardunbide egokia da ekoizpen-errorearen xehetasunik ez adieraztea 
     die("Error de conexión: " . $conn->connect_error);
 }
 
 $user = null;
 $message = "";
 
-// 2. Lógica de Lectura, Edición y Actualización
+// 2. Irakurketaren, edizioaren eta eguneratzearen logika 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
 
-    // Si se envió el formulario (POST), procesar la actualización
+    // Formularioa (POST) bidali bada, eguneratu 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $izena = $_POST['Izena'] ?? '';
         $jatorria = $_POST['Jatorria'] ?? '';
         $kolorea = $_POST['Kolorea'] ?? '';
         $denbora = $_POST['Egozketa_denb_min'] ?? '';
 
-        // Query insegura (vulnerable a SQL Injection)
+        // Query ez-segurua (SQL Injectionekiko kaltebera) 
         $sql = "UPDATE babarrunak SET Izena = '$izena', Jatorria = '$jatorria', Kolorea = '$kolorea', Egozketa_denb_min = '$denbora' WHERE id = $id";
         if ($conn->query($sql)) {
             $message = "<p style='color:green;'>✅ Datuak eguneratu dira.</p>";
@@ -35,7 +35,7 @@ if (isset($_GET['id'])) {
         }
     }
 
-    // Obtener datos actuales del usuario para mostrarlos en el formulario (inseguro)
+    // Babarrunen egungo datuak lortzea, inprimakian erakusteko (ez da segurua) 
     $sql = "SELECT id, Izena, Jatorria, Kolorea, Egozketa_denb_min FROM babarrunak WHERE id = $id";
     $result_user = $conn->query($sql);
     if ($result_user && $result_user->num_rows > 0) {
@@ -43,7 +43,7 @@ if (isset($_GET['id'])) {
     }
 }
 
-// Obtener todos los datos para la tabla (se ejecuta siempre)
+// Taularako datu guztiak eskuratu (beti exekutatzen da) 
 $sql = "SELECT * FROM babarrunak ORDER BY id DESC";
 $result = $conn->query($sql);
 ?>
@@ -194,6 +194,6 @@ $result = $conn->query($sql);
 </html>
 
 <?php
-// 5. Cerrar Conexión
+// 5. Konexioa itxi
 $conn->close();
 ?>

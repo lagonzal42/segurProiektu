@@ -1,11 +1,11 @@
 <?php
-// 1. Configuración de la Base de Datos
+// 1. Datu-basearen konfigurazioa 
 $hostname = "db";
 $username = "admin";
 $password = "test";
 $db = "segurproiektua";
 
-// Conexión a la base de datos
+// Datu-basearen konexioa
 $conn = new mysqli($hostname, $username, $password, $db);
 if ($conn->connect_error) {
     die("Error de conexión: " . $conn->connect_error);
@@ -14,11 +14,11 @@ if ($conn->connect_error) {
 $user = null;
 $message = "";
 
-// 2. Lógica de Lectura, Edición y Actualización
+// 2. Irakurketaren, edizioaren eta eguneratzearen logika 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
 
-    // Query insegura (vulnerable a SQL Injection)
+    // Query ez-segurua (SQL Injectionekiko kaltebera) 
     $sql = "SELECT id, Izena, Jatorria, Kolorea, Egozketa_denb_min FROM babarrunak WHERE id = $id";
     $result = $conn->query($sql);
     if ($result && $result->num_rows > 0) {
@@ -26,7 +26,7 @@ if (isset($_GET['id'])) {
     }
 }
 
-// Obtener todos los datos para la tabla (se ejecuta siempre)
+// Taularako datu guztiak eskuratu (beti exekutatzen da) 
 $sql = "SELECT * FROM babarrunak ORDER BY id DESC";
 $result = $conn->query($sql);
 ?>
@@ -171,5 +171,6 @@ $result = $conn->query($sql);
 </html>
 
 <?php
+// Konexioa itxi
 $conn->close();
 ?>
