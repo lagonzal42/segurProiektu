@@ -9,20 +9,6 @@ if ($conn->connect_error) {
     die("Error de conexión: " . $conn->connect_error);
 }
 
-if (isset($_GET['id'])) {
-    $id = intval($_GET['id']);
-    $stmt = $conn->prepare("DELETE FROM babarrunak WHERE id = ?");
-    $stmt->bind_param("i", $id);
-
-    if ($stmt->execute()) {
-        echo "<p style='color:green;'>✅ $id babarruna borratu da.</p>";
-    } else {
-        echo "<p style='color:red;'>❌ Errore bat gertatu da babarruna borratzean" . $stmt->error . "</p>";
-    }
-
-    $stmt->close();
-}
-
 $sql = "SELECT * FROM babarrunak ORDER BY id DESC";
 $result = $conn->query($sql);
 ?>
@@ -33,16 +19,83 @@ $result = $conn->query($sql);
     <meta charset="UTF-8">
     <title>Babarrunak</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 30px; }
-        table { border-collapse: collapse; width: 60%; margin-top: 10px; }
-        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        a { color: red; text-decoration: none; }
-        a:hover { text-decoration: underline; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f7faff;
+            margin: 0;
+            padding: 0;
+        }
+        h1, h2, h3 {
+            color: #2366a8;
+            margin-top: 30px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 90%;
+            margin: 30px auto 10px auto;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(35,102,168,0.08);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        th, td {
+            border: none;
+            padding: 12px 16px;
+            text-align: left;
+        }
+        th {
+            background-color: #e3f0fc;
+            color: #2366a8;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f7fc;
+        }
+        tr:hover {
+            background-color: #d6eaff;
+        }
+        input, select {
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #bcd0e6;
+            margin-bottom: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        button, input[type="submit"] {
+            background: linear-gradient(90deg, #2366a8 60%, #4fa3e3 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 1px 4px rgba(35,102,168,0.10);
+            transition: background 0.2s;
+        }
+        button:hover, input[type="submit"]:hover {
+            background: linear-gradient(90deg, #4fa3e3 60%, #2366a8 100%);
+        }
+        form {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(35,102,168,0.08);
+            padding: 24px;
+            margin: 30px auto;
+            width: 90%;
+            max-width: 500px;
+        }
+        .message {
+            text-align: center;
+            margin: 20px auto;
+            font-size: 18px;
+        }
+        h1 {
+            text-align: center;
+        }
     </style>
 </head>
 <body>
-    <h2>Babarrunak</h2>
+    <h1>Babarrunak</h1>
     <table>
         <tr>
             <th>Izena</th>
@@ -56,36 +109,13 @@ $result = $conn->query($sql);
                 </tr>
             <?php endwhile; ?>
         <?php else: ?>
-            <tr><td colspan="3">No hay productos registrados.</td></tr>
+            <tr><td colspan="3">Ez dago produkturik.</td></tr>
         <?php endif; ?>
     </table>
-
-
-
-
-<?php
-/*
-    $hostname = "db";
-    $username = "admin";
-    $password = "test";
-    $db = "segurproiektua";
-
-    $conn = mysqli_connect($hostname, $username, $password, $db);
-    if (!$conn) {
-        die("Database connection failed: " . mysqli_connect_error());
-    }
-
-    $query = mysqli_query($conn, "SELECT * FROM babarrunak")
-        or die (mysqli_error($conn));
-
-    while ($row = mysqli_fetch_array($query)) {
-        echo "<div class='item'>
-                <h3>" . $row['Izena'] . "</h3>
-                <p>" . $row['Jatorria'] . "</p>
-              </div>";
-    }
-*/
-?>
+    <a href="add_items">
+        <button>Gehitu babarrunak</button>
+    </a>
+    <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
 
 </body>
 </html>

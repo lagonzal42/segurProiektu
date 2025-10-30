@@ -1,311 +1,199 @@
+<?php
+// 1. Configuración de la Base de Datos
+$hostname = "db";
+$username = "admin";
+$password = "test";
+$db = "segurproiektua";
+
+// Conexión a la base de datos
+$conn = new mysqli($hostname, $username, $password, $db);
+if ($conn->connect_error) {
+    // Es buena práctica no revelar detalles del error en producción
+    die("Error de conexión: " . $conn->connect_error);
+}
+
+$user = null;
+$message = "";
+
+// 2. Lógica de Lectura, Edición y Actualización
+if (isset($_GET['id'])) {
+    $id = $_GET['id'];
+
+    // Si se envió el formulario (POST), procesar la actualización
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $izena = $_POST['Izena'] ?? '';
+        $jatorria = $_POST['Jatorria'] ?? '';
+        $kolorea = $_POST['Kolorea'] ?? '';
+        $denbora = $_POST['Egozketa_denb_min'] ?? '';
+
+        // Query insegura (vulnerable a SQL Injection)
+        $sql = "UPDATE babarrunak SET Izena = '$izena', Jatorria = '$jatorria', Kolorea = '$kolorea', Egozketa_denb_min = '$denbora' WHERE id = $id";
+        if ($conn->query($sql)) {
+            $message = "<p style='color:green;'>✅ Datuak eguneratu dira.</p>";
+        } else {
+            $message = "<p style='color:red;'>❌ Errore bat gertatu da: " . htmlspecialchars($conn->error) . "</p>";
+        }
+    }
+
+    // Obtener datos actuales del usuario para mostrarlos en el formulario (inseguro)
+    $sql = "SELECT id, Izena, Jatorria, Kolorea, Egozketa_denb_min FROM babarrunak WHERE id = $id";
+    $result_user = $conn->query($sql);
+    if ($result_user && $result_user->num_rows > 0) {
+        $user = $result_user->fetch_assoc();
+    }
+}
+
+// Obtener todos los datos para la tabla (se ejecuta siempre)
+$sql = "SELECT * FROM babarrunak ORDER BY id DESC";
+$result = $conn->query($sql);
+?>
+
 <!DOCTYPE html>
-<html lang="eu">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Babarrun lista</title>
+    <title>Babarrunak Kudeatu</title>
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f7faff;
             margin: 0;
-            padding: 20px;
-        }
-        h1, h2 {
-            color: #4a4a4a;
-            border-bottom: 2px solid #005a9c;
-            padding-bottom: 5px;
-        }
-        .container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-        #list-container {
-            flex: 1;
-            min-width: 250px;
-            background: #fff;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        #editor-container {
-            flex: 2;
-            min-width: 300px;
-            background: #fff;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        #babarrun-list {
-            list-style: none;
             padding: 0;
-            margin: 0;
-            max-height: 400px;
-            overflow-y: auto;
         }
-        #babarrun-list li {
-            padding: 12px 15px;
-            border-bottom: 1px solid #eee;
-            cursor: pointer;
-            transition: background-color 0.2s;
+        h1, h2, h3 {
+            color: #2366a8;
+            margin-top: 30px;
         }
-        #babarrun-list li:hover {
-            background-color: #f0f8ff;
+        table {
+            border-collapse: collapse;
+            width: 90%;
+            margin: 30px auto 10px auto;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(35,102,168,0.08);
+            border-radius: 12px;
+            overflow: hidden;
         }
-        #babarrun-list li.selected {
-            background-color: #007bff;
-            color: white;
-            font-weight: bold;
-        }
-        .form-field {
-            margin-bottom: 15px;
-        }
-        .form-field label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        .form-field input[type="text"],
-        .form-field input[type="number"] {
-            width: 100%;
-            padding: 10px;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        .form-field input[readonly] {
-            background-color: #eee;
-            cursor: not-allowed;
-        }
-        button {
-            background-color: #007bff;
-            color: white;
-            padding: 12px 20px;
+        th, td {
             border: none;
-            border-radius: 4px;
-            cursor: pointer;
+            padding: 12px 16px;
+            text-align: left;
+        }
+        th {
+            background-color: #e3f0fc;
+            color: #2366a8;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f7fc;
+        }
+        tr:hover {
+            background-color: #d6eaff;
+        }
+        input, select {
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #bcd0e6;
+            margin-bottom: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        button, input[type="submit"] {
+            background: linear-gradient(90deg, #2366a8 60%, #4fa3e3 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
             font-size: 16px;
-            transition: background-color 0.2s;
+            cursor: pointer;
+            box-shadow: 0 1px 4px rgba(35,102,168,0.10);
+            transition: background 0.2s;
         }
-        button:hover {
-            background-color: #0056b3;
+        button:hover, input[type="submit"]:hover {
+            background: linear-gradient(90deg, #4fa3e3 60%, #2366a8 100%);
         }
-        #message-area {
-            margin-top: 15px;
-            font-weight: bold;
+        form {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(35,102,168,0.08);
+            padding: 24px;
+            margin: 30px auto;
+            width: 90%;
+            max-width: 500px;
         }
-        .error { color: #dc3545; }
-        .success { color: #28a745; }
+        .message {
+            text-align: center;
+            margin: 20px auto;
+            font-size: 18px;
+        }
+        h1 {
+            text-align: center;
+        }
     </style>
 </head>
 <body>
-
-    <h1>Babarrunak</h1>
-
-    <div class="container">
+    <h1>Babarrunak Kudeaketa</h1>
+    <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
+    <?= $message ?>
+    
+    <?php if ($user): ?>
+        <hr>
+        <h3>Aldatu Babarruna: ID #<?= htmlspecialchars($user['id']) ?></h3>
         
-        <div id="list-container">
-            <h2>Babarrun Zerrenda</h2>
-            <ul id="babarrun-list">
-                </ul>
-        </div>
+        <form method="POST" action="?id=<?= htmlspecialchars($user['id']) ?>">
+            <div>
+                <label for="Izena">Izena:</label>
+                <input type="text" id="Izena" name="Izena" value="<?= htmlspecialchars($user['Izena']) ?>" required>
+            </div>
+            <div>
+                <label for="Jatorria">Jatorria:</label>
+                <input type="text" id="Jatorria" name="Jatorria" value="<?= htmlspecialchars($user['Jatorria']) ?>" required>
+            </div>
+            <div>
+                <label for="Kolorea">Kolorea:</label>
+                <input type="text" id="Kolorea" name="Kolorea" value="<?= htmlspecialchars($user['Kolorea']) ?>" required>
+            </div>
+            <div>
+                <label for="Egozketa_denb_min">Egozketa denbora (min):</label>
+                <input type="number" id="Egozketa_denb_min" name="Egozketa_denb_min" value="<?= htmlspecialchars($user['Egozketa_denb_min']) ?>" required>
+            </div>
+            <br>
+            <button type="submit">Gorde Aldaketak</button>
+        </form>
+        <hr>
+    <?php endif; ?>
 
-        <div id="editor-container">
-            <h2>Editatu Babarruna</h2>
-            <form id="editor-form" style="display: none;">
-                
-                <div class="form-field">
-                    <label for="field-id">ID:</label>
-                    <input type="text" id="field-id" name="id" readonly>
-                </div>
-                
-                <div class="form-field">
-                    <label for="field-izena">Izena:</label>
-                    <input type="text" id="field-izena" name="Izena" required>
-                </div>
-
-                <div class="form-field">
-                    <label for="field-jatorria">Jatorria:</label>
-                    <input type="text" id="field-jatorria" name="Jatorria">
-                </div>
-
-                <div class="form-field">
-                    <label for="field-kolorea">Kolorea:</label>
-                    <input type="text" id="field-kolorea" name="Kolorea">
-                </div>
-
-                <div class="form-field">
-                    <label for="field-denbora">Egozketa denb (min):</label>
-                    <input type="number" id="field-denbora" name="Egozketa_denb_min">
-                </div>
-
-                <button type="submit">Gorde Aldaketak</button>
-                <div id="message-area"></div>
-
-            </form>
-            <p id="editor-placeholder">Sakatu zerrendako babarrun bat bere datuak ikusi eta aldatzeko.</p>
-        </div>
-
-    </div>
-
-    <script>
-        // --- 1. DATUEN BILTEGIA (GLOBAL) ---
-        // PHP-tik jasotako datuak hemen gordeko ditugu
-        let babarrunakDataStore = [];
-
-        // --- 2. HTML ELEMENTUEN ERREFERENTZIAK ---
-        const listElement = document.getElementById('babarrun-list');
-        const formElement = document.getElementById('editor-form');
-        const editorPlaceholder = document.getElementById('editor-placeholder');
-        const messageArea = document.getElementById('message-area');
-
-        // Formularioaren eremuak
-        const fieldId = document.getElementById('field-id');
-        const fieldIzena = document.getElementById('field-izena');
-        const fieldJatorria = document.getElementById('field-jatorria');
-        const fieldKolorea = document.getElementById('field-kolorea');
-        const fieldDenbora = document.getElementById('field-denbora');
-
-        // --- 3. FUNTZIO NAGUSIAK ---
-
-        /**
-         * Datu basea 'api.php'-ri eskatu eta zerrenda HTML-an kargatzen du.
-         */
-        async function loadBabarrunakList() {
-            try {
-                // Egin GET eskaera bat gure api.php-ri
-                const response = await fetch('api.php');
-                if (!response.ok) {
-                    throw new Error('Errorea datuak eskuratzean: ' + response.statusText);
-                }
-                const data = await response.json();
-
-                // Gorde datuak gure biltegi globalean
-                babarrunakDataStore = data;
-
-                // Garbitu aurreko zerrenda
-                listElement.innerHTML = '';
-                
-                if (data.length === 0) {
-                    listElement.innerHTML = '<li>Ez dago babarrunik datu basean. Gehitu batzuk phpMyAdmin-en.</li>';
-                    return;
-                }
-
-                // Sortu 'li' elementuak
-                data.forEach(babarrun => {
-                    const li = document.createElement('li');
-                    li.textContent = babarrun.Izena;
-                    li.dataset.id = babarrun.id;
-                    
-                    li.addEventListener('click', () => {
-                        displayDetails(parseInt(babarrun.id));
-                        
-                        document.querySelectorAll('#babarrun-list li').forEach(item => {
-                            item.classList.remove('selected');
-                        });
-                        li.classList.add('selected');
-                    });
-                    
-                    listElement.appendChild(li);
-                });
-
-            } catch (error) {
-                listElement.innerHTML = `<li>Errorea zerrenda kargatzean: ${error.message}</li>`;
-            }
-        }
-
-        /**
-         * Biltegi lokaletik, babarrun baten datuak formularioan bistaratzen ditu.
-         */
-        function displayDetails(id) {
-            // Aurkitu babarruna gure datu-biltegi lokalean
-            const babarrun = babarrunakDataStore.find(b => b.id === id);
-            
-            if (babarrun) {
-                formElement.style.display = 'block';
-                editorPlaceholder.style.display = 'none';
-                showMessage('', 'success'); // Garbitu mezuak
-
-                fieldId.value = babarrun.id;
-                fieldIzena.value = babarrun.Izena;
-                fieldJatorria.value = babarrun.Jatorria || '';
-                fieldKolorea.value = babarrun.Kolorea || '';
-                fieldDenbora.value = babarrun.Egozketa_denb_min || '';
-            }
-        }
-
-        /**
-         * Formularioa bidaltzean, datuak 'api.php'-ra bidaltzen ditu (POST).
-         */
-        async function saveChanges(event) {
-            event.preventDefault(); 
-            
-            // Lortu formularioaren balioak
-            const dataToSave = {
-                id: parseInt(fieldId.value),
-                Izena: fieldIzena.value,
-                Jatorria: fieldJatorria.value,
-                Kolorea: fieldKolorea.value,
-                Egozketa_denb_min: parseInt(fieldDenbora.value) || null
-            };
-
-            try {
-                // Egin POST eskaera bat api.php-ri, datuak JSON gisa bidaliz
-                const response = await fetch('api.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(dataToSave)
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    showMessage(`"${dataToSave.Izena}" ondo gorde da!`, 'success');
-                    
-                    // Zerrenda birkargatu, izena aldatu bada ere
-                    await loadBabarrunakList(); 
-
-                    // Mantendu elementua hautatuta
-                    const selectedLi = listElement.querySelector(`li[data-id="${dataToSave.id}"]`);
-                    if (selectedLi) {
-                        selectedLi.classList.add('selected');
-                    }
-                } else {
-                    throw new Error(result.error || 'Errore ezezaguna gordetzean');
-                }
-
-            } catch (error) {
-                showMessage(`Errorea gordetzean: ${error.message}`, 'error');
-            }
-        }
-
-        /**
-         * Erabiltzaileari mezuak erakusteko laguntzailea.
-         */
-        function showMessage(message, type) {
-            messageArea.textContent = message;
-            messageArea.className = type; // 'success' or 'error'
-
-            // Ezkutatu mezua 3 segundo pasa ondoren (erroreak ezik)
-            if (type === 'success') {
-                setTimeout(() => {
-                    messageArea.textContent = '';
-                }, 3000);
-            }
-        }
-
-        // --- 4. HASIERAKO EXEKUZIOA ---
-
-        document.addEventListener('DOMContentLoaded', () => {
-            loadBabarrunakList();
-            formElement.addEventListener('submit', saveChanges);
-        });
-
-    </script>
-
+    <h3>Babarrun Zerrenda</h3>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Izena</th>
+            <th>Jatorria</th>
+            <th>Kolorea</th>
+            <th>Egozketa denbora</th>
+            <th>Aldatu</th>
+        </tr>
+        <?php if ($result->num_rows > 0): ?>
+            <?php while ($row = $result->fetch_assoc()): ?>
+                <tr>
+                    <td><?= htmlspecialchars($row['id']) ?></td>
+                    <td><?= htmlspecialchars($row['Izena']) ?></td>
+                    <td><?= htmlspecialchars($row['Jatorria']) ?></td>
+                    <td><?= htmlspecialchars($row['Kolorea']) ?></td>
+                    <td><?= htmlspecialchars($row['Egozketa_denb_min']) ?></td>
+                    <td>
+                        <a href="?id=<?= $row['id'] ?>">
+                           Aldatu
+                        </a>
+                    </td>
+                </tr>
+            <?php endwhile; ?>
+        <?php else: ?>
+            <tr><td colspan="6">Ez dago produkturik.</td></tr>
+        <?php endif; ?>
+    </table>
 </body>
 </html>
+
+<?php
+// 5. Cerrar Conexión
+$conn->close();
+?>

@@ -8,9 +8,19 @@ function datuakegiaztatu() {
         window.alert("Izen hori ez da honartzen.")
         return false;
     } 
+    else if(izen.length > 50){
+        window.alert("Izena luzeegia da.")
+        console.log(pas)
+        return false;
+    }
 
     if (pas.trim() === "") {
         window.alert("Pasahitza ezin da hutsik egon.");
+        return false;
+    }
+    else if(pas.length > 40){
+        window.alert("Pasahitza luzeegia da.")
+        console.log(pas)
         return false;
     }
 

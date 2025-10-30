@@ -41,23 +41,101 @@
 <head>
   <meta charset="UTF-8">
   <title>Erregistroa</title>
+      <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f7faff;
+            margin: 0;
+            padding: 0;
+        }
+        h1, h2, h3 {
+            color: #2366a8;
+            margin-top: 30px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 90%;
+            margin: 30px auto 10px auto;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(35,102,168,0.08);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        th, td {
+            border: none;
+            padding: 12px 16px;
+            text-align: left;
+        }
+        th {
+            background-color: #e3f0fc;
+            color: #2366a8;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f7fc;
+        }
+        tr:hover {
+            background-color: #d6eaff;
+        }
+        input, select {
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #bcd0e6;
+            margin-bottom: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        button, input[type="submit"] {
+            background: linear-gradient(90deg, #2366a8 60%, #4fa3e3 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 1px 4px rgba(35,102,168,0.10);
+            transition: background 0.2s;
+        }
+        button:hover, input[type="submit"]:hover {
+            background: linear-gradient(90deg, #4fa3e3 60%, #2366a8 100%);
+        }
+        form {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(35,102,168,0.08);
+            padding: 24px;
+            margin: 30px auto;
+            width: 90%;
+            max-width: 500px;
+        }
+        .message {
+            text-align: center;
+            margin: 20px auto;
+            font-size: 18px;
+        }
+        h1 {
+            text-align: center;
+        }
+    </style>
 </head>
 
-<script type="text/javascript" src="register.js"></script>
 
 <body>
+
+  <script src="/php/register/register.js"></script>
+
   <h1>Erabiltzaileen erregistroa</h1>
   <form id="register_form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="POST">
     IZEN ABIZEN: <input type="text" name="iz_abz" placeholder="Izen Abizen" required><br>
-    NAN: <input type="text" name="nan" placeholder="NAN" required><br>
-    TELEFONOA: <input type="tel" name="tlnf" placeholder="Telefonoa" required><br>
-    JAIOTZE DATA: <input type="text" name="jaiodata" placeholder="Jaiotze Data" required><br>
-    EMAIL: <input type="email" name="mail" placeholder="Email" required><br>
+    NAN: <input type="text" name="nan" placeholder="12345678Z" required><br>
+    TELEFONOA: <input type="tel" name="tlnf" placeholder="111111111" required><br>
+    JAIOTZE DATA: <input type="text" name="jaiodata" placeholder="uuuu-hh-ee" required><br>
+    EMAIL: <input type="email" name="mail" placeholder="adibidea@adibidez.eus" required><br>
     PASAHITZA: <input type="password" name="pas" placeholder="Pasahitza" required><br>
     <button id="register_submit" type="button" onclick="datuakegiaztatu()">Sartu</button>
     <button id="register_ezabatu" type="reset">Ezabatu</button>
+    <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
   </form>
-  <?php echo $message; ?>
+  <?php echo $mezua; ?>
 </body>
 </html>
 
