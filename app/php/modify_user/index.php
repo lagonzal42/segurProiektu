@@ -1,6 +1,7 @@
 <?php
-session_start();
+session_start(); // Saioa hasi edo existitzen den saioa jarraitu
 
+// Egiaztatu erabiltzaileak saioa hasi duela eta bere NAN-a bat datorrela URL-koarekin
 if (!isset($_SESSION['nan']) || $_SESSION['nan'] !== ($_GET['user'] ?? null)) {
     header("Location: /login");
     exit();
@@ -11,7 +12,10 @@ $username = "admin";
 $password = "test";
 $db = "segurproiektua";
 
+// Konexioa sortu MySQL datu-basearekin
 $conn = new mysqli($hostname, $username, $password, $db);
+
+// Konexioan errorea gertatzen bada, exekuzioa eten eta errore mezua erakutsi
 if ($conn->connect_error) {
     die("Error de conexión: " . $conn->connect_error);
 }
@@ -19,6 +23,7 @@ if ($conn->connect_error) {
 $user = null;
 $message = "";
 
+// Erabiltzailearen 'NAN' parametroa URL-an badago, bere datuak lortu edo eguneratu
 if (isset($_GET['user'])) {
     $nan = $_GET['user'];
 
@@ -37,6 +42,7 @@ if (isset($_GET['user'])) {
         }
     }
 
+    // Erabiltzailearen datuak lortu datu-basetik formularioan erakusteko
     $sql = "SELECT Izen_Abizen, NAN, Telefonoa, Jaio_Data, Email FROM erabiltzaileak WHERE NAN = '$nan'";
     $result = $conn->query($sql);
     if ($result && $result->num_rows > 0) {
@@ -133,6 +139,7 @@ $conn->close();
     <?= $message ?>
 
     <?php if ($user): ?>
+        <!-- Erabiltzailea aurkitzen bada, datuak formularioan erakusten dira -->
         <form id="user_modify_form" method="post">
             <label for="Izen_Abizen">Izen Abizena</label>
             <input type="text" id="Izen_Abizen" name="Izen_Abizen" value="<?= htmlspecialchars($user['Izen_Abizen']) ?>" required>
