@@ -141,7 +141,7 @@ $conn->close();
             <input type="text" id="Telefonoa" name="Telefonoa" value="<?= htmlspecialchars($user['Telefonoa']) ?>">
 
             <label for="Jaio_Data">Jaiotze Data</label>
-            <input type="date" id="Jaio_Data" name="Jaio_Data" value="<?= htmlspecialchars($user['Jaio_Data']) ?>">
+            <input type="text" id="Jaio_Data" name="Jaio_Data" value="<?= htmlspecialchars($user['Jaio_Data']) ?>">
 
             <label for="Email">Email</label>
             <input type="email" id="Email" name="Email" value="<?= htmlspecialchars($user['Email']) ?>">
