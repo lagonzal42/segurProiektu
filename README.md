@@ -38,6 +38,7 @@ Azkenik, web sistema probatzeko hurrego komandoa exekutatzen dugu terminalean:
 ```sh
 sudo docker-compose up
 ```
+Gure kasuan, docker-compose.yml artxiboan zehaztuta daukagu datubasea bakarrik inportatzea, erabiltzen dugun init izeneko karpeta erabiliz, baina gerta liteke inportatu beharra, horretarako PDF artxiboa begiratu.
 http://localhost:81 -ra nabigatzailetik sartzen bagara, web sistemaren "Home" orrialdera eramango gaitu.  
 
 **REPOSITORIOAN DAGOEN PDF ARTXIBOAN JARRAIPENA AURKITZEN DA.**
