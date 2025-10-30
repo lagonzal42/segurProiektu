@@ -1,4 +1,6 @@
 <?php
+session_start(); // Añade esto para acceder a la sesión
+
 $hostname = "db";
 $username = "admin";
 $password = "test";
@@ -6,32 +8,32 @@ $db = "segurproiektua";
 
 $conn = new mysqli($hostname, $username, $password, $db);
 if ($conn->connect_error) {
-    die("Error de conexión: " . $conn->connect_error);
+    die("Konexio errorea: " . $conn->connect_error);
 }
 
+if (isset($_GET['user'])) {
+    $nan = $_GET['user'];
 
-if (isset($_GET['id'])) {
-    $id = $_GET['id'];
+    $sql = "SELECT Izen_Abizen, NAN, Telefonoa, Jaio_Data, Email FROM erabiltzaileak WHERE NAN = '$nan'";
+    $result = $conn->query($sql);
 
-    // Query insegurua
-    $sql = "DELETE FROM babarrunak WHERE id = $id";
-    if ($conn->query($sql)) {
-        echo "<p style='color:green;'>✅ $id babarruna borratu da.</p>";
+    if ($result && $result->num_rows > 0) {
+        $user = $result->fetch_assoc();
     } else {
-        echo "<p style='color:red;'>❌ Errore bat gertatu da babarruna borratzean: " . htmlspecialchars($conn->error) . "</p>";
+        $user = null;
     }
+} else {
+    $user = null;
 }
 
-// Obtener todos los registros
-$sql = "SELECT * FROM babarrunak ORDER BY id DESC";
-$result = $conn->query($sql);
+$conn->close();
 ?>
 
 <!DOCTYPE html>
-<html lang="eu">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Babarrunak ezabatu</title>
+    <title>Erabiltzailearen Datuak</title>
     <style>
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
@@ -109,37 +111,26 @@ $result = $conn->query($sql);
     </style>
 </head>
 <body>
-    <h2>Babarrunak</h2>
+    <h2>Erabiltzailearen Informazioa</h2>
 
-    <!-- IDs ezabatzeko formularioa -->
-    <form method="get" action="">
-        <label for="id">Ezabatzeko ID-a:</label>
-        <input type="number" name="id" id="id" min="1" required>
-        <button type="submit" id="item_delete_submit">Ezabatu</button>
-        <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
-    </form>
-    <!-- balioak erakusteko taula -->
-    <table>
-        <tr>
-            <th>ID</th>
-            <th>Izena</th>
-        </tr>
-        <?php
-        if ($result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                echo "<tr>";
-                echo "<td>" . htmlspecialchars($row['id']) . "</td>";
-                echo "<td>" . htmlspecialchars($row['Izena']) . "</td>";
-                echo "</tr>";
-            }
-        } else {
-            echo "<tr><td colspan='2'>Ez dago produkturik.</td></tr>";
-        }
-        ?>
-    </table>
+    <?php if ($user): ?>
+        <table>
+            <tr><th>Datua</th><th>Balorea</th></tr>
+            <tr><td>Izen Abizena</td><td><?= htmlspecialchars($user['Izen_Abizen']) ?></td></tr>
+            <tr><td>NAN</td><td><?= htmlspecialchars($user['NAN']) ?></td></tr>
+            <tr><td>Telefonoa</td><td><?= htmlspecialchars($user['Telefonoa']) ?></td></tr>
+            <tr><td>Jaiotze Data</td><td><?= htmlspecialchars($user['Jaio_Data']) ?></td></tr>
+            <tr><td>Email</td><td><?= htmlspecialchars($user['Email']) ?></td></tr>
+        </table>
+        <?php if (isset($_SESSION['nan'])): ?>
+            <form action="/modify_user" method="get" style="display: flex; gap: 12px; justify-content: center;">
+                <input type="hidden" name="user" value="<?= htmlspecialchars($_SESSION['nan']) ?>">
+                <button type="submit" class="modify-btn">Aldatu Nire Datuak</button>
+                <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
+            </form>
+        <?php endif; ?>
+    <?php else: ?>
+        <p style="color:red;">❌ Erabiltzailea ez da aurkitu. Ziurtatu NAN-a onargarria dela.</p>
+    <?php endif; ?>
 </body>
 </html>
-
-<?php
-$conn->close();
-?>

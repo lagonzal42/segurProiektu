@@ -10,28 +10,32 @@ if ($conn->connect_error) {
 }
 
 
-if (isset($_GET['id'])) {
-    $id = $_GET['id'];
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $izena = trim($_POST["izena"] ?? '');
+    $jatorria = trim($_POST["jatorria"] ?? '');
+    $kolorea = trim($_POST["kolorea"] ?? '');
+    $denbora = trim($_POST["denbora"] ?? '');
 
-    // Query insegurua
-    $sql = "DELETE FROM babarrunak WHERE id = $id";
-    if ($conn->query($sql)) {
-        echo "<p style='color:green;'>✅ $id babarruna borratu da.</p>";
+    if ($izena !== '' && $jatorria !== '' && $kolorea !== '' && $denbora !== '') {
+        // Query insegura (vulnerable a SQL Injection)
+        $sql = "INSERT INTO babarrunak (Izena, Jatorria, Kolorea, Egozketa_denb_min) VALUES ('$izena', '$jatorria', '$kolorea', $denbora)";
+        if ($conn->query($sql)) {
+            echo "<p style='color:green;'>✅ Babarruna ondo gehitu da!</p>";
+        } else {
+            echo "<p style='color:red;'>❌ Errore bat gertatu da: " . htmlspecialchars($conn->error) . "</p>";
+        }
     } else {
-        echo "<p style='color:red;'>❌ Errore bat gertatu da babarruna borratzean: " . htmlspecialchars($conn->error) . "</p>";
+        echo "<p style='color:red;'>❌ Datu guztiak bete behar dira.</p>";
     }
 }
-
-// Obtener todos los registros
-$sql = "SELECT * FROM babarrunak ORDER BY id DESC";
-$result = $conn->query($sql);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="eu">
 <head>
     <meta charset="UTF-8">
-    <title>Babarrunak ezabatu</title>
+    <title>Babarruna Gehitu</title>
     <style>
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
@@ -109,36 +113,24 @@ $result = $conn->query($sql);
     </style>
 </head>
 <body>
-    <h2>Babarrunak</h2>
+    <h1>Babarruna gehitu</h1>
 
-    <!-- IDs ezabatzeko formularioa -->
-    <form method="get" action="">
-        <label for="id">Ezabatzeko ID-a:</label>
-        <input type="number" name="id" id="id" min="1" required>
-        <button type="submit" id="item_delete_submit">Ezabatu</button>
+    <form id="item_add_form" method="POST" action="add_items">
+        <label for="izena">Izena:</label>
+        <input type="text" id="izena" name="izena" required>
+
+        <label for="jatorria">Jatorria:</label>
+        <input type="text" id="jatorria" name="jatorria" required>
+
+        <label for="kolorea">Kolorea:</label>
+        <input type="text" id="kolorea" name="kolorea" required>
+
+        <label for="denbora">Denbora:</label>
+        <input type="number" min="0" step="1" id="denbora" name="denbora" required>
+
+        <button type="submit" id="item_add_submit">Gehitu</button>
         <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
     </form>
-    <!-- balioak erakusteko taula -->
-    <table>
-        <tr>
-            <th>ID</th>
-            <th>Izena</th>
-        </tr>
-        <?php
-        if ($result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                echo "<tr>";
-                echo "<td>" . htmlspecialchars($row['id']) . "</td>";
-                echo "<td>" . htmlspecialchars($row['Izena']) . "</td>";
-                echo "</tr>";
-            }
-        } else {
-            echo "<tr><td colspan='2'>Ez dago produkturik.</td></tr>";
-        }
-        ?>
-    </table>
-</body>
-</html>
 
 <?php
 $conn->close();

@@ -1,59 +1,49 @@
 <?php
-// 1. Configuración de la Base de Datos
+// 1. Datu-basearen konfigurazioa 
 $hostname = "db";
 $username = "admin";
 $password = "test";
 $db = "segurproiektua";
 
-// Conexión a la base de datos
+// Datu-basearen konexioa
 $conn = new mysqli($hostname, $username, $password, $db);
 if ($conn->connect_error) {
-    // Es buena práctica no revelar detalles del error en producción
+    // Jardunbide egokia da ekoizpen-errorearen xehetasunik ez adieraztea 
     die("Error de conexión: " . $conn->connect_error);
 }
 
 $user = null;
 $message = "";
 
-// 2. Lógica de Lectura, Edición y Actualización
-if (isset($_GET['user'])) {
-    $id = $_GET['user'];
+// 2. Irakurketaren, edizioaren eta eguneratzearen logika 
+if (isset($_GET['id'])) {
+    $id = $_GET['id'];
 
-    // Si se envió el formulario (POST), procesar la actualización
+    // Formularioa (POST) bidali bada, eguneratu 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $izena = $_POST['Izena'] ?? '';
         $jatorria = $_POST['Jatorria'] ?? '';
         $kolorea = $_POST['Kolorea'] ?? '';
         $denbora = $_POST['Egozketa_denb_min'] ?? '';
 
-        // Preparar la consulta de UPDATE (Uso de consultas preparadas para seguridad)
-        $update_stmt = $conn->prepare("UPDATE babarrunak SET Izena = ?, Jatorria = ?, Kolorea = ?, Egozketa_denb_min = ? WHERE id = ?");
-        // Nota: asumo que id es un string 's' o quizás un entero 'i' si la BD lo define así.
-        // Lo dejo como 'sssss' como en tu código original, pero podrías cambiar el último a 'i'
-        // si id es un entero.
-        $update_stmt->bind_param("sssss", $izena, $jatorria, $kolorea, $denbora, $id);
-
-        if ($update_stmt->execute()) {
+        // Query ez-segurua (SQL Injectionekiko kaltebera) 
+        $sql = "UPDATE babarrunak SET Izena = '$izena', Jatorria = '$jatorria', Kolorea = '$kolorea', Egozketa_denb_min = '$denbora' WHERE id = $id";
+        if ($conn->query($sql)) {
             $message = "<p style='color:green;'>✅ Datuak eguneratu dira.</p>";
         } else {
-            $message = "<p style='color:red;'>❌ Errore bat gertatu da: " . htmlspecialchars($update_stmt->error) . "</p>";
+            $message = "<p style='color:red;'>❌ Errore bat gertatu da: " . htmlspecialchars($conn->error) . "</p>";
         }
-
-        $update_stmt->close();
     }
 
-    // Obtener datos actuales del usuario para mostrarlos en el formulario
-    $stmt = $conn->prepare("SELECT id, Izena, Jatorria, Kolorea, Egozketa_denb_min FROM babarrunak WHERE id = ?");
-    $stmt->bind_param("s", $id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($result->num_rows > 0) {
-        $user = $result->fetch_assoc();
+    // Babarrunen egungo datuak lortzea, inprimakian erakusteko (ez da segurua) 
+    $sql = "SELECT id, Izena, Jatorria, Kolorea, Egozketa_denb_min FROM babarrunak WHERE id = $id";
+    $result_user = $conn->query($sql);
+    if ($result_user && $result_user->num_rows > 0) {
+        $user = $result_user->fetch_assoc();
     }
-    $stmt->close();
 }
 
-// Obtener todos los datos para la tabla (se ejecuta siempre)
+// Taularako datu guztiak eskuratu (beti exekutatzen da) 
 $sql = "SELECT * FROM babarrunak ORDER BY id DESC";
 $result = $conn->query($sql);
 ?>
@@ -64,28 +54,91 @@ $result = $conn->query($sql);
     <meta charset="UTF-8">
     <title>Babarrunak Kudeatu</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 30px; }
-        table { border-collapse: collapse; width: 60%; margin-top: 20px; }
-        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        a { color: #007bff; text-decoration: none; }
-        a.delete { color: red; }
-        a:hover { text-decoration: underline; }
-        input[type="text"], input[type="number"] { padding: 5px; margin-top: 5px; width: 100%; box-sizing: border-box; }
-        form { background: #f9f9f9; padding: 20px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 20px; width: 50%; }
-        button { padding: 10px 15px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f7faff;
+            margin: 0;
+            padding: 0;
+        }
+        h1, h2, h3 {
+            color: #2366a8;
+            margin-top: 30px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 90%;
+            margin: 30px auto 10px auto;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(35,102,168,0.08);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        th, td {
+            border: none;
+            padding: 12px 16px;
+            text-align: left;
+        }
+        th {
+            background-color: #e3f0fc;
+            color: #2366a8;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f7fc;
+        }
+        tr:hover {
+            background-color: #d6eaff;
+        }
+        input, select {
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #bcd0e6;
+            margin-bottom: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        button, input[type="submit"] {
+            background: linear-gradient(90deg, #2366a8 60%, #4fa3e3 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 1px 4px rgba(35,102,168,0.10);
+            transition: background 0.2s;
+        }
+        button:hover, input[type="submit"]:hover {
+            background: linear-gradient(90deg, #4fa3e3 60%, #2366a8 100%);
+        }
+        form {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(35,102,168,0.08);
+            padding: 24px;
+            margin: 30px auto;
+            width: 90%;
+            max-width: 500px;
+        }
+        .message {
+            text-align: center;
+            margin: 20px auto;
+            font-size: 18px;
+        }
+        h1 {
+            text-align: center;
+        }
     </style>
 </head>
 <body>
-    <h2>Babarrunak Kudeaketa</h2>
-    
+    <h1>Babarrunak Kudeaketa</h1>
+    <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
     <?= $message ?>
     
     <?php if ($user): ?>
         <hr>
         <h3>Aldatu Babarruna: ID #<?= htmlspecialchars($user['id']) ?></h3>
         
-        <form method="POST" action="?user=<?= htmlspecialchars($user['id']) ?>">
+        <form method="POST" action="?id=<?= htmlspecialchars($user['id']) ?>">
             <div>
                 <label for="Izena">Izena:</label>
                 <input type="text" id="Izena" name="Izena" value="<?= htmlspecialchars($user['Izena']) ?>" required>
@@ -104,7 +157,6 @@ $result = $conn->query($sql);
             </div>
             <br>
             <button type="submit">Gorde Aldaketak</button>
-            <a href="./" style="margin-left: 10px;">Utzi (Ezeztatu)</a>
         </form>
         <hr>
     <?php endif; ?>
@@ -128,8 +180,7 @@ $result = $conn->query($sql);
                     <td><?= htmlspecialchars($row['Kolorea']) ?></td>
                     <td><?= htmlspecialchars($row['Egozketa_denb_min']) ?></td>
                     <td>
-                        <a href="?user=<?= $row['id'] ?>"
-                           onclick="return confirm('Aldatu nahi duzu <?= $row['Izena'] ?> produktua?');">
+                        <a href="?id=<?= $row['id'] ?>">
                            Aldatu
                         </a>
                     </td>
@@ -143,6 +194,6 @@ $result = $conn->query($sql);
 </html>
 
 <?php
-// 5. Cerrar Conexión
+// 5. Konexioa itxi
 $conn->close();
 ?>

@@ -1,37 +1,23 @@
 <?php
-$hostname = "db";
-$username = "admin";
-$password = "test";
-$db = "segurproiektua";
+  $hostname = "db";
+  $username = "admin";
+  $password = "test";
+  $db = "segurproiektua";
 
 $conn = new mysqli($hostname, $username, $password, $db);
 if ($conn->connect_error) {
     die("Error de conexión: " . $conn->connect_error);
 }
 
-
-if (isset($_GET['id'])) {
-    $id = $_GET['id'];
-
-    // Query insegurua
-    $sql = "DELETE FROM babarrunak WHERE id = $id";
-    if ($conn->query($sql)) {
-        echo "<p style='color:green;'>✅ $id babarruna borratu da.</p>";
-    } else {
-        echo "<p style='color:red;'>❌ Errore bat gertatu da babarruna borratzean: " . htmlspecialchars($conn->error) . "</p>";
-    }
-}
-
-// Obtener todos los registros
 $sql = "SELECT * FROM babarrunak ORDER BY id DESC";
 $result = $conn->query($sql);
 ?>
-
+  
 <!DOCTYPE html>
 <html lang="eu">
 <head>
     <meta charset="UTF-8">
-    <title>Babarrunak ezabatu</title>
+    <title>Babarrunak</title>
     <style>
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
@@ -109,34 +95,28 @@ $result = $conn->query($sql);
     </style>
 </head>
 <body>
-    <h2>Babarrunak</h2>
-
-    <!-- IDs ezabatzeko formularioa -->
-    <form method="get" action="">
-        <label for="id">Ezabatzeko ID-a:</label>
-        <input type="number" name="id" id="id" min="1" required>
-        <button type="submit" id="item_delete_submit">Ezabatu</button>
-        <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
-    </form>
-    <!-- balioak erakusteko taula -->
+    <h1>Babarrunak</h1>
     <table>
         <tr>
-            <th>ID</th>
             <th>Izena</th>
+            <th>Jatorria</th>
         </tr>
-        <?php
-        if ($result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                echo "<tr>";
-                echo "<td>" . htmlspecialchars($row['id']) . "</td>";
-                echo "<td>" . htmlspecialchars($row['Izena']) . "</td>";
-                echo "</tr>";
-            }
-        } else {
-            echo "<tr><td colspan='2'>Ez dago produkturik.</td></tr>";
-        }
-        ?>
+        <?php if ($result->num_rows > 0): ?>
+            <?php while ($row = $result->fetch_assoc()): ?>
+                <tr>
+                    <td><?= htmlspecialchars($row['Izena']) ?></td>
+                    <td><?= htmlspecialchars($row['Jatorria']) ?></td>
+                </tr>
+            <?php endwhile; ?>
+        <?php else: ?>
+            <tr><td colspan="3">Ez dago produkturik.</td></tr>
+        <?php endif; ?>
     </table>
+    <a href="add_items">
+        <button>Gehitu babarrunak</button>
+    </a>
+    <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
+
 </body>
 </html>
 

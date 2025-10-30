@@ -1,38 +1,44 @@
 <?php
-$hostname = "db";
-$username = "admin";
-$password = "test";
-$db = "segurproiektua";
+  session_start(); // Inicia la sesión
 
-$conn = new mysqli($hostname, $username, $password, $db);
-if ($conn->connect_error) {
-    die("Error de conexión: " . $conn->connect_error);
-}
+  $hostname = "db";
+  $username = "admin";
+  $password = "test";
+  $db = "segurproiektua";
 
+  $conn = mysqli_connect($hostname, $username, $password, $db);
+  if (!$conn) {
+    die("Database connection failed: " . mysqli_connect_error());
+  }
 
-if (isset($_GET['id'])) {
-    $id = $_GET['id'];
+  if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $iz_abz = $_POST['iz_abz'];
+    $pas = $_POST['pas'];
 
-    // Query insegurua
-    $sql = "DELETE FROM babarrunak WHERE id = $id";
-    if ($conn->query($sql)) {
-        echo "<p style='color:green;'>✅ $id babarruna borratu da.</p>";
+    $sql = "SELECT * FROM erabiltzaileak WHERE Izen_Abizen = '$iz_abz' AND Pasahitza = '$pas'";
+    $resultado = mysqli_query($conn, $sql);
+
+    if (mysqli_num_rows($resultado) > 0) {
+        $row = mysqli_fetch_assoc($resultado);
+        $_SESSION['nan'] = $row['NAN'];
+        $_SESSION['iz_abz'] = $row['Izen_Abizen'];
+
+        //berbideraketa erabiltzailearen informaziora
+        header("Location: /show_user?user=" . urlencode($row['NAN']));
+        exit();
     } else {
-        echo "<p style='color:red;'>❌ Errore bat gertatu da babarruna borratzean: " . htmlspecialchars($conn->error) . "</p>";
+        echo "Datu okerrak.";
     }
-}
-
-// Obtener todos los registros
-$sql = "SELECT * FROM babarrunak ORDER BY id DESC";
-$result = $conn->query($sql);
+  }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="eu">
 <head>
-    <meta charset="UTF-8">
-    <title>Babarrunak ezabatu</title>
-    <style>
+  <meta charset="UTF-8">
+  <title>Identifikazioa</title>
+      <style>
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
             background: #f7faff;
@@ -108,38 +114,18 @@ $result = $conn->query($sql);
         }
     </style>
 </head>
-<body>
-    <h2>Babarrunak</h2>
 
-    <!-- IDs ezabatzeko formularioa -->
-    <form method="get" action="">
-        <label for="id">Ezabatzeko ID-a:</label>
-        <input type="number" name="id" id="id" min="1" required>
-        <button type="submit" id="item_delete_submit">Ezabatu</button>
-        <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
-    </form>
-    <!-- balioak erakusteko taula -->
-    <table>
-        <tr>
-            <th>ID</th>
-            <th>Izena</th>
-        </tr>
-        <?php
-        if ($result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                echo "<tr>";
-                echo "<td>" . htmlspecialchars($row['id']) . "</td>";
-                echo "<td>" . htmlspecialchars($row['Izena']) . "</td>";
-                echo "</tr>";
-            }
-        } else {
-            echo "<tr><td colspan='2'>Ez dago produkturik.</td></tr>";
-        }
-        ?>
-    </table>
+<script type="text/javascript" src="/php/login/login.js"></script>
+
+<body>
+  <h1>Erabiltzaileen identifikazioa</h1>
+  <form id="login_form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="POST">
+    IZEN ABIZEN: <input type="text" name="iz_abz" placeholder="Izen Abizen" required><br>
+    PASAHITZA: <input type="password" name="pas" placeholder="Pasahitza" required><br>
+    <button id="login_submit" type="submit" onclick="datuakegiaztatu()">Sartu</button>
+    <button id="login_ezabatu" type="reset">Ezabatu</button>
+    <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
+  </form>
 </body>
 </html>
 
-<?php
-$conn->close();
-?>

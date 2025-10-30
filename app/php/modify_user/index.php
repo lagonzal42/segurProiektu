@@ -1,4 +1,11 @@
 <?php
+session_start();
+
+if (!isset($_SESSION['nan']) || $_SESSION['nan'] !== ($_GET['user'] ?? null)) {
+    header("Location: /login");
+    exit();
+}
+
 $hostname = "db";
 $username = "admin";
 $password = "test";
@@ -9,29 +16,42 @@ if ($conn->connect_error) {
     die("Error de conexión: " . $conn->connect_error);
 }
 
+$user = null;
+$message = "";
 
-if (isset($_GET['id'])) {
-    $id = $_GET['id'];
+if (isset($_GET['user'])) {
+    $nan = $_GET['user'];
 
-    // Query insegurua
-    $sql = "DELETE FROM babarrunak WHERE id = $id";
-    if ($conn->query($sql)) {
-        echo "<p style='color:green;'>✅ $id babarruna borratu da.</p>";
-    } else {
-        echo "<p style='color:red;'>❌ Errore bat gertatu da babarruna borratzean: " . htmlspecialchars($conn->error) . "</p>";
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $nombre = $_POST['Izen_Abizen'] ?? '';
+        $telefono = $_POST['Telefonoa'] ?? '';
+        $fecha = $_POST['Jaio_Data'] ?? '';
+        $email = $_POST['Email'] ?? '';
+
+        $sql = "UPDATE erabiltzaileak SET Izen_Abizen = '$nombre', Telefonoa = '$telefono', Jaio_Data = '$fecha', Email = '$email' WHERE NAN = '$nan'";
+        if ($conn->query($sql)) {
+            header("Location: /show_user?user=" . urlencode($nan));
+            exit();
+        } else {
+            $message = "<p style='color:red;'>❌ Errore bat gertatu da: " . htmlspecialchars($conn->error) . "</p>";
+        }
+    }
+
+    $sql = "SELECT Izen_Abizen, NAN, Telefonoa, Jaio_Data, Email FROM erabiltzaileak WHERE NAN = '$nan'";
+    $result = $conn->query($sql);
+    if ($result && $result->num_rows > 0) {
+        $user = $result->fetch_assoc();
     }
 }
 
-// Obtener todos los registros
-$sql = "SELECT * FROM babarrunak ORDER BY id DESC";
-$result = $conn->query($sql);
+$conn->close();
 ?>
 
 <!DOCTYPE html>
-<html lang="eu">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Babarrunak ezabatu</title>
+    <title>Erabiltzailea Aldatu</title>
     <style>
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
@@ -109,37 +129,28 @@ $result = $conn->query($sql);
     </style>
 </head>
 <body>
-    <h2>Babarrunak</h2>
+    <h1>Erabiltzailearen Datuak Aldatu</h1>
+    <?= $message ?>
 
-    <!-- IDs ezabatzeko formularioa -->
-    <form method="get" action="">
-        <label for="id">Ezabatzeko ID-a:</label>
-        <input type="number" name="id" id="id" min="1" required>
-        <button type="submit" id="item_delete_submit">Ezabatu</button>
-        <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
-    </form>
-    <!-- balioak erakusteko taula -->
-    <table>
-        <tr>
-            <th>ID</th>
-            <th>Izena</th>
-        </tr>
-        <?php
-        if ($result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                echo "<tr>";
-                echo "<td>" . htmlspecialchars($row['id']) . "</td>";
-                echo "<td>" . htmlspecialchars($row['Izena']) . "</td>";
-                echo "</tr>";
-            }
-        } else {
-            echo "<tr><td colspan='2'>Ez dago produkturik.</td></tr>";
-        }
-        ?>
-    </table>
+    <?php if ($user): ?>
+        <form id="user_modify_form" method="post">
+            <label for="Izen_Abizen">Izen Abizena</label>
+            <input type="text" id="Izen_Abizen" name="Izen_Abizen" value="<?= htmlspecialchars($user['Izen_Abizen']) ?>" required>
+
+            <label for="Telefonoa">Telefonoa</label>
+            <input type="text" id="Telefonoa" name="Telefonoa" value="<?= htmlspecialchars($user['Telefonoa']) ?>">
+
+            <label for="Jaio_Data">Jaiotze Data</label>
+            <input type="date" id="Jaio_Data" name="Jaio_Data" value="<?= htmlspecialchars($user['Jaio_Data']) ?>">
+
+            <label for="Email">Email</label>
+            <input type="email" id="Email" name="Email" value="<?= htmlspecialchars($user['Email']) ?>">
+
+            <button type="submit" id="user_modify_submit">Aldaketak Gorde</button>
+            <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
+        </form>
+    <?php else: ?>
+        <p style="color:red;">❌ Erabiltzailea ez da aurkitu. Ziurtatu NAN-a onargarria dela.</p>
+    <?php endif; ?>
 </body>
 </html>
-
-<?php
-$conn->close();
-?>

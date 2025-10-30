@@ -1,38 +1,47 @@
 <?php
-$hostname = "db";
-$username = "admin";
-$password = "test";
-$db = "segurproiektua";
+  $hostname = "db";
+  $username = "admin";
+  $password = "test";
+  $db = "segurproiektua";
 
-$conn = new mysqli($hostname, $username, $password, $db);
-if ($conn->connect_error) {
-    die("Error de conexión: " . $conn->connect_error);
-}
+  $conn = mysqli_connect($hostname, $username, $password, $db);
+  if (!$conn) {
+    die("Database connection failed: " . mysqli_connect_error());
+  }
+
+  $mezua = ""; 
+  
+  if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $iz_abz = $_POST['iz_abz'];
+    $nan = $_POST['nan'];
+    $tlnf = (int) $_POST['tlnf'];
+    $jaiodata = $_POST['jaiodata'];
+    $mail = $_POST['mail'];
+    $pas = $_POST['pas'];
+    
+    $sql = "INSERT INTO erabiltzaileak (Izen_Abizen, NAN, Telefonoa, Jaio_Data, Email, Pasahitza)
+            VALUES ('$iz_abz', '$nan', $tlnf, '$jaiodata', '$mail', '$pas')";
 
 
-if (isset($_GET['id'])) {
-    $id = $_GET['id'];
-
-    // Query insegurua
-    $sql = "DELETE FROM babarrunak WHERE id = $id";
-    if ($conn->query($sql)) {
-        echo "<p style='color:green;'>✅ $id babarruna borratu da.</p>";
+    if ($conn->query($sql) === TRUE) {
+      $mezua = "<span style='color: green;'>Erregistroa ondo gorde da!</span>";
     } else {
-        echo "<p style='color:red;'>❌ Errore bat gertatu da babarruna borratzean: " . htmlspecialchars($conn->error) . "</p>";
+      if ($conn->errno == 1062) {
+        $mezua = "<span style='color: red;'>Errorea: NAN-a dagoeneko existitzen da.</span>";
+      } else {
+        $mezua = "<span style='color: red;'>Errorea: " . $conn->error . "</span>";
+      }
     }
-}
 
-// Obtener todos los registros
-$sql = "SELECT * FROM babarrunak ORDER BY id DESC";
-$result = $conn->query($sql);
+  }
 ?>
 
 <!DOCTYPE html>
 <html lang="eu">
 <head>
-    <meta charset="UTF-8">
-    <title>Babarrunak ezabatu</title>
-    <style>
+  <meta charset="UTF-8">
+  <title>Erregistroa</title>
+      <style>
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
             background: #f7faff;
@@ -108,38 +117,25 @@ $result = $conn->query($sql);
         }
     </style>
 </head>
-<body>
-    <h2>Babarrunak</h2>
 
-    <!-- IDs ezabatzeko formularioa -->
-    <form method="get" action="">
-        <label for="id">Ezabatzeko ID-a:</label>
-        <input type="number" name="id" id="id" min="1" required>
-        <button type="submit" id="item_delete_submit">Ezabatu</button>
-        <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
-    </form>
-    <!-- balioak erakusteko taula -->
-    <table>
-        <tr>
-            <th>ID</th>
-            <th>Izena</th>
-        </tr>
-        <?php
-        if ($result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                echo "<tr>";
-                echo "<td>" . htmlspecialchars($row['id']) . "</td>";
-                echo "<td>" . htmlspecialchars($row['Izena']) . "</td>";
-                echo "</tr>";
-            }
-        } else {
-            echo "<tr><td colspan='2'>Ez dago produkturik.</td></tr>";
-        }
-        ?>
-    </table>
+
+<body>
+
+  <script src="/php/register/register.js"></script>
+
+  <h1>Erabiltzaileen erregistroa</h1>
+  <form id="register_form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="POST">
+    IZEN ABIZEN: <input type="text" name="iz_abz" placeholder="Izen Abizen" required><br>
+    NAN: <input type="text" name="nan" placeholder="12345678Z" required><br>
+    TELEFONOA: <input type="tel" name="tlnf" placeholder="111111111" required><br>
+    JAIOTZE DATA: <input type="text" name="jaiodata" placeholder="uuuu-hh-ee" required><br>
+    EMAIL: <input type="email" name="mail" placeholder="adibidea@adibidez.eus" required><br>
+    PASAHITZA: <input type="password" name="pas" placeholder="Pasahitza" required><br>
+    <button id="register_submit" type="button" onclick="datuakegiaztatu()">Sartu</button>
+    <button id="register_ezabatu" type="reset">Ezabatu</button>
+    <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
+  </form>
+  <?php echo $mezua; ?>
 </body>
 </html>
 
-<?php
-$conn->close();
-?>

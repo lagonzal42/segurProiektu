@@ -11,7 +11,6 @@ stop:
 	@docker-compose down
 	@echo "Docker kontainerrak gelditu dira"
 
-
 fclean:
 	@echo "Dockerren cacheak eta sareak ezabatuko dira"
 	@docker system prune -af
