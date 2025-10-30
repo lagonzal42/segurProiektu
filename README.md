@@ -1,4 +1,4 @@
-# ISSKS Proiektua
+# Babarrun kudeaketaren web-a
 
 Repositorio honetan garatutako web aplikazioaren beharrezko fitxategi guztiak aurki daitezke.
 
