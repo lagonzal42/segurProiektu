@@ -114,7 +114,7 @@ $result = $conn->query($sql);
     <!-- IDs ezabatzeko formularioa -->
     <form method="get" action="">
         <label for="id">Ezabatzeko ID-a:</label>
-        <input type="text" name="id" id="id" min="1" required>
+        <input type="text" name="id" id="id" required>
         <button type="submit" id="item_delete_submit">Ezabatu</button>
         <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
     </form>
