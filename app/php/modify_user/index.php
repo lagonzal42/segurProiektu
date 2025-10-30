@@ -128,6 +128,9 @@ $conn->close();
         }
     </style>
 </head>
+
+<script src="/php/modify_user/modify_user.js"></script> <!-- JavaScript fitxategiarekin konexioa egiteko lerroa, JavaScript artxiboaren kokapena zehazten du. -->
+
 <body>
     <h1>Erabiltzailearen Datuak Aldatu</h1>
     <?= $message ?>
@@ -141,16 +144,16 @@ $conn->close();
             <input type="text" id="Telefonoa" name="Telefonoa" value="<?= htmlspecialchars($user['Telefonoa']) ?>">
 
             <label for="Jaio_Data">Jaiotze Data</label>
-            <input type="date" id="Jaio_Data" name="Jaio_Data" value="<?= htmlspecialchars($user['Jaio_Data']) ?>">
+            <input type="text" id="Jaio_Data" name="Jaio_Data" value="<?= htmlspecialchars($user['Jaio_Data']) ?>">
 
             <label for="Email">Email</label>
             <input type="email" id="Email" name="Email" value="<?= htmlspecialchars($user['Email']) ?>">
 
-            <button type="submit" id="user_modify_submit">Aldaketak Gorde</button>
+            <button id="user_modify_submit" type="button" onclick="datuakegiaztatu()">Aldaketak Gorde</button>
             <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
         </form>
     <?php else: ?>
-        <p style="color:red;">❌ Erabiltzailea ez da aurkitu. Ziurtatu NAN-a onargarria dela.</p>
+        <p style="color:red;"> Erabiltzailea ez da aurkitu. Ziurtatu NAN-a onargarria dela.</p>
     <?php endif; ?>
 </body>
 </html>
