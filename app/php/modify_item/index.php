@@ -153,7 +153,7 @@ $result = $conn->query($sql);
             </div>
             <div>
                 <label for="Egozketa_denb_min">Egozketa denbora (min):</label>
-                <input type="number" id="Egozketa_denb_min" name="Egozketa_denb_min" value="<?= htmlspecialchars($user['Egozketa_denb_min']) ?>" required>
+                <input type="text" id="Egozketa_denb_min" name="Egozketa_denb_min" value="<?= htmlspecialchars($user['Egozketa_denb_min']) ?>" required>
             </div>
             <br>
             <button type="submit">Gorde Aldaketak</button>
