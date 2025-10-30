@@ -9,27 +9,27 @@
     die("Database connection failed: " . mysqli_connect_error());
   }
 
-  $mezua = ""; 
+  $mezua = ""; # Errore mezua gordetzeko aldagaia, bertan erregistroaren emaitza erakutsiko da.
   
-  if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $iz_abz = $_POST['iz_abz'];
-    $nan = $_POST['nan'];
-    $tlnf = (int) $_POST['tlnf'];
-    $jaiodata = $_POST['jaiodata'];
-    $mail = $_POST['mail'];
-    $pas = $_POST['pas'];
+  if ($_SERVER["REQUEST_METHOD"] == "POST") {   # Formularioa bidali ondoren exekutatuko da, horretarako POST metodoa erabiltzen da.
+    $iz_abz = $_POST['iz_abz'];                 # Formularioan jarritako izen abizena jasotzen du.
+    $nan = $_POST['nan'];                       # Formularioan jarritako NAN-a jasotzen du.
+    $tlnf = (int) $_POST['tlnf'];               # Formularioan jarritako telefonoa zenbakia jasotzen du, integer-era bihurtuta.
+    $jaiodata = $_POST['jaiodata'];             # Formularioan jarritako jaiotze data jasotzen du.
+    $mail = $_POST['mail'];                     # Formularioan jarritako email-a jasotzen du.
+    $pas = $_POST['pas'];                       # Formularioan jarritako pasahitza jasotzen du.
     
     $sql = "INSERT INTO erabiltzaileak (Izen_Abizen, NAN, Telefonoa, Jaio_Data, Email, Pasahitza)
-            VALUES ('$iz_abz', '$nan', $tlnf, '$jaiodata', '$mail', '$pas')";
+            VALUES ('$iz_abz', '$nan', $tlnf, '$jaiodata', '$mail', '$pas')";      #SQL INSERT agindua gordeko duen aldagaia da, erabiltzaile berri bat gehitzeko erabiliko dena.
 
 
-    if ($conn->query($sql) === TRUE) {
-      $mezua = "<span style='color: green;'>Erregistroa ondo gorde da!</span>";
+    if ($conn->query($sql) === TRUE) {                                      # SQL-ko datubasearekin konexioa egiten du eta agindua exekutatzen du, erabiltzaile berri bat gehituz.
+      $mezua = "<span style='color: green;'>Erregistroa ondo gorde da!</span>";    # Errorerik egon ez bada, erregistroa ondo gorde dela adieraziko duen mezua.
     } else {
-      if ($conn->errno == 1062) {
-        $mezua = "<span style='color: red;'>Errorea: NAN-a dagoeneko existitzen da.</span>";
+      if ($conn->errno == 1062) {                                                  # 1062 errore kodea ematen bada, formularioan sartutako NAN-a datubasean dagoela adieraziko du.
+        $mezua = "<span style='color: red;'>Errorea: NAN-a dagoeneko existitzen da.</span>"; 
       } else {
-        $mezua = "<span style='color: red;'>Errorea: " . $conn->error . "</span>";
+        $mezua = "<span style='color: red;'>Errorea: " . $conn->error . "</span>"; # Aurreko errorerik eman ez bada, beste errore bat egon dela adieraziko da.
       }
     }
 
@@ -41,7 +41,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Erregistroa</title>
-      <style>
+      <style> /* Erabiliko den estiloaren definizioa. */
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
             background: #f7faff;
@@ -121,21 +121,19 @@
 
 <body>
 
-  <script src="/php/register/register.js"></script>
+  <script src="/php/register/register.js"></script> <!-- JavaScript fitxategiarekin konexioa egiteko lerroa, JavaScript artxiboaren kokapena zehazten du. -->
 
   <h1>Erabiltzaileen erregistroa</h1>
-  <form id="register_form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="POST">
-    IZEN ABIZEN: <input type="text" name="iz_abz" placeholder="Izen Abizen" required><br>
-    NAN: <input type="text" name="nan" placeholder="12345678Z" required><br>
-    TELEFONOA: <input type="tel" name="tlnf" placeholder="111111111" required><br>
-    JAIOTZE DATA: <input type="text" name="jaiodata" placeholder="uuuu-hh-ee" required><br>
-    EMAIL: <input type="email" name="mail" placeholder="adibidea@adibidez.eus" required><br>
-    PASAHITZA: <input type="password" name="pas" placeholder="Pasahitza" required><br>
-    <button id="register_submit" type="button" onclick="datuakegiaztatu()">Sartu</button>
-    <button id="register_ezabatu" type="reset">Ezabatu</button>
-    <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
-  </form>
-  <?php echo $mezua; ?>
+  <form id="register_form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="POST">  <!-- Formularioaren hasiera, datuak bidaltzeko metodoa POST da eta action atributuak orri honetara bidaltzen du, bertan definitu baitugu php-zer egingo duen sartutako datuekin. -->
+    IZEN ABIZEN: <input type="text" name="iz_abz" placeholder="Izen Abizen" required><br>                         <!-- Izen abizena sartzeko eremua. -->
+    NAN: <input type="text" name="nan" placeholder="12345678Z" required><br>                                      <!-- NAN-a sartzeko eremua. -->
+    TELEFONOA: <input type="tel" name="tlnf" placeholder="111111111" required><br>                                <!-- Telefono zenbakia sartzeko eremua. -->
+    JAIOTZE DATA: <input type="text" name="jaiodata" placeholder="uuuu-hh-ee" required><br>                       <!-- Jaiotze data sartzeko eremua. -->
+    EMAIL: <input type="email" name="mail" placeholder="adibidea@adibidez.eus" required><br>                      <!-- Email-a sartzeko eremua. -->
+    PASAHITZA: <input type="password" name="pas" placeholder="Pasahitza" required><br>                            <!-- Pasahitza sartzeko eremua. -->
+    <button id="register_submit" type="button" onclick="datuakegiaztatu()">Sartu</button>                         <!-- Sartzeko botoia, JavaScript fitxategiari deia egingo dio, sartutako datuak konprobatzeko, ez du "submit" egiten. -->
+    <button id="register_ezabatu" type="reset">Ezabatu</button>                                                   <!-- Ezabatzeko botoia, formularioaren edukia ezabatzen du. -->
+    <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>                <!-- Hasierarako botoia, hasierako orrira, alegia home orrira, eramaten du. -->
+  <?php echo $mezua; ?>                                                                                           <!-- Gordetako mezua erakusten du, erregistroaren emaitza jakiteko. -->
 </body>
-</html>
-
+</html> 
