@@ -1,6 +1,8 @@
 <?php
+//Sesioen informazioa kargatu
 session_start();
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -51,7 +53,9 @@ session_start();
 </head>
 <body>
     <h1>Hasiera</h1>
+    <!-- Hasiera botoien kuadrikula -->
     <div class="button-grid">
+        <!-- Hasiera botoiak -->
         <a href="add_items"><button type="button">Gehitu item bat</button></a>
         <a href="delete_item"><button type="button">Borratu item bat</button></a>
         <a href="items"><button type="button">Item-ak</button></a>
@@ -59,6 +63,7 @@ session_start();
         <a href="modify_item"><button type="button">Aldatu itemak</button></a>
         <a href="register"><button type="button">Erregistratu</button></a>
         <a href="show_item"><button type="button">Itemak ikusi detaileekin</button></a>
+        <!-- Sesio bat hasi bada botoi berri bat jarri -->
         <?php
         if (isset($_SESSION['nan'])) {
             echo '<a href="show_user?user=' . urlencode($_SESSION['nan']) . '"><button type="button">Nire datuak</button></a>';
