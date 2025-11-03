@@ -1,7 +1,7 @@
 <?php
 $hostname = "db";
 $username = "admin";
-$password = "test";
+$password = "test"; 
 $db = "segurproiektua";
 
 $conn = new mysqli($hostname, $username, $password, $db);
@@ -34,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <!DOCTYPE html>
 <html lang="eu">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8"> 
     <title>Babarruna Gehitu</title>
     <style>
         body {
@@ -116,7 +116,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <h1>Babarruna gehitu</h1>
 
     <form id="item_add_form" method="POST" action="add_items">
-        <label for="izena">Izena:</label>
+        <label for="izena">Izena:</label> 
         <input type="text" id="izena" name="izena" required>
 
         <label for="jatorria">Jatorria:</label>
@@ -125,7 +125,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <label for="kolorea">Kolorea:</label>
         <input type="text" id="kolorea" name="kolorea" required>
 
-        <label for="denbora">Denbora:</label>
+        <label for="denbora">Egozte denbora:</label>
         <input type="number" min="0" step="1" id="denbora" name="denbora" required>
 
         <button type="submit" id="item_add_submit">Gehitu</button>
