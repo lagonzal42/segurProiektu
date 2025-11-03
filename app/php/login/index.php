@@ -1,5 +1,5 @@
 <?php
-  session_start(); // Inicia la sesión
+  session_start(); // Saioa hasteko erabiltzen da.
 
   $hostname = "db";
   $username = "admin";
@@ -11,22 +11,21 @@
     die("Database connection failed: " . mysqli_connect_error());
   }
 
-  if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $iz_abz = $_POST['iz_abz'];
-    $pas = $_POST['pas'];
+  if ($_SERVER["REQUEST_METHOD"] == "POST") {   # Formularioa bidali ondoren exekutatuko da, horretarako POST metodoa erabiltzen da.
+    $iz_abz = $_POST['iz_abz'];                 # Formularioan jarritako izen abizena jasotzen du.
+    $pas = $_POST['pas'];                       # Formularioan jarritako pasahitza jasotzen du.
 
-    $sql = "SELECT * FROM erabiltzaileak WHERE Izen_Abizen = '$iz_abz' AND Pasahitza = '$pas'";
-    $resultado = mysqli_query($conn, $sql);
+    $sql = "SELECT * FROM erabiltzaileak WHERE Izen_Abizen = '$iz_abz' AND Pasahitza = '$pas'";      # SQL SELECT agindua gordeko duen aldagaia da, erabiltzaile bat bilatuko duena emandako datuak erabiliz.
+    $resultado = mysqli_query($conn, $sql);                                            # SQL-ko datubasearekin konexioa egiten du eta agindua exekutatzen du, erabiltzailea existitzen bada bere baduak aukeratuz.
 
-    if (mysqli_num_rows($resultado) > 0) {
-        $row = mysqli_fetch_assoc($resultado);
-        $_SESSION['nan'] = $row['NAN'];
-        $_SESSION['iz_abz'] = $row['Izen_Abizen'];
+    if (mysqli_num_rows($resultado) > 0) {                                                   # Lortutako emaitza konprobatzen du, erabiltzaile existitzen badenentz konprobatzeko.  
+        $row = mysqli_fetch_assoc($resultado);                                               # Lortutako emaitzaren lerroa hartzen du, datu guztiekin.
+        $_SESSION['nan'] = $row['NAN'];                                                              # Lortutako lerroaren NAN datua eskuratzen du.
+        $_SESSION['iz_abz'] = $row['Izen_Abizen'];                                                   # Lortutako lerroaren izen abizena eskuratzen du.
 
-        //berbideraketa erabiltzailearen informaziora
-        header("Location: /show_user?user=" . urlencode($row['NAN']));
+        header("Location: /show_user?user=" . urlencode($row['NAN']));               # Erabiltzailearen informazioa begiratzeko berbideraketa.
         exit();
-    } else {
+    } else {                                                                                         # Erabilitako datuak okerrak badira, datu okerrak sartu direla agertuko da.
         echo "Datu okerrak.";
     }
   }
@@ -38,7 +37,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Identifikazioa</title>
-      <style>
+      <style> /* Erabiliko den estiloaren definizioa. */
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
             background: #f7faff;
@@ -115,16 +114,16 @@
     </style>
 </head>
 
-<script type="text/javascript" src="/php/login/login.js"></script>
+<script type="text/javascript" src="/php/login/login.js"></script> <!-- JavaScript fitxategiarekin konexioa egiteko lerroa, JavaScript artxiboaren kokapena zehazten du. -->
 
 <body>
   <h1>Erabiltzaileen identifikazioa</h1>
-  <form id="login_form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="POST">
-    IZEN ABIZEN: <input type="text" name="iz_abz" placeholder="Izen Abizen" required><br>
-    PASAHITZA: <input type="password" name="pas" placeholder="Pasahitza" required><br>
-    <button id="login_submit" type="submit" onclick="datuakegiaztatu()">Sartu</button>
-    <button id="login_ezabatu" type="reset">Ezabatu</button>
-    <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
+  <form id="login_form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="POST">       <!-- Formularioaren hasiera, datuak bidaltzeko metodoa POST da eta action atributuak orri honetara bidaltzen du, bertan definitu baitugu php-zer egingo duen sartutako datuekin. -->
+    IZEN ABIZEN: <input type="text" name="iz_abz" placeholder="Izen Abizen" required><br>                           <!-- Izen abizena sartzeko eremua. -->
+    PASAHITZA: <input type="password" name="pas" placeholder="Pasahitza" required><br>                              <!-- Pasahitza sartzeko eremua. -->
+    <button id="login_submit" type="submit" onclick="datuakegiaztatu()">Sartu</button>                              <!-- Sartzeko botoia, JavaScript fitxategiari deia egingo dio, sartutako datuak konprobatzeko, ez du "submit" egiten. -->
+    <button id="login_ezabatu" type="reset">Ezabatu</button>                                                        <!-- Ezabatzeko botoia, formularioaren edukia ezabatzen du. -->
+    <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>                  <!-- Hasierarako botoia, hasierako orrira, alegia home orrira, eramaten du. -->
   </form>
 </body>
 </html>

@@ -1,16 +1,20 @@
 <?php
-session_start(); // Añade esto para acceder a la sesión
+session_start(); // Saioa hasi edo existitzen den saioa jarraitu
 
 $hostname = "db";
 $username = "admin";
 $password = "test";
 $db = "segurproiektua";
 
+// Konexioa sortu MySQL datu-basearekin
 $conn = new mysqli($hostname, $username, $password, $db);
+
+// Konexioan errorea gertatzen bada, exekuzioa eten eta errore mezua erakutsi
 if ($conn->connect_error) {
     die("Konexio errorea: " . $conn->connect_error);
 }
 
+// URL bidez 'user' parametroa jaso bada, datu-basean bilatu
 if (isset($_GET['user'])) {
     $nan = $_GET['user'];
 
@@ -26,7 +30,7 @@ if (isset($_GET['user'])) {
     $user = null;
 }
 
-$conn->close();
+$conn->close(); // Konexioa itxi datu-basearekin
 ?>
 
 <!DOCTYPE html>
@@ -114,6 +118,7 @@ $conn->close();
     <h2>Erabiltzailearen Informazioa</h2>
 
     <?php if ($user): ?>
+         <!-- Erabiltzailea aurkitu bada, bere datuak erakusten dira taulan -->
         <table>
             <tr><th>Datua</th><th>Balorea</th></tr>
             <tr><td>Izen Abizena</td><td><?= htmlspecialchars($user['Izen_Abizen']) ?></td></tr>
