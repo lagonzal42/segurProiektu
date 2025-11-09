@@ -10,15 +10,38 @@ if ($conn->connect_error) {
 }
 
 
-if (isset($_GET['id'])) {
-    $id = $_GET['id'];
+if (isset($_GET['item'])) {
+    $item_raw = $_GET['item'];
+    $item = $conn->real_escape_string($item_raw);
 
-    // Query insegurua
-    $sql = "DELETE FROM babarrunak WHERE id = $id";
-    if ($conn->query($sql)) {
-        echo "<p style='color:green;'>✅ $id babarruna borratu da.</p>";
+    if ($item === '') {
+        echo "<p style='color:red;'>❌ Nombre vacío.</p>";
     } else {
-        echo "<p style='color:red;'>❌ Errore bat gertatu da babarruna borratzean: " . htmlspecialchars($conn->error) . "</p>";
+        // comprobar existencia
+        $check_sql = "SELECT COUNT(*) AS cnt FROM babarrunak WHERE Izena = '$item'";
+        $check_res = $conn->query($check_sql);
+        if ($check_res) {
+            $row = $check_res->fetch_assoc();
+            $check_res->free();
+
+            if ((int)$row['cnt'] === 0) {
+                echo "<p style='color:orange;'>ℹ️ \"" . htmlspecialchars($item_raw) . "\" ez da existitzen.</p>";
+            } else {
+                // eliminar (limitar a 1 por si hay duplicados)
+                $del_sql = "DELETE FROM babarrunak WHERE Izena = '$item' LIMIT 1";
+                if ($conn->query($del_sql)) {
+                    if ($conn->affected_rows > 0) {
+                        echo "<p style='color:green;'>✅ \"" . htmlspecialchars($item_raw) . "\" babarruna borratu da.</p>";
+                    } else {
+                        echo "<p style='color:orange;'>ℹ️ Ez da ezer ezabatu.</p>";
+                    }
+                } else {
+                    echo "<p style='color:red;'>❌ Errore bat gertatu da: " . htmlspecialchars($conn->error) . "</p>";
+                }
+            }
+        } else {
+            echo "<p style='color:red;'>❌ Errore bat comprobando existencia: " . htmlspecialchars($conn->error) . "</p>";
+        }
     }
 }
 
@@ -111,10 +134,10 @@ $result = $conn->query($sql);
 <body>
     <h1>Babarrunak</h1>
 
-    <!-- IDs ezabatzeko formularioa -->
-    <form method="get" action="">
-        <label for="id">Ezabatzeko ID-a:</label>
-        <input type="text" name="id" id="id" required>
+    <!-- IDs ezabatzeko formularioa (ahora por nombre) -->
+    <form method="get" action="/delete_item">
+        <label for="item">Ezabatzeko izena:</label>
+        <input type="text" name="item" id="item" required>
         <button type="submit" id="item_delete_submit">Ezabatu</button>
         <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
     </form>
@@ -122,7 +145,6 @@ $result = $conn->query($sql);
     <table>
         <tr>
             <!-- Taularen leheengo errenkada -->
-            <th>ID</th>
             <th>Izena</th>
         </tr>
         <!-- Informazio errenkadak -->
@@ -134,7 +156,6 @@ $result = $conn->query($sql);
             while ($row = $result->fetch_assoc())
             {
                 echo "<tr>";
-                echo "<td>" . htmlspecialchars($row['id']) . "</td>";
                 echo "<td>" . htmlspecialchars($row['Izena']) . "</td>";
                 echo "</tr>";
             }
