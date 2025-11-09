@@ -9,7 +9,6 @@ CREATE DATABASE IF NOT EXISTS `segurproiektua`
 
 USE `segurproiektua`;
 
--- 👇 Asegura que las conexiones usen UTF-8
 SET NAMES utf8mb4;
 SET CHARACTER SET utf8mb4;
 

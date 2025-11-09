@@ -126,7 +126,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <input type="text" id="kolorea" name="kolorea" required>
 
         <label for="denbora">Denbora:</label>
-        <input type="number" min="0" step="1" id="denbora" name="denbora" required>
+        <input type="text" id="denbora" name="denbora" required>
 
         <button type="submit" id="item_add_submit">Gehitu</button>
         <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
