@@ -146,7 +146,7 @@
   <h1>Erabiltzaileen identifikazioa</h1>
   <form id="login_form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="POST">
     
-    <label for="user">IZEN ABIZEN:</label>
+    <label for="user">ERABILTZAILEA:</label>
     <input type="text" id="user" name="user" placeholder="Erabiltzaile" required>
 
     <label for="pas">PASAHITZA:</label>

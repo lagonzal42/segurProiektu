@@ -172,7 +172,7 @@
   <h1>Erabiltzaileen erregistroa</h1>
   <form id="register_form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="POST">
     
-    <label for="user">IZEN ABIZEN:</label> 
+    <label for="user">ERABILTZAILEA:</label> 
     <input type="text" id="user" name="user" placeholder="Erabiltzailea" required>
 
     <label for="iz_abz">IZEN ABIZEN:</label> 

@@ -3,11 +3,11 @@ function datuakegiaztatu() {
     var pas = document.querySelector('input[name="pas"]').value;
 
     if (user.trim() === "") {
-        window.alert("Pasahitza ezin da hutsik egon.");
+        window.alert("Erabiltzailea ezin da hutsik egon.");
         return false;
     }
     else if(user.length > 50){
-        window.alert("Pasahitza luzeegia da.")
+        window.alert("Erabiltzailea luzeegia da.")
         console.log(pas)
         return false;
     }

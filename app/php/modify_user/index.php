@@ -35,7 +35,7 @@ if (isset($_GET['user'])) {
             header("Location: /show_user?user=" . urlencode($nan));
             exit();
         } else {
-            $message = "<p style='color:red;'>❌ Errore bat gertatu da: </p>";
+            $message = "<p style='color:red;'>❌ Errore bat gertatu da </p>";
         }
     }
 
