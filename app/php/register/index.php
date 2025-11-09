@@ -9,27 +9,29 @@
     die("Database connection failed: " . mysqli_connect_error());
   }
 
-  $mezua = ""; # Errore mezua gordetzeko aldagaia, bertan erregistroaren emaitza erakutsiko da.
+  $mezua = ""; 
   
-  if ($_SERVER["REQUEST_METHOD"] == "POST") {   # Formularioa bidali ondoren exekutatuko da, horretarako POST metodoa erabiltzen da.
-    $iz_abz = $_POST['iz_abz'];                 # Formularioan jarritako izen abizena jasotzen du.
-    $nan = $_POST['nan'];                       # Formularioan jarritako NAN-a jasotzen du.
-    $tlnf = (int) $_POST['tlnf'];               # Formularioan jarritako telefonoa zenbakia jasotzen du, integer-era bihurtuta.
-    $jaiodata = $_POST['jaiodata'];             # Formularioan jarritako jaiotze data jasotzen du.
-    $mail = $_POST['mail'];                     # Formularioan jarritako email-a jasotzen du.
-    $pas = $_POST['pas'];                       # Formularioan jarritako pasahitza jasotzen du.
+  if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $user = $_POST["user"];
+    $iz_abz = $_POST['iz_abz'];
+    $nan = $_POST['nan'];
+    $tlnf = (int) $_POST['tlnf'];
+    $jaiodata = $_POST['jaiodata'];
+    $mail = $_POST['mail'];
+    $pas = $_POST['pas'];
     
-    $sql = "INSERT INTO erabiltzaileak (Izen_Abizen, NAN, Telefonoa, Jaio_Data, Email, Pasahitza)
-            VALUES ('$iz_abz', '$nan', $tlnf, '$jaiodata', '$mail', '$pas')";      #SQL INSERT agindua gordeko duen aldagaia da, erabiltzaile berri bat gehitzeko erabiliko dena.
+    // Query insegura (vulnerable a SQL Injection)
+    $sql = "INSERT INTO erabiltzaileak (Erabiltzaile, Izen_Abizen, NAN, Telefonoa, Jaio_Data, Email, Pasahitza)
+            VALUES ('$user', '$iz_abz', '$nan', $tlnf, '$jaiodata', '$mail', '$pas')";
 
 
-    if ($conn->query($sql) === TRUE) {                                      # SQL-ko datubasearekin konexioa egiten du eta agindua exekutatzen du, erabiltzaile berri bat gehituz.
-      $mezua = "<span style='color: green;'>Erregistroa ondo gorde da!</span>";    # Errorerik egon ez bada, erregistroa ondo gorde dela adieraziko duen mezua.
+    if ($conn->query($sql) === TRUE) {
+      $mezua = "<span style='color: green;'>Erregistroa ondo gorde da!</span>";
     } else {
-      if ($conn->errno == 1062) {                                                  # 1062 errore kodea ematen bada, formularioan sartutako NAN-a datubasean dagoela adieraziko du.
-        $mezua = "<span style='color: red;'>Errorea: NAN-a dagoeneko existitzen da.</span>"; 
+      if ($conn->errno == 1062) {
+        $mezua = "<span style='color: red;'>Errorea: NAN-a dagoeneko existitzen da.</span>";
       } else {
-        $mezua = "<span style='color: red;'>Errorea: " . $conn->error . "</span>"; # Aurreko errorerik eman ez bada, beste errore bat egon dela adieraziko da.
+        $mezua = "<span style='color: red;'>Errorea: " . $conn->error . "</span>";
       }
     }
 
@@ -41,79 +43,123 @@
 <head>
   <meta charset="UTF-8">
   <title>Erregistroa</title>
-      <style> /* Erabiliko den estiloaren definizioa. */
+      <style>
         body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background: #f7faff;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: #fcfcfc; 
+            color: #333;
             margin: 0;
             padding: 0;
+            line-height: 1.6;
         }
-        h1, h2, h3 {
-            color: #2366a8;
-            margin-top: 30px;
+        h1 {
+            color: #2c3e50; 
+            text-align: center;
+            padding: 40px 0 20px 0;
+            font-weight: 300;
+            font-size: 2.2em;
+            border-bottom: 1px solid #eee; 
+            margin-bottom: 40px;
         }
-        table {
-            border-collapse: collapse;
+
+        form {
+            background: #ffffff;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+            margin: 30px auto;
             width: 90%;
-            margin: 30px auto 10px auto;
-            background: #fff;
-            box-shadow: 0 2px 8px rgba(35,102,168,0.08);
-            border-radius: 12px;
-            overflow: hidden;
+            max-width: 450px;
+            border: 1px solid #eee;
         }
-        th, td {
-            border: none;
-            padding: 12px 16px;
-            text-align: left;
+        label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+            font-size: 0.95em;
         }
-        th {
-            background-color: #e3f0fc;
-            color: #2366a8;
-        }
-        tr:nth-child(even) {
-            background-color: #f2f7fc;
-        }
-        tr:hover {
-            background-color: #d6eaff;
-        }
-        input, select {
-            padding: 8px;
-            border-radius: 8px;
-            border: 1px solid #bcd0e6;
+        input[type="text"], input[type="tel"], input[type="email"], input[type="password"], input[type="submit"] {
+            padding: 10px 12px;
+            border-radius: 4px;
+            border: 1px solid #bdc3c7; 
             margin-bottom: 10px;
             width: 100%;
             box-sizing: border-box;
+            font-size: 1em;
+            transition: border-color 0.2s;
+            display: block;
         }
-        button, input[type="submit"] {
-            background: linear-gradient(90deg, #2366a8 60%, #4fa3e3 100%);
+        input:focus {
+            border-color: #2c3e50; 
+            outline: none;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: flex-start; 
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        button {
+            background: #2c3e50; 
             color: #fff;
             border: none;
-            border-radius: 8px;
-            padding: 10px 20px;
-            font-size: 16px;
+            border-radius: 4px;
+            padding: 10px 15px;
+            font-size: 0.95em;
+            font-weight: 500;
             cursor: pointer;
-            box-shadow: 0 1px 4px rgba(35,102,168,0.10);
-            transition: background 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background 0.2s, transform 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            width: auto;
+            margin-bottom: 5px;
         }
-        button:hover, input[type="submit"]:hover {
-            background: linear-gradient(90deg, #4fa3e3 60%, #2366a8 100%);
+        button:hover {
+            background: #34495e;
+            transform: translateY(-1px);
         }
-        form {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(35,102,168,0.08);
-            padding: 24px;
-            margin: 30px auto;
-            width: 90%;
-            max-width: 500px;
+        #register_ezabatu {
+            background: #95a5a6; 
         }
-        .message {
+        #register_ezabatu:hover {
+            background: #7f8c8d;
+        }
+        .modify-btn {
+            background: #3498db; 
+        }
+        .modify-btn:hover {
+            background: #2980b9;
+        }
+        
+        .message-box {
             text-align: center;
             margin: 20px auto;
-            font-size: 18px;
+            max-width: 450px;
         }
-        h1 {
-            text-align: center;
+        .message-box span {
+            display: inline-block;
+            font-size: 1.1em;
+            padding: 10px 20px;
+            border-radius: 4px;
+        }
+        .message-box span[style*='color: green'] {
+            background-color: #e6ffee;
+            border: 1px solid #33cc33;
+            color: #1a661a !important;
+        }
+        .message-box span[style*='color: red'] {
+            background-color: #ffe6e6;
+            border: 1px solid #cc3333;
+            color: #661a1a !important;
+        }
+        
+        table, th, td, tr {
+            display: none;
         }
     </style>
 </head>
@@ -121,19 +167,46 @@
 
 <body>
 
-  <script src="/php/register/register.js"></script> <!-- JavaScript fitxategiarekin konexioa egiteko lerroa, JavaScript artxiboaren kokapena zehazten du. -->
+  <script src="/php/register/register.js"></script>
 
   <h1>Erabiltzaileen erregistroa</h1>
-  <form id="register_form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="POST">  <!-- Formularioaren hasiera, datuak bidaltzeko metodoa POST da eta action atributuak orri honetara bidaltzen du, bertan definitu baitugu php-zer egingo duen sartutako datuekin. -->
-    IZEN ABIZEN: <input type="text" name="iz_abz" placeholder="Izen Abizen" required><br>                         <!-- Izen abizena sartzeko eremua. -->
-    NAN: <input type="text" name="nan" placeholder="12345678Z" required><br>                                      <!-- NAN-a sartzeko eremua. -->
-    TELEFONOA: <input type="tel" name="tlnf" placeholder="111111111" required><br>                                <!-- Telefono zenbakia sartzeko eremua. -->
-    JAIOTZE DATA: <input type="text" name="jaiodata" placeholder="uuuu-hh-ee" required><br>                       <!-- Jaiotze data sartzeko eremua. -->
-    EMAIL: <input type="email" name="mail" placeholder="adibidea@adibidez.eus" required><br>                      <!-- Email-a sartzeko eremua. -->
-    PASAHITZA: <input type="password" name="pas" placeholder="Pasahitza" required><br>                            <!-- Pasahitza sartzeko eremua. -->
-    <button id="register_submit" type="button" onclick="datuakegiaztatu()">Sartu</button>                         <!-- Sartzeko botoia, JavaScript fitxategiari deia egingo dio, sartutako datuak konprobatzeko, ez du "submit" egiten. -->
-    <button id="register_ezabatu" type="reset">Ezabatu</button>                                                   <!-- Ezabatzeko botoia, formularioaren edukia ezabatzen du. -->
-    <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>                <!-- Hasierarako botoia, hasierako orrira, alegia home orrira, eramaten du. -->
-  <?php echo $mezua; ?>                                                                                           <!-- Gordetako mezua erakusten du, erregistroaren emaitza jakiteko. -->
+  <form id="register_form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="POST">
+    
+    <label for="user">IZEN ABIZEN:</label> 
+    <input type="text" id="user" name="user" placeholder="Erabiltzailea" required>
+
+    <label for="iz_abz">IZEN ABIZEN:</label> 
+    <input type="text" id="iz_abz" name="iz_abz" placeholder="Izen Abizen" required>
+    
+    <label for="nan">NAN:</label> 
+    <input type="text" id="nan" name="nan" placeholder="12345678Z" required>
+    
+    <label for="tlnf">TELEFONOA:</label> 
+    <input type="tel" id="tlnf" name="tlnf" placeholder="111111111" required>
+    
+    <label for="jaiodata">JAIOTZE DATA:</label> 
+    <input type="text" id="jaiodata" name="jaiodata" placeholder="uuuu-hh-ee" required>
+    
+    <label for="mail">EMAIL:</label> 
+    <input type="email" id="mail" name="mail" placeholder="adibidea@adibidez.eus" required>
+    
+    <label for="pas">PASAHITZA:</label> 
+    <input type="password" id="pas" name="pas" placeholder="Pasahitza" required>
+    
+    <div class="button-container">
+        <button id="register_submit" type="button" onclick="datuakegiaztatu()">Sartu</button>
+        <button id="register_ezabatu" type="reset">Ezabatu</button>
+        <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
+    </div>
+  </form>
+  
+  <div class="message-box">
+    <?php echo $mezua; ?>
+  </div>
+
 </body>
-</html> 
+</html>
+
+<?php
+mysqli_close($conn);
+?>
