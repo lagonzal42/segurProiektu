@@ -12,17 +12,17 @@
   }
 
   if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $iz_abz = $_POST['iz_abz'];
+    $user = $_POST['user'];
     $pas = $_POST['pas'];
 
     // Query insegura (vulnerable a SQL Injection)
-    $sql = "SELECT * FROM erabiltzaileak WHERE Izen_Abizen = '$iz_abz' AND Pasahitza = '$pas'";
+    $sql = "SELECT * FROM erabiltzaileak WHERE Erabiltzaile = '$user' AND Pasahitza = '$pas'";
     $resultado = mysqli_query($conn, $sql);
 
     if (mysqli_num_rows($resultado) > 0) {
         $row = mysqli_fetch_assoc($resultado);
         $_SESSION['nan'] = $row['NAN'];
-        $_SESSION['iz_abz'] = $row['Izen_Abizen'];
+        $_SESSION['user'] = $row['Erabiltzaile'];
 
         //berbideraketa erabiltzailearen informaziora
         header("Location: /show_user?user=" . urlencode($row['NAN']));
@@ -146,8 +146,8 @@
   <h1>Erabiltzaileen identifikazioa</h1>
   <form id="login_form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="POST">
     
-    <label for="iz_abz">IZEN ABIZEN:</label>
-    <input type="text" id="iz_abz" name="iz_abz" placeholder="Izen Abizen" required>
+    <label for="user">IZEN ABIZEN:</label>
+    <input type="text" id="user" name="user" placeholder="Erabiltzaile" required>
 
     <label for="pas">PASAHITZA:</label>
     <input type="password" id="pas" name="pas" placeholder="Pasahitza" required>

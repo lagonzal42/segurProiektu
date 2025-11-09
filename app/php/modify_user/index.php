@@ -23,23 +23,24 @@ if (isset($_GET['user'])) {
     $nan = $_GET['user'];
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $erabiltzaile = $_POST['Erabiltzaile'] ?? '';
         $nombre = $_POST['Izen_Abizen'] ?? '';
         $telefono = $_POST['Telefonoa'] ?? '';
         $fecha = $_POST['Jaio_Data'] ?? '';
         $email = $_POST['Email'] ?? '';
 
         // Query insegura (vulnerable a SQL Injection)
-        $sql = "UPDATE erabiltzaileak SET Izen_Abizen = '$nombre', Telefonoa = '$telefono', Jaio_Data = '$fecha', Email = '$email' WHERE NAN = '$nan'";
+        $sql = "UPDATE erabiltzaileak SET Erabiltzaile = '$erabiltzaile', Izen_Abizen = '$nombre', Telefonoa = '$telefono', Jaio_Data = '$fecha', Email = '$email' WHERE NAN = '$nan'";
         if ($conn->query($sql)) {
             header("Location: /show_user?user=" . urlencode($nan));
             exit();
         } else {
-            $message = "<p style='color:red;'>❌ Errore bat gertatu da: " . htmlspecialchars($conn->error) . "</p>";
+            $message = "<p style='color:red;'>❌ Errore bat gertatu da: </p>";
         }
     }
 
     // Query insegura (vulnerable a SQL Injection)
-    $sql = "SELECT Izen_Abizen, NAN, Telefonoa, Jaio_Data, Email FROM erabiltzaileak WHERE NAN = '$nan'";
+    $sql = "SELECT Erabiltzaile, Izen_Abizen, NAN, Telefonoa, Jaio_Data, Email FROM erabiltzaileak WHERE NAN = '$nan'";
     $result = $conn->query($sql);
     if ($result && $result->num_rows > 0) {
         $user = $result->fetch_assoc();
@@ -164,6 +165,10 @@ $conn->close();
 
     <?php if ($user): ?>
         <form id="user_modify_form" method="post">
+
+            <label for="Erabiltzaile">Erabiltzailea</label>
+            <input type="text" id="Erabiltzaile" name="Erabiltzaile" value="<?= htmlspecialchars($user['Erabiltzaile']) ?>" required>
+
             <label for="Izen_Abizen">Izen Abizena</label>
             <input type="text" id="Izen_Abizen" name="Izen_Abizen" value="<?= htmlspecialchars($user['Izen_Abizen']) ?>" required>
 

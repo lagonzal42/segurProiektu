@@ -15,7 +15,7 @@ if (isset($_GET['user'])) {
     $nan = $_GET['user'];
 
     // Query insegura (vulnerable a SQL Injection)
-    $sql = "SELECT Izen_Abizen, NAN, Telefonoa, Jaio_Data, Email FROM erabiltzaileak WHERE NAN = '$nan'";
+    $sql = "SELECT Erabiltzaile, Izen_Abizen, NAN, Telefonoa, Jaio_Data, Email FROM erabiltzaileak WHERE NAN = '$nan'";
     $result = $conn->query($sql);
 
     if ($result && $result->num_rows > 0) {
@@ -146,8 +146,9 @@ $conn->close();
 
     <?php if ($user): ?>
         <table>
-            <tr><th>Datua</th><td>Izen Abizena</td></tr>
-            <tr><th>Balorea</th><td><?= htmlspecialchars($user['Izen_Abizen']) ?></td></tr>
+            <tr><th>Datua</th><td>Balorea</td></tr>
+            <tr><th>Erabiltzaile</th><td><?= htmlspecialchars($user['Erabiltzaile']) ?></td></tr></td></tr>
+            <tr><th>Izen Abizena</th><td><?= htmlspecialchars($user['Izen_Abizen']) ?></td></tr>
             <tr><th>NAN</th><td><?= htmlspecialchars($user['NAN']) ?></td></tr>
             <tr><th>Telefonoa</th><td><?= htmlspecialchars($user['Telefonoa']) ?></td></tr>
             <tr><th>Jaiotze Data</th><td><?= htmlspecialchars($user['Jaio_Data']) ?></td></tr>

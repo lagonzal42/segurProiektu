@@ -1,15 +1,13 @@
 function datuakegiaztatu() {
-    var iz_abz = document.querySelector('input[name="iz_abz"]').value;
+    var user = document.querySelector('input[name="user"]').value;
     var pas = document.querySelector('input[name="pas"]').value;
 
-    var izenRegex = /^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$/;
-
-    if (!izenRegex.test(iz_abz)) {
-        window.alert("Izen hori ez da honartzen.")
+    if (user.trim() === "") {
+        window.alert("Pasahitza ezin da hutsik egon.");
         return false;
-    } 
-    else if(izen.length > 50){
-        window.alert("Izena luzeegia da.")
+    }
+    else if(user.length > 50){
+        window.alert("Pasahitza luzeegia da.")
         console.log(pas)
         return false;
     }

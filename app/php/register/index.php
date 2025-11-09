@@ -12,6 +12,7 @@
   $mezua = ""; 
   
   if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $user = $_POST["user"];
     $iz_abz = $_POST['iz_abz'];
     $nan = $_POST['nan'];
     $tlnf = (int) $_POST['tlnf'];
@@ -20,8 +21,8 @@
     $pas = $_POST['pas'];
     
     // Query insegura (vulnerable a SQL Injection)
-    $sql = "INSERT INTO erabiltzaileak (Izen_Abizen, NAN, Telefonoa, Jaio_Data, Email, Pasahitza)
-            VALUES ('$iz_abz', '$nan', $tlnf, '$jaiodata', '$mail', '$pas')";
+    $sql = "INSERT INTO erabiltzaileak (Erabiltzaile, Izen_Abizen, NAN, Telefonoa, Jaio_Data, Email, Pasahitza)
+            VALUES ('$user', '$iz_abz', '$nan', $tlnf, '$jaiodata', '$mail', '$pas')";
 
 
     if ($conn->query($sql) === TRUE) {
@@ -171,6 +172,9 @@
   <h1>Erabiltzaileen erregistroa</h1>
   <form id="register_form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="POST">
     
+    <label for="user">IZEN ABIZEN:</label> 
+    <input type="text" id="user" name="user" placeholder="Erabiltzailea" required>
+
     <label for="iz_abz">IZEN ABIZEN:</label> 
     <input type="text" id="iz_abz" name="iz_abz" placeholder="Izen Abizen" required>
     

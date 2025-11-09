@@ -5,6 +5,7 @@ function datuakegiaztatu() {
     var mail = document.querySelector('input[name="mail"]').value;
     var izen = document.querySelector('input[name="iz_abz"]').value;
     var pas = document.querySelector('input[name="pas"]').value;
+    var user = document.querySelector('input[name="user"]').value;
 
     var nanRegex = /^[0-9]{8}[A-Z]$/;
     var mailRegex = /^[A-Za-z0-9.]+@{1}[A-Za-z0-9.]+.[A-Za-z]{2,}$/;
@@ -61,6 +62,16 @@ function datuakegiaztatu() {
     }
     else if(pas.length > 40){
         window.alert("Pasahitza luzeegia da.")
+        console.log(pas)
+        return false;
+    }
+
+    if (user.trim() === "") {
+        window.alert("Erabiltzailea ezin da hutsik egon.");
+        return false;
+    }
+    else if(user.length > 50){
+        window.alert("Erabiltzailea luzeegia da.")
         console.log(pas)
         return false;
     }
