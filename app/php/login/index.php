@@ -15,6 +15,7 @@
     $iz_abz = $_POST['iz_abz'];
     $pas = $_POST['pas'];
 
+    // Query insegura (vulnerable a SQL Injection)
     $sql = "SELECT * FROM erabiltzaileak WHERE Izen_Abizen = '$iz_abz' AND Pasahitza = '$pas'";
     $resultado = mysqli_query($conn, $sql);
 
@@ -27,7 +28,7 @@
         header("Location: /show_user?user=" . urlencode($row['NAN']));
         exit();
     } else {
-        echo "Datu okerrak.";
+        echo "<p style='color:red;'>Datu okerrak.</p>";
     }
   }
 ?>
@@ -38,79 +39,103 @@
 <head>
   <meta charset="UTF-8">
   <title>Identifikazioa</title>
-      <style>
+    <style>
         body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background: #f7faff;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: #fcfcfc; 
+            color: #333;
             margin: 0;
             padding: 0;
-        }
-        h1, h2, h3 {
-            color: #2366a8;
-            margin-top: 30px;
-        }
-        table {
-            border-collapse: collapse;
-            width: 90%;
-            margin: 30px auto 10px auto;
-            background: #fff;
-            box-shadow: 0 2px 8px rgba(35,102,168,0.08);
-            border-radius: 12px;
-            overflow: hidden;
-        }
-        th, td {
-            border: none;
-            padding: 12px 16px;
-            text-align: left;
-        }
-        th {
-            background-color: #e3f0fc;
-            color: #2366a8;
-        }
-        tr:nth-child(even) {
-            background-color: #f2f7fc;
-        }
-        tr:hover {
-            background-color: #d6eaff;
-        }
-        input, select {
-            padding: 8px;
-            border-radius: 8px;
-            border: 1px solid #bcd0e6;
-            margin-bottom: 10px;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        button, input[type="submit"] {
-            background: linear-gradient(90deg, #2366a8 60%, #4fa3e3 100%);
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            box-shadow: 0 1px 4px rgba(35,102,168,0.10);
-            transition: background 0.2s;
-        }
-        button:hover, input[type="submit"]:hover {
-            background: linear-gradient(90deg, #4fa3e3 60%, #2366a8 100%);
-        }
-        form {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(35,102,168,0.08);
-            padding: 24px;
-            margin: 30px auto;
-            width: 90%;
-            max-width: 500px;
-        }
-        .message {
-            text-align: center;
-            margin: 20px auto;
-            font-size: 18px;
+            line-height: 1.6;
         }
         h1 {
+            color: #2c3e50; 
             text-align: center;
+            padding: 40px 0 20px 0;
+            font-weight: 300;
+            font-size: 2.2em;
+            border-bottom: 1px solid #eee; 
+            margin-bottom: 40px;
+        }
+
+        form {
+            background: #ffffff;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+            margin: 30px auto;
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid #eee;
+        }
+        input[type="text"], input[type="password"] {
+            padding: 10px 12px;
+            border-radius: 4px;
+            border: 1px solid #bdc3c7; 
+            margin-bottom: 20px;
+            width: 100%;
+            box-sizing: border-box;
+            font-size: 1em;
+            transition: border-color 0.2s;
+            display: block; 
+        }
+        input:focus {
+            border-color: #2c3e50; 
+            outline: none;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: flex-start; 
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        button {
+            background: #2c3e50; 
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 15px;
+            font-size: 0.95em;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background 0.2s, transform 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            width: auto; 
+            margin-bottom: 5px; 
+        }
+        button:hover {
+            background: #34495e;
+            transform: translateY(-1px);
+        }
+        #login_ezabatu {
+            background: #95a5a6; 
+        }
+        #login_ezabatu:hover {
+            background: #7f8c8d;
+        }
+        .modify-btn {
+            background: #3498db; 
+        }
+        .modify-btn:hover {
+            background: #2980b9;
+        }
+        
+        p[style*='color:red'] {
+            background-color: #ffe6e6;
+            border: 1px solid #cc3333;
+            color: #661a1a !important;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        table, th, td, tr {
+            display: none;
         }
     </style>
 </head>
@@ -120,12 +145,18 @@
 <body>
   <h1>Erabiltzaileen identifikazioa</h1>
   <form id="login_form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="POST">
-    IZEN ABIZEN: <input type="text" name="iz_abz" placeholder="Izen Abizen" required><br>
-    PASAHITZA: <input type="password" name="pas" placeholder="Pasahitza" required><br>
-    <button id="login_submit" type="submit" onclick="datuakegiaztatu()">Sartu</button>
-    <button id="login_ezabatu" type="reset">Ezabatu</button>
-    <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
+    
+    <label for="iz_abz">IZEN ABIZEN:</label>
+    <input type="text" id="iz_abz" name="iz_abz" placeholder="Izen Abizen" required>
+
+    <label for="pas">PASAHITZA:</label>
+    <input type="password" id="pas" name="pas" placeholder="Pasahitza" required>
+    
+    <div class="button-container">
+        <button id="login_submit" type="submit" onclick="datuakegiaztatu()">Sartu</button>
+        <button id="login_ezabatu" type="reset">Ezabatu</button>
+        <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
+    </div>
   </form>
 </body>
 </html>
-

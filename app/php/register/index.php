@@ -19,6 +19,7 @@
     $mail = $_POST['mail'];
     $pas = $_POST['pas'];
     
+    // Query insegura (vulnerable a SQL Injection)
     $sql = "INSERT INTO erabiltzaileak (Izen_Abizen, NAN, Telefonoa, Jaio_Data, Email, Pasahitza)
             VALUES ('$iz_abz', '$nan', $tlnf, '$jaiodata', '$mail', '$pas')";
 
@@ -43,77 +44,121 @@
   <title>Erregistroa</title>
       <style>
         body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background: #f7faff;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: #fcfcfc; 
+            color: #333;
             margin: 0;
             padding: 0;
+            line-height: 1.6;
         }
-        h1, h2, h3 {
-            color: #2366a8;
-            margin-top: 30px;
+        h1 {
+            color: #2c3e50; 
+            text-align: center;
+            padding: 40px 0 20px 0;
+            font-weight: 300;
+            font-size: 2.2em;
+            border-bottom: 1px solid #eee; 
+            margin-bottom: 40px;
         }
-        table {
-            border-collapse: collapse;
+
+        form {
+            background: #ffffff;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+            margin: 30px auto;
             width: 90%;
-            margin: 30px auto 10px auto;
-            background: #fff;
-            box-shadow: 0 2px 8px rgba(35,102,168,0.08);
-            border-radius: 12px;
-            overflow: hidden;
+            max-width: 450px;
+            border: 1px solid #eee;
         }
-        th, td {
-            border: none;
-            padding: 12px 16px;
-            text-align: left;
+        label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+            font-size: 0.95em;
         }
-        th {
-            background-color: #e3f0fc;
-            color: #2366a8;
-        }
-        tr:nth-child(even) {
-            background-color: #f2f7fc;
-        }
-        tr:hover {
-            background-color: #d6eaff;
-        }
-        input, select {
-            padding: 8px;
-            border-radius: 8px;
-            border: 1px solid #bcd0e6;
+        input[type="text"], input[type="tel"], input[type="email"], input[type="password"], input[type="submit"] {
+            padding: 10px 12px;
+            border-radius: 4px;
+            border: 1px solid #bdc3c7; 
             margin-bottom: 10px;
             width: 100%;
             box-sizing: border-box;
+            font-size: 1em;
+            transition: border-color 0.2s;
+            display: block;
         }
-        button, input[type="submit"] {
-            background: linear-gradient(90deg, #2366a8 60%, #4fa3e3 100%);
+        input:focus {
+            border-color: #2c3e50; 
+            outline: none;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: flex-start; 
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        button {
+            background: #2c3e50; 
             color: #fff;
             border: none;
-            border-radius: 8px;
-            padding: 10px 20px;
-            font-size: 16px;
+            border-radius: 4px;
+            padding: 10px 15px;
+            font-size: 0.95em;
+            font-weight: 500;
             cursor: pointer;
-            box-shadow: 0 1px 4px rgba(35,102,168,0.10);
-            transition: background 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background 0.2s, transform 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            width: auto;
+            margin-bottom: 5px;
         }
-        button:hover, input[type="submit"]:hover {
-            background: linear-gradient(90deg, #4fa3e3 60%, #2366a8 100%);
+        button:hover {
+            background: #34495e;
+            transform: translateY(-1px);
         }
-        form {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(35,102,168,0.08);
-            padding: 24px;
-            margin: 30px auto;
-            width: 90%;
-            max-width: 500px;
+        #register_ezabatu {
+            background: #95a5a6; 
         }
-        .message {
+        #register_ezabatu:hover {
+            background: #7f8c8d;
+        }
+        .modify-btn {
+            background: #3498db; 
+        }
+        .modify-btn:hover {
+            background: #2980b9;
+        }
+        
+        .message-box {
             text-align: center;
             margin: 20px auto;
-            font-size: 18px;
+            max-width: 450px;
         }
-        h1 {
-            text-align: center;
+        .message-box span {
+            display: inline-block;
+            font-size: 1.1em;
+            padding: 10px 20px;
+            border-radius: 4px;
+        }
+        .message-box span[style*='color: green'] {
+            background-color: #e6ffee;
+            border: 1px solid #33cc33;
+            color: #1a661a !important;
+        }
+        .message-box span[style*='color: red'] {
+            background-color: #ffe6e6;
+            border: 1px solid #cc3333;
+            color: #661a1a !important;
+        }
+        
+        table, th, td, tr {
+            display: none;
         }
     </style>
 </head>
@@ -125,17 +170,39 @@
 
   <h1>Erabiltzaileen erregistroa</h1>
   <form id="register_form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="POST">
-    IZEN ABIZEN: <input type="text" name="iz_abz" placeholder="Izen Abizen" required><br>
-    NAN: <input type="text" name="nan" placeholder="12345678Z" required><br>
-    TELEFONOA: <input type="tel" name="tlnf" placeholder="111111111" required><br>
-    JAIOTZE DATA: <input type="text" name="jaiodata" placeholder="uuuu-hh-ee" required><br>
-    EMAIL: <input type="email" name="mail" placeholder="adibidea@adibidez.eus" required><br>
-    PASAHITZA: <input type="password" name="pas" placeholder="Pasahitza" required><br>
-    <button id="register_submit" type="button" onclick="datuakegiaztatu()">Sartu</button>
-    <button id="register_ezabatu" type="reset">Ezabatu</button>
-    <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
+    
+    <label for="iz_abz">IZEN ABIZEN:</label> 
+    <input type="text" id="iz_abz" name="iz_abz" placeholder="Izen Abizen" required>
+    
+    <label for="nan">NAN:</label> 
+    <input type="text" id="nan" name="nan" placeholder="12345678Z" required>
+    
+    <label for="tlnf">TELEFONOA:</label> 
+    <input type="tel" id="tlnf" name="tlnf" placeholder="111111111" required>
+    
+    <label for="jaiodata">JAIOTZE DATA:</label> 
+    <input type="text" id="jaiodata" name="jaiodata" placeholder="uuuu-hh-ee" required>
+    
+    <label for="mail">EMAIL:</label> 
+    <input type="email" id="mail" name="mail" placeholder="adibidea@adibidez.eus" required>
+    
+    <label for="pas">PASAHITZA:</label> 
+    <input type="password" id="pas" name="pas" placeholder="Pasahitza" required>
+    
+    <div class="button-container">
+        <button id="register_submit" type="button" onclick="datuakegiaztatu()">Sartu</button>
+        <button id="register_ezabatu" type="reset">Ezabatu</button>
+        <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
+    </div>
   </form>
-  <?php echo $mezua; ?>
+  
+  <div class="message-box">
+    <?php echo $mezua; ?>
+  </div>
+
 </body>
 </html>
 
+<?php
+mysqli_close($conn);
+?>
