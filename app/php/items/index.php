@@ -19,78 +19,99 @@ $result = $conn->query($sql);
     <meta charset="UTF-8">
     <title>Babarrunak</title>
     <style>
+       
         body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background: #f7faff;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: #fcfcfc; 
+            color: #333;
             margin: 0;
             padding: 0;
+            line-height: 1.6;
         }
-        h1, h2, h3 {
-            color: #2366a8;
-            margin-top: 30px;
+        h1 {
+            color: #2c3e50; 
+            text-align: center;
+            padding: 40px 0 20px 0;
+            font-weight: 300;
+            font-size: 2.2em;
+            border-bottom: 1px solid #eee; 
+            margin-bottom: 40px;
         }
+
         table {
             border-collapse: collapse;
             width: 90%;
-            margin: 30px auto 10px auto;
+            max-width: 800px;
+            margin: 30px auto;
             background: #fff;
-            box-shadow: 0 2px 8px rgba(35,102,168,0.08);
-            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-radius: 6px;
             overflow: hidden;
+            border: 1px solid #eee;
         }
         th, td {
             border: none;
-            padding: 12px 16px;
+            padding: 15px;
             text-align: left;
+            border-bottom: 1px solid #f4f4f4; 
         }
         th {
-            background-color: #e3f0fc;
-            color: #2366a8;
+            background-color: #f8f8f8; 
+            color: #2c3e50;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9em;
+        }
+        tr:last-child td {
+            border-bottom: none;
         }
         tr:nth-child(even) {
-            background-color: #f2f7fc;
+            background-color: #fafafa; 
         }
         tr:hover {
-            background-color: #d6eaff;
+            background-color: #f0f4f7; 
         }
-        input, select {
-            padding: 8px;
-            border-radius: 8px;
-            border: 1px solid #bcd0e6;
-            margin-bottom: 10px;
-            width: 100%;
-            box-sizing: border-box;
+        
+        .button-container {
+            max-width: 800px;
+            margin: 20px auto 40px auto;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            padding: 0 20px;
         }
-        button, input[type="submit"] {
-            background: linear-gradient(90deg, #2366a8 60%, #4fa3e3 100%);
+        .button-container a, .button-container button {
+            text-decoration: none;
+            display: block;
+        }
+        button {
+            background: #2c3e50; 
             color: #fff;
             border: none;
-            border-radius: 8px;
-            padding: 10px 20px;
-            font-size: 16px;
+            border-radius: 4px;
+            padding: 12px 20px;
+            font-size: 1em;
+            font-weight: 500;
             cursor: pointer;
-            box-shadow: 0 1px 4px rgba(35,102,168,0.10);
-            transition: background 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background 0.2s, transform 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap; 
         }
-        button:hover, input[type="submit"]:hover {
-            background: linear-gradient(90deg, #4fa3e3 60%, #2366a8 100%);
+        button:hover {
+            background: #34495e;
+            transform: translateY(-1px);
         }
-        form {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(35,102,168,0.08);
-            padding: 24px;
-            margin: 30px auto;
-            width: 90%;
-            max-width: 500px;
+        .modify-btn {
+            background: #95a5a6; 
         }
-        .message {
-            text-align: center;
-            margin: 20px auto;
-            font-size: 18px;
+        .modify-btn:hover {
+            background: #7f8c8d;
         }
-        h1 {
-            text-align: center;
+
+        form, input, select, .message {
+            display: none;
         }
     </style>
 </head>
@@ -112,10 +133,13 @@ $result = $conn->query($sql);
             <tr><td colspan="3">Ez dago produkturik.</td></tr>
         <?php endif; ?>
     </table>
-    <a href="add_items">
-        <button>Gehitu babarrunak</button>
-    </a>
-    <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
+    
+    <div class="button-container">
+        <a href="add_items">
+            <button>Gehitu babarrunak</button>
+        </a>
+        <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
+    </div>
 
 </body>
 </html>
