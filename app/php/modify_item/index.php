@@ -1,4 +1,5 @@
 <?php
+session_start();
 // 1. Datu-basearen konfigurazioa 
 $hostname = "db";
 $username = "admin";
@@ -15,12 +16,25 @@ if ($conn->connect_error) {
 $user = null;
 $message = "";
 
+if (empty($_SESSION['csrf_token']) || empty($_SESSION['csrf_time']) || ($_SESSION['csrf_time'] + 3600) < time()) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    $_SESSION['csrf_time'] = time();
+}
+
 // 2. Irakurketaren, edizioaren eta eguneratzearen logika 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
 
     // Formularioa (POST) bidali bada, eguneratu 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+        $posted_token = $_POST['csrf_token'] ?? '';
+        if (empty($posted_token) || !hash_equals($_SESSION['csrf_token'], $posted_token)) {
+            http_response_code(403);
+            echo "<p style='color:red;'>CSRF token falta da edo ez da egokia.</p>";
+            exit();
+        }
+
         $izena = $_POST['Izena'] ?? '';
         $jatorria = $_POST['Jatorria'] ?? '';
         $kolorea = $_POST['Kolorea'] ?? '';
@@ -29,9 +43,12 @@ if (isset($_GET['id'])) {
         // Query ez-segurua (SQL Injectionekiko kaltebera) 
         $sql = "UPDATE babarrunak SET Izena = '$izena', Jatorria = '$jatorria', Kolorea = '$kolorea', Egozketa_denb_min = '$denbora' WHERE id = $id";
         if ($conn->query($sql)) {
-            $message = "<p style='color:green;'>✅ Datuak eguneratu dira.</p>";
+            $message = "<p style='color:green;'>Datuak eguneratu dira.</p>";
+            
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+            $_SESSION['csrf_time'] = time();
         } else {
-            $message = "<p style='color:red;'>❌ Errore bat gertatu da: " . htmlspecialchars($conn->error) . "</p>";
+            $message = "<p style='color:red;'>Errore bat gertatu da: " . htmlspecialchars($conn->error) . "</p>";
         }
     }
 
@@ -237,6 +254,9 @@ $result = $conn->query($sql);
         <h3>Aldatu Babarruna: ID #<?= htmlspecialchars($user['id']) ?></h3>
         
         <form method="POST" action="?id=<?= htmlspecialchars($user['id']) ?>">
+
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES) ?>">
+
             <div>
                 <label for="Izena">Izena:</label>
                 <input type="text" id="Izena" name="Izena" value="<?= htmlspecialchars($user['Izena']) ?>" required>

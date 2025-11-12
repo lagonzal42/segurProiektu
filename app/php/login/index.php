@@ -11,7 +11,18 @@
     die("Database connection failed: " . mysqli_connect_error());
   }
 
+  if (empty($_SESSION['csrf_token']) || empty($_SESSION['csrf_time']) || ($_SESSION['csrf_time'] + 3600) < time()) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    $_SESSION['csrf_time'] = time();
+}  
+
   if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $posted_token = $_POST['csrf_token'] ?? '';
+
+    if(empty($posted_token) || empty($$_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $posted_token)) {
+        die("CSRF token-a ez da baliozkoa.");
+    }
+
     $user = $_POST['user'];
     $pas = $_POST['pas'];
 
@@ -21,8 +32,13 @@
 
     if (mysqli_num_rows($resultado) > 0) {
         $row = mysqli_fetch_assoc($resultado);
+
+        session_regenerate_id(true);
         $_SESSION['nan'] = $row['NAN'];
         $_SESSION['user'] = $row['Erabiltzaile'];
+
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        $_SESSION['csrf_time'] = time();
 
         //berbideraketa erabiltzailearen informaziora
         header("Location: /show_user?user=" . urlencode($row['NAN']));
@@ -146,6 +162,8 @@
   <h1>Erabiltzaileen identifikazioa</h1>
   <form id="login_form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="POST">
     
+    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES); ?>">
+
     <label for="user">ERABILTZAILEA:</label>
     <input type="text" id="user" name="user" placeholder="Erabiltzaile" required>
 

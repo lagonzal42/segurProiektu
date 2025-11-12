@@ -1,4 +1,6 @@
 <?php
+  session_start();
+
   $hostname = "db";
   $username = "admin";
   $password = "test";
@@ -10,8 +12,21 @@
   }
 
   $mezua = ""; 
+
+  if (empty($_SESSION['csrf_token']) || empty($_SESSION['csrf_time']) || ($_SESSION['csrf_time'] + 3600) < time()) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    $_SESSION['csrf_time'] = time();
+  }
   
   if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+    $posted_token = $_POST['csrf_token'] ?? '';
+    if (empty($posted_token) || !hash_equals($_SESSION['csrf_token'], $posted_token)) {
+        http_response_code(403);
+        echo "<p style='color:red;'>CSRF token ez egokia edo falta da.</p>";
+        exit();
+    }
+
     $user = $_POST["user"];
     $iz_abz = $_POST['iz_abz'];
     $nan = $_POST['nan'];
@@ -27,6 +42,9 @@
 
     if ($conn->query($sql) === TRUE) {
       $mezua = "<span style='color: green;'>Erregistroa ondo gorde da!</span>";
+    
+      $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+      $_SESSION['csrf_time'] = time();
     } else {
       if ($conn->errno == 1062) {
         $mezua = "<span style='color: red;'>Errorea: NAN-a dagoeneko existitzen da.</span>";
@@ -172,6 +190,8 @@
   <h1>Erabiltzaileen erregistroa</h1>
   <form id="register_form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="POST">
     
+    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES); ?>">
+
     <label for="user">ERABILTZAILEA:</label> 
     <input type="text" id="user" name="user" placeholder="Erabiltzailea" required>
 
