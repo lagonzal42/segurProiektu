@@ -1,68 +1,75 @@
 <?php
-session_start();
-// 1. Datu-basearen konfigurazioa 
-$hostname = "db";
-$username = "admin";
-$password = "test";
-$db = "segurproiektua";
+    session_start();
 
-// Datu-basearen konexioa
-$conn = new mysqli($hostname, $username, $password, $db);
-if ($conn->connect_error) {
-    // Jardunbide egokia da ekoizpen-errorearen xehetasunik ez adieraztea 
-    die("Error de conexión: " . $conn->connect_error);
-}
+    header_remove("X-Powered-By");
+    header("Server: SegurServer");
+    header("X-Content-Type-Options: nosniff");
+    header("X-Frame-Options: DENY");
+    header("X-XSS-Protection: 1; mode=block");
 
-$user = null;
-$message = "";
+    // 1. Datu-basearen konfigurazioa 
+    $hostname = "db";
+    $username = "admin";
+    $password = "test";
+    $db = "segurproiektua";
 
-if (empty($_SESSION['csrf_token']) || empty($_SESSION['csrf_time']) || ($_SESSION['csrf_time'] + 3600) < time()) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-    $_SESSION['csrf_time'] = time();
-}
+    // Datu-basearen konexioa
+    $conn = new mysqli($hostname, $username, $password, $db);
+    if ($conn->connect_error) {
+        // Jardunbide egokia da ekoizpen-errorearen xehetasunik ez adieraztea 
+        die("Error de conexión: " . $conn->connect_error);
+    }
 
-// 2. Irakurketaren, edizioaren eta eguneratzearen logika 
-if (isset($_GET['id'])) {
-    $id = $_GET['id'];
+    $user = null;
+    $message = "";
 
-    // Formularioa (POST) bidali bada, eguneratu 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (empty($_SESSION['csrf_token']) || empty($_SESSION['csrf_time']) || ($_SESSION['csrf_time'] + 3600) < time()) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        $_SESSION['csrf_time'] = time();
+    }
 
-        $posted_token = $_POST['csrf_token'] ?? '';
-        if (empty($posted_token) || !hash_equals($_SESSION['csrf_token'], $posted_token)) {
-            http_response_code(403);
-            echo "<p style='color:red;'>CSRF token falta da edo ez da egokia.</p>";
-            exit();
+    // 2. Irakurketaren, edizioaren eta eguneratzearen logika 
+    if (isset($_GET['id'])) {
+        $id = $_GET['id'];
+
+        // Formularioa (POST) bidali bada, eguneratu 
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+            $posted_token = $_POST['csrf_token'] ?? '';
+            if (empty($posted_token) || !hash_equals($_SESSION['csrf_token'], $posted_token)) {
+                http_response_code(403);
+                echo "<p style='color:red;'>CSRF token falta da edo ez da egokia.</p>";
+                exit();
+            }
+
+            $izena = $_POST['Izena'] ?? '';
+            $jatorria = $_POST['Jatorria'] ?? '';
+            $kolorea = $_POST['Kolorea'] ?? '';
+            $denbora = $_POST['Egozketa_denb_min'] ?? '';
+
+            // Query ez-segurua (SQL Injectionekiko kaltebera) 
+            $sql = "UPDATE babarrunak SET Izena = '$izena', Jatorria = '$jatorria', Kolorea = '$kolorea', Egozketa_denb_min = '$denbora' WHERE id = $id";
+            if ($conn->query($sql)) {
+                $message = "<p style='color:green;'>Datuak eguneratu dira.</p>";
+                
+                $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+                $_SESSION['csrf_time'] = time();
+            } else {
+                $message = "<p style='color:red;'>Errore bat gertatu da: " . htmlspecialchars($conn->error) . "</p>";
+            }
         }
 
-        $izena = $_POST['Izena'] ?? '';
-        $jatorria = $_POST['Jatorria'] ?? '';
-        $kolorea = $_POST['Kolorea'] ?? '';
-        $denbora = $_POST['Egozketa_denb_min'] ?? '';
-
-        // Query ez-segurua (SQL Injectionekiko kaltebera) 
-        $sql = "UPDATE babarrunak SET Izena = '$izena', Jatorria = '$jatorria', Kolorea = '$kolorea', Egozketa_denb_min = '$denbora' WHERE id = $id";
-        if ($conn->query($sql)) {
-            $message = "<p style='color:green;'>Datuak eguneratu dira.</p>";
-            
-            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-            $_SESSION['csrf_time'] = time();
-        } else {
-            $message = "<p style='color:red;'>Errore bat gertatu da: " . htmlspecialchars($conn->error) . "</p>";
+        // Babarrunen egungo datuak lortzea, inprimakian erakusteko (ez da segurua) 
+        $sql = "SELECT id, Izena, Jatorria, Kolorea, Egozketa_denb_min FROM babarrunak WHERE id = $id";
+        $result_user = $conn->query($sql);
+        if ($result_user && $result_user->num_rows > 0) {
+            $user = $result_user->fetch_assoc();
         }
     }
 
-    // Babarrunen egungo datuak lortzea, inprimakian erakusteko (ez da segurua) 
-    $sql = "SELECT id, Izena, Jatorria, Kolorea, Egozketa_denb_min FROM babarrunak WHERE id = $id";
-    $result_user = $conn->query($sql);
-    if ($result_user && $result_user->num_rows > 0) {
-        $user = $result_user->fetch_assoc();
-    }
-}
-
-// Taularako datu guztiak eskuratu (beti exekutatzen da) 
-$sql = "SELECT * FROM babarrunak ORDER BY id DESC";
-$result = $conn->query($sql);
+    // Taularako datu guztiak eskuratu (beti exekutatzen da) 
+    $sql = "SELECT * FROM babarrunak ORDER BY id DESC";
+    $result = $conn->query($sql);
 ?>
 
 <!DOCTYPE html>

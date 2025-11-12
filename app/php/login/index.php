@@ -1,6 +1,12 @@
 <?php
   session_start(); // Inicia la sesión
 
+  header_remove("X-Powered-By");
+  header("Server: SegurServer");
+  header("X-Content-Type-Options: nosniff");
+  header("X-Frame-Options: DENY");
+  header("X-XSS-Protection: 1; mode=block");
+  
   $hostname = "db";
   $username = "admin";
   $password = "test";
@@ -14,7 +20,7 @@
   if (empty($_SESSION['csrf_token']) || empty($_SESSION['csrf_time']) || ($_SESSION['csrf_time'] + 3600) < time()) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     $_SESSION['csrf_time'] = time();
-}  
+    }  
 
   if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $posted_token = $_POST['csrf_token'] ?? '';
