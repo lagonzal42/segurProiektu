@@ -1,4 +1,5 @@
 <?php
+session_set_cookie_params(0, '/', '', false, true);
 session_start(); // Añade esto para acceder a la sesión
 
 $hostname = "db";
