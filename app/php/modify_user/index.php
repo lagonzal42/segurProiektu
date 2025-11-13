@@ -1,4 +1,15 @@
 <?php
+// Source - https://stackoverflow.com/a
+// Posted by Silver Shadow, modified by community. See post 'Timeline' for change history
+// Retrieved 2025-11-13, License - CC BY-SA 4.0
+
+session_set_cookie_params(
+    int $lifetime_or_options,
+    ?string $path = null,
+    ?string $domain = null,
+    ?bool $secure = null,
+    ?bool $httponly = true
+): bool
 session_start();
 
 if (!isset($_SESSION['nan']) || $_SESSION['nan'] !== ($_GET['user'] ?? null)) {
