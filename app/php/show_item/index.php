@@ -1,34 +1,40 @@
 <?php
-// 1. Datu-basearen konfigurazioa 
-$hostname = "db";
-$username = "admin";
-$password = "test";
-$db = "segurproiektua";
+    // 1. Datu-basearen konfigurazioa 
+    header_remove("X-Powered-By");
+    header("Server: SegurServer");
+    header("X-Content-Type-Options: nosniff");
+    header("X-Frame-Options: DENY");
+    header("X-XSS-Protection: 1; mode=block");
 
-// Datu-basearen konexioa
-$conn = new mysqli($hostname, $username, $password, $db);
-if ($conn->connect_error) {
-    die("Error de conexión: " . $conn->connect_error);
-}
+    $hostname = "db";
+    $username = "admin";
+    $password = "test";
+    $db = "segurproiektua";
 
-$user = null;
-$message = "";
-
-// 2. Irakurketaren, edizioaren eta eguneratzearen logika 
-if (isset($_GET['id'])) {
-    $id = $_GET['id'];
-
-    // Query ez-segurua (SQL Injectionekiko kaltebera) 
-    $sql = "SELECT id, Izena, Jatorria, Kolorea, Egozketa_denb_min FROM babarrunak WHERE id = $id";
-    $result_user = $conn->query($sql);
-    if ($result_user && $result_user->num_rows > 0) {
-        $user = $result_user->fetch_assoc();
+    // Datu-basearen konexioa
+    $conn = new mysqli($hostname, $username, $password, $db);
+    if ($conn->connect_error) {
+        die("Error de conexión: " . $conn->connect_error);
     }
-}
 
-// Taularako datu guztiak eskuratu (beti exekutatzen da) 
-$sql = "SELECT * FROM babarrunak ORDER BY id DESC";
-$result = $conn->query($sql);
+    $user = null;
+    $message = "";
+
+    // 2. Irakurketaren, edizioaren eta eguneratzearen logika 
+    if (isset($_GET['id'])) {
+        $id = $_GET['id'];
+
+        // Query ez-segurua (SQL Injectionekiko kaltebera) 
+        $sql = "SELECT id, Izena, Jatorria, Kolorea, Egozketa_denb_min FROM babarrunak WHERE id = $id";
+        $result_user = $conn->query($sql);
+        if ($result_user && $result_user->num_rows > 0) {
+            $user = $result_user->fetch_assoc();
+        }
+    }
+
+    // Taularako datu guztiak eskuratu (beti exekutatzen da) 
+    $sql = "SELECT * FROM babarrunak ORDER BY id DESC";
+    $result = $conn->query($sql);
 ?>
 
 <!DOCTYPE html>

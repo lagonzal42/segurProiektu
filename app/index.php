@@ -1,6 +1,13 @@
 <?php
 session_set_cookie_params(0, '/', '', false, true);
 session_start();
+
+header_remove("X-Powered-By");
+header("Server: SegurServer");
+header("X-Content-Type-Options: nosniff");
+header("X-Frame-Options: DENY");
+header("X-XSS-Protection: 1; mode=block");
+
 ?>
 <!DOCTYPE html>
 <html lang="es">
