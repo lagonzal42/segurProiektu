@@ -25,7 +25,19 @@
   if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $posted_token = $_POST['csrf_token'] ?? '';
 
-    if(empty($posted_token) || empty($$_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $posted_token)) {
+    if(empty($posted_token) || empty($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $posted_token)) {
+        if(empty($posted_token)) {
+            die("empty posted token");
+        }
+        
+        else if(empty($$_SESSION['csrf_token'])) {
+            die("empty session token");
+        }
+
+        else if(!hash_equals($_SESSION['csrf_token'], $posted_token)) {
+            die("hash");
+        }
+
         die("CSRF token-a ez da baliozkoa.");
     }
 
