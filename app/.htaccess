@@ -17,3 +17,14 @@ RewriteRule ^([^/]+)$ $1.php [L]
 <IfModule mod_headers.c>
     Header always edit Set-Cookie "(?i)(^.*)$" "$1; SameSite=Lax"
 </IfModule>
+
+<IfModule mod_headers>
+    # --- Configuración global de cabeceras de seguridad ---
+
+    # Esta directiva debe estar en la configuración global para robots.txt, sitemap.xml, etc.
+    Header always set Content-Security-Policy "default-src 'none'; object-src 'none';" 
+
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set X-XSS-Protection "1; mode=block"
+</IfModule>

@@ -1,156 +1,79 @@
 <?php
 
+// 1. Mejora de la seguridad: Configuración de cabeceras HTTP
+// CSP actualizado para permitir la carga de scripts y estilos desde el mismo origen ('self')
+header("Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; form-action 'self'; frame-ancestors 'none';");
 header_remove("X-Powered-By");
 header("Server: SegurServer");
 header("X-Content-Type-Options: nosniff");
 header("X-Frame-Options: DENY");
 header("X-XSS-Protection: 1; mode=block");
 
+// 2. Configuración de la base de datos
 $hostname = "db";
 $username = "admin";
 $password = "test";
 $db = "segurproiektua";
 
+// Conexión a la base de datos
 $conn = new mysqli($hostname, $username, $password, $db);
 if ($conn->connect_error) {
-    die("Error de conexión: " . $conn->connect_error);
+    // Manejo de error de conexión.
+    die("Error de conexión a la base de datos.");
 }
 
-$sql = "SELECT * FROM babarrunak ORDER BY id DESC";
+// 3. Obtener la lista de elementos para mostrar
+// ** NOTA DE SEGURIDAD **: Esta consulta no toma entradas del usuario, por lo que es segura.
+$sql = "SELECT Izena, Jatorria FROM babarrunak ORDER BY id DESC";
 $result = $conn->query($sql);
 ?>
-  
+  
 <!DOCTYPE html>
 <html lang="eu">
 <head>
     <meta charset="UTF-8">
-    <title>Babarrunak</title>
-    <style>
-       
-        body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            background: #fcfcfc; 
-            color: #333;
-            margin: 0;
-            padding: 0;
-            line-height: 1.6;
-        }
-        h1 {
-            color: #2c3e50; 
-            text-align: center;
-            padding: 40px 0 20px 0;
-            font-weight: 300;
-            font-size: 2.2em;
-            border-bottom: 1px solid #eee; 
-            margin-bottom: 40px;
-        }
-
-        table {
-            border-collapse: collapse;
-            width: 90%;
-            max-width: 800px;
-            margin: 30px auto;
-            background: #fff;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            border-radius: 6px;
-            overflow: hidden;
-            border: 1px solid #eee;
-        }
-        th, td {
-            border: none;
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #f4f4f4; 
-        }
-        th {
-            background-color: #f8f8f8; 
-            color: #2c3e50;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.9em;
-        }
-        tr:last-child td {
-            border-bottom: none;
-        }
-        tr:nth-child(even) {
-            background-color: #fafafa; 
-        }
-        tr:hover {
-            background-color: #f0f4f7; 
-        }
-        
-        .button-container {
-            max-width: 800px;
-            margin: 20px auto 40px auto;
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            padding: 0 20px;
-        }
-        .button-container a, .button-container button {
-            text-decoration: none;
-            display: block;
-        }
-        button {
-            background: #2c3e50; 
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            padding: 12px 20px;
-            font-size: 1em;
-            font-weight: 500;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            transition: background 0.2s, transform 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            white-space: nowrap; 
-        }
-        button:hover {
-            background: #34495e;
-            transform: translateY(-1px);
-        }
-        .modify-btn {
-            background: #95a5a6; 
-        }
-        .modify-btn:hover {
-            background: #7f8c8d;
-        }
-
-        form, input, select, .message {
-            display: none;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Babarrunak Listado</title>
+    <!-- CSS y JS externos para CSP (Content Security Policy) -->
+    <link rel="stylesheet" href="php/items/styles.css">
+    <script src="php/items/script.js"></script>
 </head>
 <body>
-    <h1>Babarrunak</h1>
+    <h1>Babarrunak (Listado)</h1>
     <table>
         <tr>
             <th>Izena</th>
             <th>Jatorria</th>
         </tr>
-        <?php if ($result->num_rows > 0): ?>
+        <?php if ($result && $result->num_rows > 0): ?>
             <?php while ($row = $result->fetch_assoc()): ?>
                 <tr>
+                    <!-- Prevenir XSS: Escapar los datos antes de mostrarlos -->
                     <td><?= htmlspecialchars($row['Izena']) ?></td>
                     <td><?= htmlspecialchars($row['Jatorria']) ?></td>
                 </tr>
             <?php endwhile; ?>
         <?php else: ?>
-            <tr><td colspan="3">Ez dago produkturik.</td></tr>
+            <tr><td colspan="2">Ez dago produkturik. (No hay productos)</td></tr>
         <?php endif; ?>
     </table>
-    
+    
     <div class="button-container">
-        <a href="add_items">
-            <button>Gehitu babarrunak</button>
+        <!-- El botón "Gehitu babarrunak" sigue siendo un enlace -->
+        <a href="add_items" class="add-link">
+            <button class="add-btn">Gehitu babarrunak</button>
         </a>
-        <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
+        <!-- El botón "Hasierara" ahora usa un ID para JS externo -->
+        <button type="button" id="hasiera_btn" class="modify-btn">Hasierara</button>
     </div>
 
 </body>
 </html>
 
 <?php
+// Cerrar la conexión al finalizar
+if ($result) {
+    $result->free();
+}
 $conn->close();
 ?>

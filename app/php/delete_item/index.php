@@ -1,196 +1,111 @@
 <?php
 
+// 1. Mejora de la seguridad: Configuración de cabeceras HTTP
+header("Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; form-action 'self'; frame-ancestors 'none';");
 header_remove("X-Powered-By");
 header("Server: SegurServer");
 header("X-Content-Type-Options: nosniff");
 header("X-Frame-Options: DENY");
 header("X-XSS-Protection: 1; mode=block");
 
+// 2. Configuración de la base de datos
 $hostname = "db";
 $username = "admin";
 $password = "test";
 $db = "segurproiektua";
 
+// Conexión a la base de datos
 $conn = new mysqli($hostname, $username, $password, $db);
 if ($conn->connect_error) {
-    die("Error de conexión: " . $conn->connect_error);
+    // Es mejor no revelar detalles de la DB en un entorno de producción.
+    // Aquí usamos die() solo para un ejemplo de desarrollo/error crítico.
+    die("Error de conexión a la base de datos.");
 }
 
-if (isset($_GET['item'])) {
-    $item_raw = $_GET['item'];
-    $item = $conn->real_escape_string($item_raw);
+$status_message = '';
 
-    if ($item === '') {
-        echo "<p style='color:red;'>❌ Izena hutsik.</p>";
+if (isset($_GET['item'])) {
+    // Sanitize and validate input
+    $item_raw = trim($_GET['item']);
+    
+    if ($item_raw === '') {
+        $status_message = "<p class='status-error'>❌ Izena hutsik. (El nombre está vacío)</p>";
     } else {
-        $check_sql = "SELECT COUNT(*) AS cnt FROM babarrunak WHERE Izena = '$item'";
-        $check_res = $conn->query($check_sql);
-        if ($check_res) {
+        // ** SOLUCIÓN A SQL INJECTION: USO DE PREPARED STATEMENTS **
+        $item_clean = $item_raw;
+
+        // --- Paso 1: Comprobar existencia (SELECT con Prepared Statement) ---
+        // Usamos Prepared Statements para garantizar que la variable $item_clean
+        // nunca se interprete como código SQL, solo como dato.
+        $stmt_check = $conn->prepare("SELECT COUNT(*) AS cnt FROM babarrunak WHERE Izena = ?");
+        
+        if ($stmt_check) {
+            $stmt_check->bind_param("s", $item_clean); // 's' indica que el parámetro es un string
+            $stmt_check->execute();
+            $check_res = $stmt_check->get_result();
             $row = $check_res->fetch_assoc();
-            $check_res->free();
+            $stmt_check->close();
 
             if ((int)$row['cnt'] === 0) {
-                echo "<p style='color:orange;'>ℹ️ \"" . htmlspecialchars($item_raw) . "\" ez da existitzen.</p>";
+                // El nombre se escapa para evitar XSS al mostrarlo en el HTML
+                $status_message = "<p class='status-warning'>ℹ️ \"" . htmlspecialchars($item_raw) . "\" ez da existitzen. (No existe)</p>";
             } else {
-                $del_sql = "DELETE FROM babarrunak WHERE Izena = '$item' LIMIT 1";
-                if ($conn->query($del_sql)) {
-                    if ($conn->affected_rows > 0) {
-                        echo "<p style='color:green;'>✅ \"" . htmlspecialchars($item_raw) . "\" babarruna borratu da.</p>";
+                // --- Paso 2: Ejecutar borrado (DELETE con Prepared Statement) ---
+                $stmt_del = $conn->prepare("DELETE FROM babarrunak WHERE Izena = ? LIMIT 1");
+                
+                if ($stmt_del) {
+                    $stmt_del->bind_param("s", $item_clean); // 's' indica que el parámetro es un string
+                    
+                    if ($stmt_del->execute()) {
+                        if ($stmt_del->affected_rows > 0) {
+                            $status_message = "<p class='status-success'>✅ \"" . htmlspecialchars($item_raw) . "\" babarruna borratu da. (Borrado con éxito)</p>";
+                        } else {
+                            $status_message = "<p class='status-warning'>ℹ️ Ez da ezer ezabatu. (No se borró nada)</p>";
+                        }
                     } else {
-                        echo "<p style='color:orange;'>ℹ️ Ez da ezer ezabatu.</p>";
+                         // Error en la ejecución del DELETE
+                        $status_message = "<p class='status-error'>❌ Errore bat gertatu da borratzean. (Error al borrar)</p>";
                     }
+                    $stmt_del->close();
                 } else {
-                    echo "<p style='color:red;'>❌ Errore bat gertatu da. </p>";
+                    // Error en la preparación del DELETE
+                    $status_message = "<p class='status-error'>❌ Errore bat gertatu da. (Error en la preparación)</p>";
                 }
             }
         } else {
-            echo "<p style='color:red;'>❌ Errore bat comprobando existencia. </p>";
+            // Error en la preparación del SELECT
+            $status_message = "<p class='status-error'>❌ Errore bat comprobando existencia. (Error al comprobar existencia)</p>";
         }
     }
 }
 
-$sql = "SELECT * FROM babarrunak ORDER BY id DESC";
-$result = $conn->query($sql);
+// 3. Obtener la lista de elementos para mostrar
+$sql_select_all = "SELECT * FROM babarrunak ORDER BY id DESC";
+$result_all = $conn->query($sql_select_all);
+
 ?>
 
 <!DOCTYPE html>
 <html lang="eu">
 <head>
     <meta charset="UTF-8">
-    <title>Babarrunak ezabatu</title>
-    <style>
-        body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            background: #fcfcfc;
-            color: #333;
-            margin: 0;
-            padding: 0;
-            line-height: 1.6;
-        }
-        h1 {
-            color: #2c3e50;
-            text-align: center;
-            padding: 40px 0 10px 0;
-            font-weight: 300;
-            font-size: 2.2em;
-            border-bottom: 1px solid #eee;
-            margin-bottom: 10px;
-        }
-
-        .back-container {
-            text-align: center;
-            margin: 10px 0 40px 0;
-        }
-        .back-btn {
-            background: #95a5a6;
-            color: #fff;
-            border: none;
-            border-radius: 6px;
-            padding: 10px 20px;
-            font-size: 1em;
-            font-weight: 500;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            transition: background 0.2s, transform 0.2s;
-        }
-        .back-btn:hover {
-            background: #7f8c8d;
-            transform: translateY(-1px);
-        }
-
-        p {
-            text-align: center;
-            margin: 20px auto;
-            font-size: 1.1em;
-            padding: 10px 20px;
-            border-radius: 4px;
-            max-width: 450px;
-        }
-        p[style*='color:green'] {
-            background-color: #e6ffee;
-            border: 1px solid #33cc33;
-            color: #1a661a !important;
-        }
-        p[style*='color:red'] {
-            background-color: #ffe6e6;
-            border: 1px solid #cc3333;
-            color: #661a1a !important;
-        }
-
-        table {
-            border-collapse: collapse;
-            width: 90%;
-            max-width: 800px;
-            margin: 30px auto 40px auto;
-            background: #fff;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            border-radius: 6px;
-            overflow: hidden;
-            border: 1px solid #eee;
-        }
-        th, td {
-            border: none;
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #f4f4f4;
-            vertical-align: middle;
-        }
-        th {
-            background-color: #f8f8f8;
-            color: #2c3e50;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.9em;
-        }
-        tr:last-child td {
-            border-bottom: none;
-        }
-        tr:nth-child(even) {
-            background-color: #fafafa;
-        }
-        tr:hover {
-            background-color: #f0f4f7;
-        }
-
-        table form {
-            display: inline-block;
-            margin: 0;
-            padding: 0;
-            border: none;
-            background: none;
-        }
-
-        table button {
-            background: #2c3e50;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            padding: 7px 12px;
-            margin: 0;
-            font-size: 0.95em;
-            font-weight: 500;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            transition: background 0.2s, transform 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        table button:hover {
-            background: #34495e;
-            transform: translateY(-1px);
-        }
-        table button:focus {
-            outline: none;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Babarrunak ezabatu - Segurua</title>
+    <!-- CSS y JS externos para CSP (Content Security Policy) -->
+    <link rel="stylesheet" href="php/delete_item/styles.css">
+    <script src="php/delete_item/script.js"></script>
 </head>
 <body>
 
-    <h1>Babarrunak</h1>
+    <h1>Babarrunak (Borrar Elementos)</h1>
 
     <div class="back-container">
-        <button type="button" class="back-btn" onclick="window.location.href='/'">Hasierara</button>
+        <!-- El botón ahora usa un ID y la lógica está en script.js -->
+        <button type="button" class="back-btn" id="back-to-home">Hasierara</button>
     </div>
+
+    <!-- Mostrar mensaje de estado (ya no usa style inline) -->
+    <?php echo $status_message; ?>
 
     <table>
         <tr>
@@ -198,12 +113,14 @@ $result = $conn->query($sql);
             <th>Ekintza</th>
         </tr>
         <?php
-        if ($result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
+        if ($result_all && $result_all->num_rows > 0) {
+            while ($row = $result_all->fetch_assoc()) {
                 echo "<tr>";
+                // Escapar el nombre para prevenir XSS en la tabla
                 echo "<td>" . htmlspecialchars($row['Izena']) . "</td>";
                 echo "<td>
-                    <form method='get' action='/delete_item'>
+                    <form method='get' action='delete_item.php'>
+                        <!-- El valor también se escapa, usando ENT_QUOTES para manejar comillas correctamente -->
                         <input type='hidden' name='item' value='" . htmlspecialchars($row['Izena'], ENT_QUOTES) . "'>
                         <button type='submit'>Ezabatu</button>
                     </form>
@@ -211,7 +128,7 @@ $result = $conn->query($sql);
                 echo "</tr>";
             }
         } else {
-            echo "<tr><td colspan='2'>Ez dago produkturik.</td></tr>";
+            echo "<tr><td colspan='2'>Ez dago produkturik. (No hay productos)</td></tr>";
         }
         ?>
     </table>
@@ -220,5 +137,9 @@ $result = $conn->query($sql);
 </html>
 
 <?php
+// Cerrar la conexión al finalizar
+if ($result_all) {
+    $result_all->free();
+}
 $conn->close();
 ?>

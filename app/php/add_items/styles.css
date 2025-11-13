@@ -1,0 +1,125 @@
+
+body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background: #fcfcfc; /* Fondo muy claro */
+    color: #333; /* Texto principal oscuro */
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+}
+
+h1 {
+    color: #2c3e50; /* Color corporativo oscuro */
+    text-align: center;
+    padding: 40px 0 20px 0;
+    font-weight: 300;
+    font-size: 2.2em;
+    border-bottom: 1px solid #eee; /* Separador sutil */
+    margin-bottom: 40px;
+}
+
+form {
+    background: #ffffff; /* Fondo blanco para el formulario */
+    border-radius: 6px; 
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* Sombra suave */
+    padding: 30px;
+    margin: 30px auto;
+    width: 90%;
+    max-width: 450px;
+    border: 1px solid #eee; 
+}
+
+label {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #555;
+    font-size: 0.95em;
+}
+
+input[type="text"], 
+input[type="number"], 
+select {
+    padding: 10px 12px;
+    border-radius: 4px;
+    border: 1px solid #bdc3c7; /* Borde neutro */
+    margin-bottom: 15px;
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 1em;
+    transition: border-color 0.2s;
+}
+
+input:focus, 
+select:focus {
+    border-color: #2c3e50; /* Resaltar al enfocar */
+    outline: none;
+}
+
+/* Estilo base para todos los botones */
+button, 
+input[type="submit"] {
+    background: #2c3e50; 
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 12px 20px;
+    font-size: 1em;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background 0.2s, transform 0.2s;
+    margin-right: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+button:last-child {
+    margin-right: 0;
+}
+
+button:hover, 
+input[type="submit"]:hover {
+    background: #34495e; 
+    transform: translateY(-1px);
+}
+
+/* Estilo específico para el botón "Hasierara" */
+#hasiera_btn {
+    background-color: #f39c12; /* Un color de acento diferente */
+}
+
+#hasiera_btn:hover {
+    background-color: #e67e22;
+}
+
+/* --- ESTILOS DE MENSAJES PARA CSP --- */
+
+.message p {
+    text-align: center;
+    margin: 20px auto;
+    font-size: 1.1em;
+    padding: 10px 20px;
+    border-radius: 4px;
+    max-width: 450px;
+    font-weight: bold; /* Añadido para hacerlos notar */
+}
+
+/* Reemplaza p[style*='color:green'] por la clase .success-message */
+.success-message {
+    background-color: #e6ffee;
+    border: 1px solid #33cc33;
+    color: #1a661a;
+}
+
+/* Reemplaza p[style*='color:red'] por la clase .error-message */
+.error-message {
+    background-color: #ffe6e6;
+    border: 1px solid #cc3333;
+    color: #661a1a;
+}
+
+/* --- ELIMINADO: La sección de tabla se ha eliminado ya que no es necesaria
+       y su única acción era ocultar elementos. Si necesitas una tabla,
+       configúrala correctamente. --- */

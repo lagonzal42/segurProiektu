@@ -1,193 +1,139 @@
 <?php
+// ===============================================
+// SECURITY HEADERS & SESSION MANAGEMENT
+// ===============================================
+
+// Content Security Policy: Only allows resources from the same origin.
+// This is respected by linking external CSS/JS files instead of using inline code.
+header("Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; form-action 'self'; frame-ancestors 'none';");
+
+
+// Session cookies security
 session_set_cookie_params([
     'lifetime' => 0,
     'path'     => '/',
-    'secure'   => false,
+    'secure'   => true, // Should be true in production with HTTPS
     'httponly' => true,
     'samesite' => 'Strict',
 ]);
-  session_start(); // Inicia la sesión
+session_start(); // Start the session
 
-  header_remove("X-Powered-By");
-  header("Server: SegurServer");
-  header("X-Content-Type-Options: nosniff");
-  header("X-Frame-Options: DENY");
-  header("X-XSS-Protection: 1; mode=block");
-  
-  $hostname = "db";
-  $username = "admin";
-  $password = "test";
-  $db = "segurproiektua";
+// Remove common identifying headers
+header_remove("X-Powered-By");
+header("Server: SegurServer");
+header("X-Content-Type-Options: nosniff");
+header("X-Frame-Options: DENY");
+header("X-XSS-Protection: 1; mode=block");
 
-  $conn = mysqli_connect($hostname, $username, $password, $db);
-  if (!$conn) {
-	die("Database connection failed: " . mysqli_connect_error());
-  }
+// ===============================================
+// DATABASE CONNECTION (Configuration remains the same)
+// ===============================================
+$hostname = "db";
+$username = "admin";
+$password = "test";
+$db = "segurproiektua";
 
-  if (empty($_SESSION['csrf_token']) || empty($_SESSION['csrf_time']) || ($_SESSION['csrf_time'] + 3600) < time()) {
+$conn = mysqli_connect($hostname, $username, $password, $db);
+if (!$conn) {
+    // In a real application, logging this error is better than exposing details
+    die("Database connection failed: " . mysqli_connect_error());
+}
+
+// ===============================================
+// CSRF TOKEN GENERATION AND VALIDATION
+// ===============================================
+
+// Regenerate token if it's missing or expired (1 hour lifetime)
+if (empty($_SESSION['csrf_token']) || empty($_SESSION['csrf_time']) || ($_SESSION['csrf_time'] + 3600) < time()) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     $_SESSION['csrf_time'] = time();
-    }  
+}
 
-  if ($_SERVER["REQUEST_METHOD"] == "POST") {
+$error_message = '';
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $posted_token = $_POST['csrf_token'] ?? '';
+    $user = $_POST['user'] ?? '';
+    $pas = $_POST['pas'] ?? '';
 
+    // 1. CSRF Check (using hash_equals for timing attack prevention)
     if(empty($posted_token) || empty($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $posted_token)) {
-        die("CSRF token-a ez da baliozkoa.");
-    }
-
-    $user = $_POST['user'];
-    $pas = $_POST['pas'];
-
-    // Query insegura (vulnerable a SQL Injection)
-    $sql = "SELECT * FROM erabiltzaileak WHERE Erabiltzaile = '$user' AND Pasahitza = '$pas'";
-    $resultado = mysqli_query($conn, $sql);
-
-    if (mysqli_num_rows($resultado) > 0) {
-        $row = mysqli_fetch_assoc($resultado);
-
-        session_regenerate_id(true);
-        $_SESSION['nan'] = $row['NAN'];
-        $_SESSION['user'] = $row['Erabiltzaile'];
-
-        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-        $_SESSION['csrf_time'] = time();
-
-        //berbideraketa erabiltzailearen informaziora
-        header("Location: /show_user?user=" . urlencode($row['NAN']));
-        exit();
+        $error_message = "CSRF token-a ez da baliozkoa.";
     } else {
-        echo "<p style='color:red;'>Datu okerrak.</p>";
-    }
-  }
-?>
+        // 2. SQL Injection FIX: Use prepared statements
+        $stmt = mysqli_prepare($conn, "SELECT NAN, Erabiltzaile FROM erabiltzaileak WHERE Erabiltzaile = ? AND Pasahitza = ?");
+        
+        // Bind parameters 'ss' means two string parameters
+        mysqli_stmt_bind_param($stmt, "ss", $user, $pas); 
+        
+        // Execute the statement
+        mysqli_stmt_execute($stmt);
+        
+        // Get the result
+        $resultado = mysqli_stmt_get_result($stmt);
 
+        if (mysqli_num_rows($resultado) > 0) {
+            $row = mysqli_fetch_assoc($resultado);
+
+            // Authentication success
+            session_regenerate_id(true); // Session fixation prevention
+            $_SESSION['nan'] = $row['NAN'];
+            $_SESSION['user'] = $row['Erabiltzaile'];
+
+            // Regenerate CSRF token after successful login
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+            $_SESSION['csrf_time'] = time();
+
+            // Redirect (always exit after header redirect)
+            header("Location: /show_user?user=" . urlencode($row['NAN']));
+            exit();
+        } else {
+            $error_message = "Datu okerrak.";
+        }
+    }
+}
+?>
 
 <!DOCTYPE html>
 <html lang="eu">
 <head>
-  <meta charset="UTF-8">
-  <title>Identifikazioa</title>
-    <style>
-        body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            background: #fcfcfc; 
-            color: #333;
-            margin: 0;
-            padding: 0;
-            line-height: 1.6;
-        }
-        h1 {
-            color: #2c3e50; 
-            text-align: center;
-            padding: 40px 0 20px 0;
-            font-weight: 300;
-            font-size: 2.2em;
-            border-bottom: 1px solid #eee; 
-            margin-bottom: 40px;
-        }
-
-        form {
-            background: #ffffff;
-            border-radius: 6px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            padding: 30px;
-            margin: 30px auto;
-            width: 90%;
-            max-width: 400px;
-            border: 1px solid #eee;
-        }
-        input[type="text"], input[type="password"] {
-            padding: 10px 12px;
-            border-radius: 4px;
-            border: 1px solid #bdc3c7; 
-            margin-bottom: 20px;
-            width: 100%;
-            box-sizing: border-box;
-            font-size: 1em;
-            transition: border-color 0.2s;
-            display: block; 
-        }
-        input:focus {
-            border-color: #2c3e50; 
-            outline: none;
-        }
-
-        .button-container {
-            display: flex;
-            justify-content: flex-start; 
-            gap: 10px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-        button {
-            background: #2c3e50; 
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            padding: 10px 15px;
-            font-size: 0.95em;
-            font-weight: 500;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            transition: background 0.2s, transform 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            width: auto; 
-            margin-bottom: 5px; 
-        }
-        button:hover {
-            background: #34495e;
-            transform: translateY(-1px);
-        }
-        #login_ezabatu {
-            background: #95a5a6; 
-        }
-        #login_ezabatu:hover {
-            background: #7f8c8d;
-        }
-        .modify-btn {
-            background: #3498db; 
-        }
-        .modify-btn:hover {
-            background: #2980b9;
-        }
-        
-        p[style*='color:red'] {
-            background-color: #ffe6e6;
-            border: 1px solid #cc3333;
-            color: #661a1a !important;
-            padding: 10px;
-            border-radius: 4px;
-            text-align: center;
-            margin-top: 15px;
-        }
-        
-        table, th, td, tr {
-            display: none;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Identifikazioa</title>
+    <!-- External CSS link for CSP compliance -->
+    <link rel="stylesheet" href="php/login/styles.css"> 
+        <script src="php/login/script.js"></script>
 </head>
-
-<script type="text/javascript" src="/php/login/login.js"></script>
-
 <body>
-  <h1>Erabiltzaileen identifikazioa</h1>
-  <form id="login_form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="POST">
-    
-    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES); ?>">
+    <h1>Erabiltzaileen identifikazioa</h1>
 
-    <label for="user">ERABILTZAILEA:</label>
-    <input type="text" id="user" name="user" placeholder="Erabiltzaile" required>
+    <?php 
+    // Display error message using a CSS class instead of inline style
+    if (!empty($error_message)) {
+        echo '<p class="error-message">' . htmlspecialchars($error_message) . '</p>';
+    }
+    ?>
 
-    <label for="pas">PASAHITZA:</label>
-    <input type="password" id="pas" name="pas" placeholder="Pasahitza" required>
-    
-    <div class="button-container">
-        <button id="login_submit" type="submit" onclick="datuakegiaztatu()">Sartu</button>
-        <button id="login_ezabatu" type="reset">Ezabatu</button>
-        <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
-    </div>
-  </form>
+    <form id="login_form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="POST">
+        
+        <!-- CSRF Token (always use htmlspecialchars for output) -->
+        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES); ?>">
+
+        <label for="user">ERABILTZAILEA:</label>
+        <input type="text" id="user" name="user" placeholder="Erabiltzaile" required>
+
+        <label for="pas">PASAHITZA:</label>
+        <input type="password" id="pas" name="pas" placeholder="Pasahitza" required>
+        
+        <div class="button-container">
+            <!-- Removed inline JS (onclick) for CSP compliance. Logic moved to login.js -->
+            <button id="login_submit" type="submit">Sartu</button>
+            <button id="login_ezabatu" type="reset">Ezabatu</button>
+            <button type="button" id="hasiera_btn" class="modify-btn">Hasierara</button>
+        </div>
+    </form>
+
+    <!-- External JS link for CSP compliance -->
+    <script src="php/login/login.js" defer></script>
 </body>
 </html>

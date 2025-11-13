@@ -1,0 +1,93 @@
+body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: #fcfcfc; 
+            color: #333;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #2c3e50; 
+            text-align: center;
+            padding: 40px 0 20px 0;
+            font-weight: 300;
+            font-size: 2.2em;
+            border-bottom: 1px solid #eee; 
+            margin-bottom: 40px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 90%;
+            max-width: 800px;
+            margin: 30px auto;
+            background: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid #eee;
+        }
+        th, td {
+            border: none;
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #f4f4f4; 
+        }
+        th {
+            background-color: #f8f8f8; 
+            color: #2c3e50;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9em;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:nth-child(even) {
+            background-color: #fafafa; 
+        }
+        tr:hover {
+            background-color: #f0f4f7; 
+        }
+        
+        .button-container {
+            max-width: 800px;
+            margin: 20px auto 40px auto;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            padding: 0 20px;
+        }
+        .button-container a, .button-container button {
+            text-decoration: none;
+            display: block;
+        }
+        button {
+            background: #2c3e50; 
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 12px 20px;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background 0.2s, transform 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap; 
+        }
+        button:hover {
+            background: #34495e;
+            transform: translateY(-1px);
+        }
+        .modify-btn {
+            background: #95a5a6; 
+        }
+        .modify-btn:hover {
+            background: #7f8c8d;
+        }
+
+        form, input, select, .message {
+            display: none;
+        }

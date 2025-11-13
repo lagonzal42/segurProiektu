@@ -1,0 +1,141 @@
+/* ---------------------------------- */
+/* Estilos Generales y Tipografía */
+/* ---------------------------------- */
+body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background: #fcfcfc;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+}
+h1 {
+    color: #2c3e50;
+    text-align: center;
+    padding: 40px 0 10px 0;
+    font-weight: 300;
+    font-size: 2.2em;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 10px;
+}
+
+/* ---------------------------------- */
+/* Contenedor de Botón (Hasierara) */
+/* ---------------------------------- */
+.back-container {
+    text-align: center;
+    margin: 10px 0 40px 0;
+}
+.back-btn {
+    background: #95a5a6;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 1em;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: background 0.2s, transform 0.2s;
+}
+.back-btn:hover {
+    background: #7f8c8d;
+    transform: translateY(-1px);
+}
+
+/* ---------------------------------- */
+/* Mensajes de Estado (Reemplaza estilos inline) */
+/* ---------------------------------- */
+p {
+    text-align: center;
+    margin: 20px auto;
+    font-size: 1.1em;
+    padding: 10px 20px;
+    border-radius: 4px;
+    max-width: 450px;
+}
+.status-success {
+    background-color: #e6ffee;
+    border: 1px solid #33cc33;
+    color: #1a661a !important; /* Usado para asegurar la visibilidad */
+}
+.status-error {
+    background-color: #ffe6e6;
+    border: 1px solid #cc3333;
+    color: #661a1a !important;
+}
+.status-warning {
+    background-color: #fff8e1;
+    border: 1px solid #ffc107;
+    color: #8f6a00 !important;
+}
+
+
+/* ---------------------------------- */
+/* Tabla */
+/* ---------------------------------- */
+table {
+    border-collapse: collapse;
+    width: 90%;
+    max-width: 800px;
+    margin: 30px auto 40px auto;
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #eee;
+}
+th, td {
+    border: none;
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #f4f4f4;
+    vertical-align: middle;
+}
+th {
+    background-color: #f8f8f8;
+    color: #2c3e50;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.9em;
+}
+tr:last-child td {
+    border-bottom: none;
+}
+tr:nth-child(even) {
+    background-color: #fafafa;
+}
+tr:hover {
+    background-color: #f0f4f7;
+}
+
+table form {
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: none;
+}
+
+table button {
+    background: #e74c3c; /* Color de borrado más representativo */
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 7px 12px;
+    margin: 0;
+    font-size: 0.95em;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: background 0.2s, transform 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+table button:hover {
+    background: #c0392b;
+    transform: translateY(-1px);
+}
+table button:focus {
+    outline: none;
+}
