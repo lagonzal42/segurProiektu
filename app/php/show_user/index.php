@@ -8,6 +8,15 @@ session_set_cookie_params([
 ]);
 session_start();
 
+$csp_nonce = base64_encode(random_bytes(16));
+
+header_remove("X-Powered-By");
+header("Server: SegurServer");
+header("X-Content-Type-Options: nosniff");
+header("X-Frame-Options: DENY");
+header("X-XSS-Protection: 1; mode=block");
+header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'nonce-$csp_nonce'; img-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self';");
+
 $hostname = "db";
 $username = "admin";
 $password = "test";
@@ -42,7 +51,7 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <title>Erabiltzailearen Datuak</title>
-    <style>
+    <style nonce="<?= htmlspecialchars($csp_nonce, ENT_QUOTES) ?>">
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
             background: #fcfcfc; 

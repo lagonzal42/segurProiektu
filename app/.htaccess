@@ -1,32 +1,25 @@
-# -----------------------------------------------
-# Configuración segura y compatible
-# -----------------------------------------------
-
 <IfModule mod_rewrite.c>
-    RewriteEngine On
+  RewriteEngine On
 
+  RewriteCond %{REQUEST_URI} ^/(robots\.txt|sitemap\.xml|readme\.txt|phpinfo\.php|composer\.(json|lock)|package\.json|yarn\.lock|webpack\.config\.js|server-status|config\.php|\.env|\.git|\.svn|backup|bak|zip|tar|gz) [NC]
+  RewriteRule ^ - [R=204,L]
 
-    # Reescribe URLs sin extensión
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^([^/]+)$ $1.php [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+
+  RewriteRule ^([^/]+)$ $1.php [L]
 </IfModule>
 
 <IfModule mod_headers.c>
-    # Evita sniffing de tipo MIME
-    <FilesMatch "\.js$">
-        Header set X-Content-Type-Options "nosniff"
-    </FilesMatch>
+  <FilesMatch "\.js$">
+      Header set X-Content-Type-Options "nosniff"
+  </FilesMatch>
 
-    # Agrega SameSite=Lax a cookies
-    Header always edit Set-Cookie "(?i)(^.*)$" "$1; SameSite=Lax"
+  Header always edit Set-Cookie "(?i)(^.*)$" "$1; SameSite=Lax"
 </IfModule>
 
-# Evita listado de archivos
 Options -Indexes
 
-
-# Páginas de error simples
 ErrorDocument 403 "Acceso denegado."
 ErrorDocument 404 "Recurso no encontrado."
 ErrorDocument 500 "Error interno del servidor."
