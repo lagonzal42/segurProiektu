@@ -7,3 +7,9 @@ RewriteCond %{REQUEST_FILENAME} !-d
 
 # Reescribe las peticiones sin extensión a su .php correspondiente
 RewriteRule ^([^/]+)$ $1.php [L]
+
+<IfModule mod_headers.c>
+    <FilesMatch "\.js$">
+        Header set X-Content-Type-Options "nosniff"
+    </FilesMatch>
+</IfModule>
