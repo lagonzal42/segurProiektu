@@ -1,4 +1,13 @@
 <?php
+
+session_start();
+
+header_remove("X-Powered-By");
+header("Server: SegurServer");
+header("X-Content-Type-Options: nosniff");
+header("X-Frame-Options: DENY");
+header("X-XSS-Protection: 1; mode=block");
+
 $hostname = "db";
 $username = "admin";
 $password = "test";
@@ -9,8 +18,20 @@ if ($conn->connect_error) {
     die("Error de conexión: " . $conn->connect_error);
 }
 
+if (empty($_SESSION['csrf_token']) || empty($_SESSION['csrf_time']) || ($_SESSION['csrf_time'] + 3600) < time()) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    $_SESSION['csrf_time'] = time();
+}
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
+
+    $posted_token = $_POST['csrf_token'] ?? '';
+    if (empty($posted_token) || !hash_equals($_SESSION['csrf_token'], $posted_token)) {
+        http_response_code(403);
+        echo "<p style='color:red;'>CSRF token falta da edo ez da egokia.</p>";
+        exit();
+    }
+
     $izena = trim($_POST["izena"] ?? '');
     $jatorria = trim($_POST["jatorria"] ?? '');
     $kolorea = trim($_POST["kolorea"] ?? '');
@@ -20,12 +41,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         // Query insegura (vulnerable a SQL Injection)
         $sql = "INSERT INTO babarrunak (Izena, Jatorria, Kolorea, Egozketa_denb_min) VALUES ('$izena', '$jatorria', '$kolorea', $denbora)";
         if ($conn->query($sql)) {
-            echo "<p style='color:green;'>✅ Babarruna ondo gehitu da!</p>";
+            echo "<p style='color:green;'>Babarruna ondo gehitu da!</p>";
+        
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+            $_SESSION['csrf_time'] = time();
         } else {
-            echo "<p style='color:red;'>❌ Errore bat gertatu da: " . htmlspecialchars($conn->error) . "</p>";
+            echo "<p style='color:red;'>Errore bat gertatu da: " . htmlspecialchars($conn->error) . "</p>";
         }
     } else {
-        echo "<p style='color:red;'>❌ Datu guztiak bete behar dira.</p>";
+        echo "<p style='color:red;'>Datu guztiak bete behar dira.</p>";
     }
 }
 ?>
@@ -148,6 +172,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     ?>
 
     <form id="item_add_form" method="POST" action="add_items">
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES) ?>">
+        
         <label for="izena">Izena:</label>
         <input type="text" id="izena" name="izena" required>
 

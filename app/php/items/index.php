@@ -1,8 +1,15 @@
 <?php
-  $hostname = "db";
-  $username = "admin";
-  $password = "test";
-  $db = "segurproiektua";
+
+header_remove("X-Powered-By");
+header("Server: SegurServer");
+header("X-Content-Type-Options: nosniff");
+header("X-Frame-Options: DENY");
+header("X-XSS-Protection: 1; mode=block");
+
+$hostname = "db";
+$username = "admin";
+$password = "test";
+$db = "segurproiektua";
 
 $conn = new mysqli($hostname, $username, $password, $db);
 if ($conn->connect_error) {
