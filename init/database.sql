@@ -9,6 +9,7 @@ CREATE DATABASE IF NOT EXISTS `segurproiektua`
 
 USE `segurproiektua`;
 
+-- 👇 Asegura que las conexiones usen UTF-8
 SET NAMES utf8mb4;
 SET CHARACTER SET utf8mb4;
 
@@ -27,6 +28,7 @@ CREATE TABLE `babarrunak` (
 DROP TABLE IF EXISTS `erabiltzaileak`;
 
 CREATE TABLE `erabiltzaileak` (
+  `Erabiltzaile` varchar(50) NOT NULL,
   `Izen_Abizen` varchar(50) NOT NULL,
   `NAN` char(9) NOT NULL,
   `Telefonoa` int(9) DEFAULT NULL,
@@ -73,10 +75,10 @@ INSERT INTO `babarrunak` (`id`, `Izena`, `Jatorria`, `Kolorea`, `Egozketa_denb_m
   (15, 'Frijol Beltza', 'Mexico', 'beltza', 55);
 
 
-INSERT INTO `erabiltzaileak` (`Izen_Abizen`, `Nan`, `Telefonoa`, `Jaio_Data`, `Email`, `Pasahitza`, `token`) VALUES
-  ('Larrain Gonzalez','12345678Z', '123456789', '2000-01-05', 'larragonzalez@gmail.com', 1234, null),
-  ('Surya Ortega', '23456789D', '234567891', '2001-02-06', 'sur.ort3ga@gmail.com', 4567, null),
-  ('Erlantz Loriz', '34567891H', '345678912', '2002-03-07', 'erl4nt1oriz@gmail.com', 9876, null),
-  ('Gaizka Divasson', '45678912S', '456789123', '2003-04-08', 'divasson.gaizka@gmail.com', 3883, null),
-  ('Asier Barrio', '56789123F', '567891234', '2004-05-09', 'as.barr1o@gmail.com', 2121, null);
+INSERT INTO `erabiltzaileak` (`Erabiltzaile`, `Izen_Abizen`, `Nan`, `Telefonoa`, `Jaio_Data`, `Email`, `Pasahitza`, `token`) VALUES
+  ('largonzal', 'Larrain Gonzalez','12345678Z', '123456789', '2000-01-05', 'larragonzalez@gmail.com', 1234, null),
+  ('sOrt3ga', 'Surya Ortega', '23456789D', '234567891', '2001-02-06', 'sur.ort3ga@gmail.com', 4567, null),
+  ('erlor', 'Erlantz Loriz', '34567891H', '345678912', '2002-03-07', 'erl4nt1oriz@gmail.com', 9876, null),
+  ('gdiv', 'Gaizka Divasson', '45678912S', '456789123', '2003-04-08', 'divasson.gaizka@gmail.com', 3883, null),
+  ('barrio', 'Asier Barrio', '56789123F', '567891234', '2004-05-09', 'as.barr1o@gmail.com', 2121, null);
 

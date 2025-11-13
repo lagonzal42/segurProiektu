@@ -1,18 +1,5 @@
 <?php
-// Source - https://stackoverflow.com/a
-// Posted by Silver Shadow, modified by community. See post 'Timeline' for change history
-// Retrieved 2025-11-13, License - CC BY-SA 4.0
-
-session_set_cookie_params(
-    //int $lifetime_or_options,
-    ?string $path = '/',
-    //?string $domain = null,
-    //?bool $secure = null,
-    ?bool $httponly = true
-    
-): bool
-
-  session_start(); // Saioa hasteko erabiltzen da.
+  session_start(); // Inicia la sesión
 
   $hostname = "db";
   $username = "admin";
@@ -24,23 +11,25 @@ session_set_cookie_params(
 	die("Database connection failed: " . mysqli_connect_error());
   }
 
-  if ($_SERVER["REQUEST_METHOD"] == "POST") {   # Formularioa bidali ondoren exekutatuko da, horretarako POST metodoa erabiltzen da.
-	$iz_abz = $_POST['iz_abz'];                 # Formularioan jarritako izen abizena jasotzen du.
-	$pas = $_POST['pas'];                       # Formularioan jarritako pasahitza jasotzen du.
+  if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $user = $_POST['user'];
+    $pas = $_POST['pas'];
 
-	$sql = "SELECT * FROM erabiltzaileak WHERE Izen_Abizen = '$iz_abz' AND Pasahitza = '$pas'";      # SQL SELECT agindua gordeko duen aldagaia da, erabiltzaile bat bilatuko duena emandako datuak erabiliz.
-	$resultado = mysqli_query($conn, $sql);                                            # SQL-ko datubasearekin konexioa egiten du eta agindua exekutatzen du, erabiltzailea existitzen bada bere baduak aukeratuz.
+    // Query insegura (vulnerable a SQL Injection)
+    $sql = "SELECT * FROM erabiltzaileak WHERE Erabiltzaile = '$user' AND Pasahitza = '$pas'";
+    $resultado = mysqli_query($conn, $sql);
 
-	if (mysqli_num_rows($resultado) > 0) {                                                   # Lortutako emaitza konprobatzen du, erabiltzaile existitzen badenentz konprobatzeko.  
-		$row = mysqli_fetch_assoc($resultado);                                               # Lortutako emaitzaren lerroa hartzen du, datu guztiekin.
-		$_SESSION['nan'] = $row['NAN'];                                                              # Lortutako lerroaren NAN datua eskuratzen du.
-		$_SESSION['iz_abz'] = $row['Izen_Abizen'];                                                   # Lortutako lerroaren izen abizena eskuratzen du.
+    if (mysqli_num_rows($resultado) > 0) {
+        $row = mysqli_fetch_assoc($resultado);
+        $_SESSION['nan'] = $row['NAN'];
+        $_SESSION['user'] = $row['Erabiltzaile'];
 
-		header("Location: /show_user?user=" . urlencode($row['NAN']));               # Erabiltzailearen informazioa begiratzeko berbideraketa.
-		exit();
-	} else {                                                                                         # Erabilitako datuak okerrak badira, datu okerrak sartu direla agertuko da.
-		echo "Datu okerrak.";
-	}
+        //berbideraketa erabiltzailearen informaziora
+        header("Location: /show_user?user=" . urlencode($row['NAN']));
+        exit();
+    } else {
+        echo "<p style='color:red;'>Datu okerrak.</p>";
+    }
   }
 ?>
 
@@ -50,94 +39,124 @@ session_set_cookie_params(
 <head>
   <meta charset="UTF-8">
   <title>Identifikazioa</title>
-	  <style> /* Erabiliko den estiloaren definizioa. */
-		body {
-			font-family: 'Segoe UI', Arial, sans-serif;
-			background: #f7faff;
-			margin: 0;
-			padding: 0;
-		}
-		h1, h2, h3 {
-			color: #2366a8;
-			margin-top: 30px;
-		}
-		table {
-			border-collapse: collapse;
-			width: 90%;
-			margin: 30px auto 10px auto;
-			background: #fff;
-			box-shadow: 0 2px 8px rgba(35,102,168,0.08);
-			border-radius: 12px;
-			overflow: hidden;
-		}
-		th, td {
-			border: none;
-			padding: 12px 16px;
-			text-align: left;
-		}
-		th {
-			background-color: #e3f0fc;
-			color: #2366a8;
-		}
-		tr:nth-child(even) {
-			background-color: #f2f7fc;
-		}
-		tr:hover {
-			background-color: #d6eaff;
-		}
-		input, select {
-			padding: 8px;
-			border-radius: 8px;
-			border: 1px solid #bcd0e6;
-			margin-bottom: 10px;
-			width: 100%;
-			box-sizing: border-box;
-		}
-		button, input[type="submit"] {
-			background: linear-gradient(90deg, #2366a8 60%, #4fa3e3 100%);
-			color: #fff;
-			border: none;
-			border-radius: 8px;
-			padding: 10px 20px;
-			font-size: 16px;
-			cursor: pointer;
-			box-shadow: 0 1px 4px rgba(35,102,168,0.10);
-			transition: background 0.2s;
-		}
-		button:hover, input[type="submit"]:hover {
-			background: linear-gradient(90deg, #4fa3e3 60%, #2366a8 100%);
-		}
-		form {
-			background: #fff;
-			border-radius: 12px;
-			box-shadow: 0 2px 8px rgba(35,102,168,0.08);
-			padding: 24px;
-			margin: 30px auto;
-			width: 90%;
-			max-width: 500px;
-		}
-		.message {
-			text-align: center;
-			margin: 20px auto;
-			font-size: 18px;
-		}
-		h1 {
-			text-align: center;
-		}
-	</style>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: #fcfcfc; 
+            color: #333;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #2c3e50; 
+            text-align: center;
+            padding: 40px 0 20px 0;
+            font-weight: 300;
+            font-size: 2.2em;
+            border-bottom: 1px solid #eee; 
+            margin-bottom: 40px;
+        }
+
+        form {
+            background: #ffffff;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+            margin: 30px auto;
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid #eee;
+        }
+        input[type="text"], input[type="password"] {
+            padding: 10px 12px;
+            border-radius: 4px;
+            border: 1px solid #bdc3c7; 
+            margin-bottom: 20px;
+            width: 100%;
+            box-sizing: border-box;
+            font-size: 1em;
+            transition: border-color 0.2s;
+            display: block; 
+        }
+        input:focus {
+            border-color: #2c3e50; 
+            outline: none;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: flex-start; 
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        button {
+            background: #2c3e50; 
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 15px;
+            font-size: 0.95em;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background 0.2s, transform 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            width: auto; 
+            margin-bottom: 5px; 
+        }
+        button:hover {
+            background: #34495e;
+            transform: translateY(-1px);
+        }
+        #login_ezabatu {
+            background: #95a5a6; 
+        }
+        #login_ezabatu:hover {
+            background: #7f8c8d;
+        }
+        .modify-btn {
+            background: #3498db; 
+        }
+        .modify-btn:hover {
+            background: #2980b9;
+        }
+        
+        p[style*='color:red'] {
+            background-color: #ffe6e6;
+            border: 1px solid #cc3333;
+            color: #661a1a !important;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        table, th, td, tr {
+            display: none;
+        }
+    </style>
 </head>
 
-<script type="text/javascript" src="/php/login/login.js"></script> <!-- JavaScript fitxategiarekin konexioa egiteko lerroa, JavaScript artxiboaren kokapena zehazten du. -->
+<script type="text/javascript" src="/php/login/login.js"></script>
 
 <body>
   <h1>Erabiltzaileen identifikazioa</h1>
-  <form id="login_form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="POST">       <!-- Formularioaren hasiera, datuak bidaltzeko metodoa POST da eta action atributuak orri honetara bidaltzen du, bertan definitu baitugu php-zer egingo duen sartutako datuekin. -->
-	IZEN ABIZEN: <input type="text" name="iz_abz" placeholder="Izen Abizen" required><br>                           <!-- Izen abizena sartzeko eremua. -->
-	PASAHITZA: <input type="password" name="pas" placeholder="Pasahitza" required><br>                              <!-- Pasahitza sartzeko eremua. -->
-	<button id="login_submit" type="submit" onclick="datuakegiaztatu()">Sartu</button>                              <!-- Sartzeko botoia, JavaScript fitxategiari deia egingo dio, sartutako datuak konprobatzeko, ez du "submit" egiten. -->
-	<button id="login_ezabatu" type="reset">Ezabatu</button>                                                        <!-- Ezabatzeko botoia, formularioaren edukia ezabatzen du. -->
-	<button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>                  <!-- Hasierarako botoia, hasierako orrira, alegia home orrira, eramaten du. -->
+  <form id="login_form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="POST">
+    
+    <label for="user">ERABILTZAILEA:</label>
+    <input type="text" id="user" name="user" placeholder="Erabiltzaile" required>
+
+    <label for="pas">PASAHITZA:</label>
+    <input type="password" id="pas" name="pas" placeholder="Pasahitza" required>
+    
+    <div class="button-container">
+        <button id="login_submit" type="submit" onclick="datuakegiaztatu()">Sartu</button>
+        <button id="login_ezabatu" type="reset">Ezabatu</button>
+        <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
+    </div>
   </form>
 </body>
 </html>
-

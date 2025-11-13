@@ -3,6 +3,7 @@ function datuakegiaztatu() {                                             // Form
     var jaiodata = document.querySelector('input[name="Jaio_Data"]').value;  // Formularioan idatzitako jaiotze dataren balioa gordeko duen aldagaia.
     var mail = document.querySelector('input[name="Email"]').value;          // Formularioan idatzitako email-aren balioa gordeko duen aldagaia.
     var izen = document.querySelector('input[name="Izen_Abizen"]').value;   // Formularioan idatzitako izen abizenaren balioa gordeko duen aldagaia.
+    var user = document.querySelector('input[name="Erabiltzailea"]').value; // Formularioan idatzitako erabiltzailearen balioa gordeko duen aldagaia.
 
     var mailRegex = /^[A-Za-z0-9.]+@{1}[A-Za-z0-9.]+.[A-Za-z]{2,}$/;        // Email-aren formatua egokia dela egiaztatzen duen adierazpen erregularra.
     var jaioRegex = /^\d{4}-\d{2}-\d{2}$/;                                  // Jaiotze dataren formatua egokia dela egiaztatzen duen adierazpen erregularra. 
@@ -38,6 +39,16 @@ function datuakegiaztatu() {                                             // Form
     }
     else if(izen.length > 50){                                              // Izena luzeegia ez dela konprobatzen du.
         window.alert("Izena luzeegia da.")                                  //  Luzeegia bada, mezu bat pantailaratuko da.
+        return false;
+    }
+
+    if (user.trim() === "") {
+        window.alert("Erabiltzailea ezin da hutsik egon.");
+        return false;
+    }
+    else if(user.length > 50){
+        window.alert("Erabiltzailea luzeegia da.")
+        console.log(pas)
         return false;
     }
 

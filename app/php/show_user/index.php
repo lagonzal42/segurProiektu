@@ -1,37 +1,21 @@
 <?php
-// Source - https://stackoverflow.com/a
-// Posted by Silver Shadow, modified by community. See post 'Timeline' for change history
-// Retrieved 2025-11-13, License - CC BY-SA 4.0
-
-session_set_cookie_params(
-    //int $lifetime_or_options,
-    ?string $path = '/',
-    //?string $domain = null,
-    //?bool $secure = null,
-    ?bool $httponly = true
-    
-): bool
-
-session_start(); // Saioa hasi edo existitzen den saioa jarraitu
+session_start(); // Añade esto para acceder a la sesión
 
 $hostname = "db";
 $username = "admin";
 $password = "test";
 $db = "segurproiektua";
 
-// Konexioa sortu MySQL datu-basearekin
 $conn = new mysqli($hostname, $username, $password, $db);
-
-// Konexioan errorea gertatzen bada, exekuzioa eten eta errore mezua erakutsi
 if ($conn->connect_error) {
     die("Konexio errorea: " . $conn->connect_error);
 }
 
-// URL bidez 'user' parametroa jaso bada, datu-basean bilatu
 if (isset($_GET['user'])) {
     $nan = $_GET['user'];
 
-    $sql = "SELECT Izen_Abizen, NAN, Telefonoa, Jaio_Data, Email FROM erabiltzaileak WHERE NAN = '$nan'";
+    // Query insegura (vulnerable a SQL Injection)
+    $sql = "SELECT Erabiltzaile, Izen_Abizen, NAN, Telefonoa, Jaio_Data, Email FROM erabiltzaileak WHERE NAN = '$nan'";
     $result = $conn->query($sql);
 
     if ($result && $result->num_rows > 0) {
@@ -43,7 +27,7 @@ if (isset($_GET['user'])) {
     $user = null;
 }
 
-$conn->close(); // Konexioa itxi datu-basearekin
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -53,77 +37,107 @@ $conn->close(); // Konexioa itxi datu-basearekin
     <title>Erabiltzailearen Datuak</title>
     <style>
         body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background: #f7faff;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: #fcfcfc; 
+            color: #333;
             margin: 0;
             padding: 0;
+            line-height: 1.6;
         }
-        h1, h2, h3 {
-            color: #2366a8;
-            margin-top: 30px;
+        h2 {
+            color: #2c3e50;
+            text-align: center;
+            padding: 40px 0 20px 0;
+            font-weight: 300;
+            font-size: 2.2em;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 40px;
         }
+
         table {
             border-collapse: collapse;
             width: 90%;
-            margin: 30px auto 10px auto;
+            max-width: 500px;
+            margin: 30px auto;
             background: #fff;
-            box-shadow: 0 2px 8px rgba(35,102,168,0.08);
-            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-radius: 6px;
             overflow: hidden;
+            border: 1px solid #eee;
         }
         th, td {
             border: none;
-            padding: 12px 16px;
+            padding: 15px;
             text-align: left;
+            border-bottom: 1px solid #f4f4f4;
         }
         th {
-            background-color: #e3f0fc;
-            color: #2366a8;
+            background-color: #f8f8f8;
+            color: #2c3e50;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9em;
+            width: 35%;
+        }
+        td {
+            width: 65%; 
+        }
+        tr:last-child td {
+            border-bottom: none;
         }
         tr:nth-child(even) {
-            background-color: #f2f7fc;
+            background-color: #fafafa;
         }
-        tr:hover {
-            background-color: #d6eaff;
-        }
-        input, select {
-            padding: 8px;
-            border-radius: 8px;
-            border: 1px solid #bcd0e6;
-            margin-bottom: 10px;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        button, input[type="submit"] {
-            background: linear-gradient(90deg, #2366a8 60%, #4fa3e3 100%);
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            box-shadow: 0 1px 4px rgba(35,102,168,0.10);
-            transition: background 0.2s;
-        }
-        button:hover, input[type="submit"]:hover {
-            background: linear-gradient(90deg, #4fa3e3 60%, #2366a8 100%);
-        }
+
         form {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(35,102,168,0.08);
-            padding: 24px;
-            margin: 30px auto;
+            background: none; 
+            box-shadow: none;
+            padding: 0;
+            margin: 20px auto 40px auto;
             width: 90%;
             max-width: 500px;
+            border: none;
+            display: flex;
+            gap: 12px;
+            justify-content: center;
         }
-        .message {
-            text-align: center;
-            margin: 20px auto;
-            font-size: 18px;
+        button, .modify-btn {
+            background: #2c3e50; 
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 12px 20px;
+            font-size: 0.95em;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background 0.2s, transform 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            flex-shrink: 0; 
         }
-        h1 {
+        button:hover, .modify-btn:hover {
+            background: #34495e;
+            transform: translateY(-1px);
+        }
+        
+        button[onclick*='window.location.href'] {
+            background: #95a5a6; 
+        }
+        button[onclick*='window.location.href']:hover {
+            background: #7f8c8d;
+        }
+
+    
+        p[style*='color:red'] {
+            background-color: #ffe6e6;
+            border: 1px solid #cc3333;
+            color: #661a1a !important;
+            padding: 10px;
+            border-radius: 4px;
             text-align: center;
+            margin: 30px auto;
+            max-width: 450px;
         }
     </style>
 </head>
@@ -131,20 +145,20 @@ $conn->close(); // Konexioa itxi datu-basearekin
     <h2>Erabiltzailearen Informazioa</h2>
 
     <?php if ($user): ?>
-         <!-- Erabiltzailea aurkitu bada, bere datuak erakusten dira taulan -->
         <table>
-            <tr><th>Datua</th><th>Balorea</th></tr>
-            <tr><td>Izen Abizena</td><td><?= htmlspecialchars($user['Izen_Abizen']) ?></td></tr>
-            <tr><td>NAN</td><td><?= htmlspecialchars($user['NAN']) ?></td></tr>
-            <tr><td>Telefonoa</td><td><?= htmlspecialchars($user['Telefonoa']) ?></td></tr>
-            <tr><td>Jaiotze Data</td><td><?= htmlspecialchars($user['Jaio_Data']) ?></td></tr>
-            <tr><td>Email</td><td><?= htmlspecialchars($user['Email']) ?></td></tr>
+            <tr><th>Datua</th><td>Balorea</td></tr>
+            <tr><th>Erabiltzaile</th><td><?= htmlspecialchars($user['Erabiltzaile']) ?></td></tr></td></tr>
+            <tr><th>Izen Abizena</th><td><?= htmlspecialchars($user['Izen_Abizen']) ?></td></tr>
+            <tr><th>NAN</th><td><?= htmlspecialchars($user['NAN']) ?></td></tr>
+            <tr><th>Telefonoa</th><td><?= htmlspecialchars($user['Telefonoa']) ?></td></tr>
+            <tr><th>Jaiotze Data</th><td><?= htmlspecialchars($user['Jaio_Data']) ?></td></tr>
+            <tr><th>Email</th><td><?= htmlspecialchars($user['Email']) ?></td></tr>
         </table>
         <?php if (isset($_SESSION['nan'])): ?>
-            <form action="/modify_user" method="get" style="display: flex; gap: 12px; justify-content: center;">
+            <form action="/modify_user" method="get">
                 <input type="hidden" name="user" value="<?= htmlspecialchars($_SESSION['nan']) ?>">
                 <button type="submit" class="modify-btn">Aldatu Nire Datuak</button>
-                <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
+                <button type="button" onclick="window.location.href='/'">Hasierara</button>
             </form>
         <?php endif; ?>
     <?php else: ?>
