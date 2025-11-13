@@ -1,5 +1,11 @@
 <?php
-session_set_cookie_params(0, '/', '', false, true);
+session_set_cookie_params([
+    'lifetime' => 0,
+    'path'     => '/',
+    'secure'   => false,
+    'httponly' => true,
+    'samesite' => 'Lax',
+]);
 session_start();
 
 header_remove("X-Powered-By");

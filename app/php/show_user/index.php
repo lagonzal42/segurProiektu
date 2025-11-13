@@ -1,5 +1,11 @@
 <?php
-session_set_cookie_params(0, '/', '', false, true);
+session_set_cookie_params([
+    'lifetime' => 0,
+    'path'     => '/',
+    'secure'   => true,
+    'httponly' => true,
+    'samesite' => 'Strict',
+]);
 session_start(); // Añade esto para acceder a la sesión
 
 $hostname = "db";

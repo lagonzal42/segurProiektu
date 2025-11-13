@@ -13,3 +13,7 @@ RewriteRule ^([^/]+)$ $1.php [L]
         Header set X-Content-Type-Options "nosniff"
     </FilesMatch>
 </IfModule>
+
+<IfModule mod_headers.c>
+    Header always edit Set-Cookie "(?i)(^.*)$" "$1; SameSite=Lax"
+</IfModule>

@@ -1,8 +1,11 @@
 <?php
-// Source - https://stackoverflow.com/a
-// Posted by Silver Shadow, modified by community. See post 'Timeline' for change history
-// Retrieved 2025-11-13, License - CC BY-SA 4.0
-session_set_cookie_params(0, '/', '', false, true);
+session_set_cookie_params([
+    'lifetime' => 0,
+    'path'     => '/',
+    'secure'   => true,
+    'httponly' => true,
+    'samesite' => 'Strict',
+]);
 
 if (!isset($_SESSION['nan']) || $_SESSION['nan'] !== ($_GET['user'] ?? null)) {
     header("Location: /login");
