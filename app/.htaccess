@@ -1,19 +1,32 @@
-# Activa mod_rewrite
-RewriteEngine On
+# -----------------------------------------------
+# Configuración segura y compatible
+# -----------------------------------------------
 
-# Si el archivo o directorio no existe
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
+<IfModule mod_rewrite.c>
+    RewriteEngine On
 
-# Reescribe las peticiones sin extensión a su .php correspondiente
-RewriteRule ^([^/]+)$ $1.php [L]
+
+    # Reescribe URLs sin extensión
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^([^/]+)$ $1.php [L]
+</IfModule>
 
 <IfModule mod_headers.c>
+    # Evita sniffing de tipo MIME
     <FilesMatch "\.js$">
         Header set X-Content-Type-Options "nosniff"
     </FilesMatch>
-</IfModule>
 
-<IfModule mod_headers.c>
+    # Agrega SameSite=Lax a cookies
     Header always edit Set-Cookie "(?i)(^.*)$" "$1; SameSite=Lax"
 </IfModule>
+
+# Evita listado de archivos
+Options -Indexes
+
+
+# Páginas de error simples
+ErrorDocument 403 "Acceso denegado."
+ErrorDocument 404 "Recurso no encontrado."
+ErrorDocument 500 "Error interno del servidor."
