@@ -6,7 +6,7 @@ session_set_cookie_params([
     'httponly' => true,
     'samesite' => 'Strict',
 ]);
-session_start(); // Añade esto para acceder a la sesión
+session_start();
 
 $hostname = "db";
 $username = "admin";

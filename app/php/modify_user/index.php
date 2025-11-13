@@ -7,6 +7,9 @@ session_set_cookie_params([
     'samesite' => 'Strict',
 ]);
 
+session_start();
+
+// Comprobación de sesión y usuario
 if (!isset($_SESSION['nan']) || $_SESSION['nan'] !== ($_GET['user'] ?? null)) {
     header("Location: /login");
     exit();
@@ -19,7 +22,7 @@ $db = "segurproiektua";
 
 $conn = new mysqli($hostname, $username, $password, $db);
 if ($conn->connect_error) {
-    die("Error de conexión: " . $conn->connect_error);
+    die("Error de conexión.");
 }
 
 $user = null;
@@ -35,21 +38,41 @@ if (isset($_GET['user'])) {
         $fecha = $_POST['Jaio_Data'] ?? '';
         $email = $_POST['Email'] ?? '';
 
-        // Query insegura (vulnerable a SQL Injection)
-        $sql = "UPDATE erabiltzaileak SET Erabiltzaile = '$erabiltzaile', Izen_Abizen = '$nombre', Telefonoa = '$telefono', Jaio_Data = '$fecha', Email = '$email' WHERE NAN = '$nan'";
-        if ($conn->query($sql)) {
-            header("Location: /show_user?user=" . urlencode($nan));
-            exit();
+        // ✅ Consulta preparada segura para UPDATE
+        $stmt = $conn->prepare("
+            UPDATE erabiltzaileak 
+            SET Erabiltzaile = ?, Izen_Abizen = ?, Telefonoa = ?, Jaio_Data = ?, Email = ? 
+            WHERE NAN = ?
+        ");
+        if ($stmt) {
+            $stmt->bind_param("ssssss", $erabiltzaile, $nombre, $telefono, $fecha, $email, $nan);
+            if ($stmt->execute()) {
+                // Redirigir tras actualizar con éxito
+                header("Location: /show_user?user=" . urlencode($nan));
+                exit();
+            } else {
+                $message = "<p style='color:red;'>❌ Errore bat gertatu da eguneratzean.</p>";
+            }
+            $stmt->close();
         } else {
-            $message = "<p style='color:red;'>❌ Errore bat gertatu da </p>";
+            $message = "<p style='color:red;'>❌ Ezin izan da adierazpena prestatu.</p>";
         }
     }
 
-    // Query insegura (vulnerable a SQL Injection)
-    $sql = "SELECT Erabiltzaile, Izen_Abizen, NAN, Telefonoa, Jaio_Data, Email FROM erabiltzaileak WHERE NAN = '$nan'";
-    $result = $conn->query($sql);
-    if ($result && $result->num_rows > 0) {
-        $user = $result->fetch_assoc();
+    // ✅ Consulta preparada segura para SELECT
+    $stmt = $conn->prepare("
+        SELECT Erabiltzaile, Izen_Abizen, NAN, Telefonoa, Jaio_Data, Email 
+        FROM erabiltzaileak 
+        WHERE NAN = ?
+    ");
+    if ($stmt) {
+        $stmt->bind_param("s", $nan);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result && $result->num_rows > 0) {
+            $user = $result->fetch_assoc();
+        }
+        $stmt->close();
     }
 }
 
@@ -171,7 +194,6 @@ $conn->close();
 
     <?php if ($user): ?>
         <form id="user_modify_form" method="post">
-
             <label for="Erabiltzaile">Erabiltzailea</label>
             <input type="text" id="Erabiltzaile" name="Erabiltzaile" value="<?= htmlspecialchars($user['Erabiltzaile']) ?>" required>
 
