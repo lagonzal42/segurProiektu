@@ -32,7 +32,7 @@ session_set_cookie_params([
   if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $posted_token = $_POST['csrf_token'] ?? '';
 
-    if(empty($posted_token) || empty($$_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $posted_token)) {
+    if(empty($posted_token) || empty($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $posted_token)) {
         die("CSRF token-a ez da baliozkoa.");
     }
 
