@@ -210,7 +210,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   </style>
 </head>
 <body>
-  <script src="/php/register/register.js"></script>
+<script src="/php/register/register.js" nonce="<?= $csp_nonce ?>"></script>
+
   <h1>Erabiltzaileen erregistroa</h1>
   
   <form id="register_form" action="<?= htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="POST">
@@ -238,7 +239,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <input type="password" id="pas" name="pas" placeholder="Pasahitza" required>
 
     <div class="button-container">
-        <button id="register_submit" type="button" onclick="datuakegiaztatu()">Sartu</button>
+        <button id="register_submit" type="submit">Sartu</button>
         <button id="register_ezabatu" type="reset">Ezabatu</button>
         <a href="/", style="text-decoration:none;">
             <button type="button" class="modify-btn">Hasierara</button>
