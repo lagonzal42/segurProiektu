@@ -1,4 +1,11 @@
 <?php
+session_set_cookie_params([
+    'lifetime' => 0,
+    'path'     => '/',
+    'secure'   => false,
+    'httponly' => true,
+    'samesite' => 'Strict',
+]);
   session_start(); // Inicia la sesión
 
   header_remove("X-Powered-By");
@@ -14,7 +21,7 @@
 
   $conn = mysqli_connect($hostname, $username, $password, $db);
   if (!$conn) {
-    die("Database connection failed: " . mysqli_connect_error());
+	die("Database connection failed: " . mysqli_connect_error());
   }
 
   if (empty($_SESSION['csrf_token']) || empty($_SESSION['csrf_time']) || ($_SESSION['csrf_time'] + 3600) < time()) {
@@ -25,7 +32,7 @@
   if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $posted_token = $_POST['csrf_token'] ?? '';
 
-    if(empty($posted_token) || empty($$_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $posted_token)) {
+    if(empty($posted_token) || empty($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $posted_token)) {
         die("CSRF token-a ez da baliozkoa.");
     }
 
