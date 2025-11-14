@@ -148,7 +148,9 @@
         <a href="add_items">
             <button>Gehitu babarrunak</button>
         </a>
-        <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
+        <a href="/", style="text-decoration:none;">
+            <button type="button" class="modify-btn">Hasierara</button>
+        </a>
     </div>
 
 </body>

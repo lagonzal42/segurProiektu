@@ -191,7 +191,10 @@
         <input type="number" min="0" step="1" id="denbora" name="denbora" required>
 
         <button type="submit" id="item_add_submit">Gehitu</button>
-        <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
+        
+        <a href="/", style="text-decoration:none;">
+            <button type="button" class="modify-btn">Hasierara</button>
+        </a>
     </form>
 
 <?php

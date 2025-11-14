@@ -222,7 +222,9 @@
         <label for="item">Ezabatzeko izena:</label>
         <input type="text" name="item" id="item" required>
         <button type="submit" id="item_delete_submit">Ezabatu</button>
-        <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
+        <a href="/", style="text-decoration:none;">
+            <button type="button" class="modify-btn">Hasierara</button>
+        </a>    
     </form>
     <!-- balioak erakusteko taula -->
     <table>

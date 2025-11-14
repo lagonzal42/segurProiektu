@@ -204,8 +204,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <div class="button-container">
         <button id="login_submit" type="submit" onclick="datuakegiaztatu()">Sartu</button>
         <button id="login_ezabatu" type="reset">Ezabatu</button>
-        <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
-    </div>
+        <a href="/", style="text-decoration:none;">
+            <button type="button" class="modify-btn">Hasierara</button>
+        </a></div>
   </form>
 </body>
 </html>

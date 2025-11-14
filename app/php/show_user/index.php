@@ -174,11 +174,13 @@ $conn->close();
             <form action="/modify_user" method="get">
                 <input type="hidden" name="user" value="<?= htmlspecialchars($_SESSION['nan']) ?>">
                 <button type="submit" class="modify-btn">Aldatu Nire Datuak</button>
-                <button type="button" onclick="window.location.href='/'">Hasierara</button>
+                <a href="/", style="text-decoration:none;">
+                    <button type="button" class="modify-btn">Hasierara</button>
+                </a>
             </form>
         <?php endif; ?>
     <?php else: ?>
-        <p style="color:red;">❌ Erabiltzailea ez da aurkitu. Ziurtatu NAN-a onargarria dela.</p>
+        <p style="color:red;">Erabiltzailea ez da aurkitu. Ziurtatu NAN-a onargarria dela.</p>
     <?php endif; ?>
 </body>
 </html>

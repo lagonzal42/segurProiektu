@@ -281,7 +281,9 @@ $result = $conn->query("SELECT * FROM babarrunak ORDER BY id DESC");
     <h1>Babarrunak Kudeaketa</h1>
     
     <div class="button-container">
-        <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
+        <a href="/", style="text-decoration:none;">
+            <button type="button" class="modify-btn">Hasierara</button>
+        </a>
     </div>
     
     <?= $message ?>

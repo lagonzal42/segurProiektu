@@ -1,6 +1,4 @@
 <?php
-
-
 session_set_cookie_params([
     'lifetime' => 0,
     'path'     => '/',
@@ -9,6 +7,9 @@ session_set_cookie_params([
     'samesite' => 'Strict',
 ]);
 session_start();
+
+session_regenerate_id(true);
+
 $csp_nonce = base64_encode(random_bytes(16));
 
 header_remove("X-Powered-By");

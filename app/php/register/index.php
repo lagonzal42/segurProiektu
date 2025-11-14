@@ -240,7 +240,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <div class="button-container">
         <button id="register_submit" type="button" onclick="datuakegiaztatu()">Sartu</button>
         <button id="register_ezabatu" type="reset">Ezabatu</button>
-        <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
+        <a href="/", style="text-decoration:none;">
+            <button type="button" class="modify-btn">Hasierara</button>
+        </a>
     </div>
   </form>
 

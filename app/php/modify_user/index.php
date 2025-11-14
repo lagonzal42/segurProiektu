@@ -221,11 +221,13 @@ $conn->close();
 
             <div class="button-group">
                 <button type="submit" id="user_modify_submit">Aldaketak Gorde</button>
-                <button type="button" class="modify-btn" onclick="window.location.href='/'">Hasierara</button>
+                <a href="/", style="text-decoration:none;">
+                    <button type="button" class="modify-btn">Hasierara</button>
+                </a>
             </div>
         </form>
     <?php else: ?>
-        <p style="color:red;">❌ Erabiltzailea ez da aurkitu. Ziurtatu NAN-a onargarria dela.</p>
+        <p style="color:red;">Erabiltzailea ez da aurkitu. Ziurtatu NAN-a onargarria dela.</p>
     <?php endif; ?>
 </body>
 </html>
