@@ -54,7 +54,6 @@ if (isset($_GET['id'])) {
         $kolorea = $_POST['Kolorea'] ?? '';
         $denbora = $_POST['Egozketa_denb_min'] ?? '';
 
-        // ✅ UPDATE segurua
         $stmt = $conn->prepare("UPDATE babarrunak 
                                 SET Izena = ?, Jatorria = ?, Kolorea = ?, Egozketa_denb_min = ? 
                                 WHERE id = ?");
