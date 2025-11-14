@@ -12,7 +12,8 @@
     $username = "admin";
     $password = "test";
     $db = "segurproiektua";
-    
+
+
 $conn = new mysqli($hostname, $username, $password, $db);
 if ($conn->connect_error) {
     die("Error de conexión con la base de datos.");
