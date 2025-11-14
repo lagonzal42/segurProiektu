@@ -51,7 +51,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if ($user === '' || $pas === '') {
         $message = "<p style='color:red;'>Eremu guztiak bete behar dira.</p>";
     } else {
-        // --- CONSULTA SEGURA PREPARADA ---
         $stmt = $conn->prepare("SELECT NAN, Erabiltzaile, Pasahitza FROM erabiltzaileak WHERE Erabiltzaile = ?");
         if ($stmt) {
             $stmt->bind_param("s", $user);
@@ -78,7 +77,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             }
             $stmt->close();
         } else {
-            $message = "<p style='color:red;'>Errorea kontsulta prestatzean: " . htmlspecialchars($conn->error) . "</p>";
+            $message = "<p style='color:red;'>Errorea kontsulta prestatzean: </p>";
         }
     }
 }

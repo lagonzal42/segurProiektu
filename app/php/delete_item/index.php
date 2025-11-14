@@ -23,40 +23,42 @@
         $item_raw = $_GET['item'];
         $item = $conn->real_escape_string($item_raw);
 
-        if ($item === '') {
-            echo "<p style='color:red;'>❌ Nombre vacío.</p>";
+        if ($item_raw === '') {
+            echo "<p style='color:red;'>❌ Izena hutsik.</p>";
         } else {
-            // comprobar existencia
-            $check_sql = "SELECT COUNT(*) AS cnt FROM babarrunak WHERE Izena = '$item'";
-            $check_res = $conn->query($check_sql);
-            if ($check_res) {
-                $row = $check_res->fetch_assoc();
-                $check_res->free();
+            $check_stmt = $conn->prepare("SELECT COUNT(*) AS cnt FROM babarrunak WHERE Izena = ?");
+            if (!$check_stmt) {
+                die("<p style='color:red;'>❌ Errore bat gertatu da prestatzean.</p>");
+            }
+            $check_stmt->bind_param("s", $item_raw);
+            $check_stmt->execute();
+            $check_res = $check_stmt->get_result();
+            $row = $check_res->fetch_assoc();
+            $check_stmt->close();
 
-                if ((int)$row['cnt'] === 0) {
-                    echo "<p style='color:orange;'>ℹ️ \"" . htmlspecialchars($item_raw) . "\" ez da existitzen.</p>";
-                } else {
-                    // eliminar (limitar a 1 por si hay duplicados)
-                    $del_sql = "DELETE FROM babarrunak WHERE Izena = '$item' LIMIT 1";
-                    if ($conn->query($del_sql)) {
-                        if ($conn->affected_rows > 0) {
-                            echo "<p style='color:green;'>✅ \"" . htmlspecialchars($item_raw) . "\" babarruna borratu da.</p>";
-                        } else {
-                            echo "<p style='color:orange;'>ℹ️ Ez da ezer ezabatu.</p>";
-                        }
-                    } else {
-                        echo "<p style='color:red;'>❌ Errore bat gertatu da. </p>";
-                    }
-                }
+            if ((int)$row['cnt'] === 0) {
+                    echo "<p style='color:orange;'> \"" . htmlspecialchars($item_raw) . "\" ez da existitzen.</p>";
             } else {
-                echo "<p style='color:red;'>❌ Errore bat comprobando existencia. </p>";
+                    $del_stmt = $conn->prepare("DELETE FROM babarrunak WHERE Izena = ? LIMIT 1");
+                    if (!$del_stmt) {
+                        die("<p style='color:red;'>Errore bat gertatu da prestatzean (DELETE).</p>");
+                    }   
+                    $del_stmt->bind_param("s", $item_raw);
+                    $del_stmt->execute();
+    
+                    if ($del_stmt->affected_rows > 0) {
+                        echo "<p style='color:green;'> \"" . htmlspecialchars($item_raw) . "\" babarruna borratu da.</p>";
+                    } else {
+                        echo "<p style='color:red;'> Ez da ezer ezabatu. </p>";
+                    }
+                    $del_stmt->close();
             }
         }
     }
 
-    // Obtener todos los registros
-    $sql = "SELECT * FROM babarrunak ORDER BY id DESC";
-    $result = $conn->query($sql);
+    $stmt = $conn->prepare("SELECT Izena FROM babarrunak ORDER BY id DESC");
+    $stmt->execute();
+    $result = $stmt->get_result();
 ?>
 
 <!DOCTYPE html>
@@ -238,20 +240,26 @@
         if ($result->num_rows > 0) 
         {
             //errenkada bakoitzeko
-            while ($row = $result->fetch_assoc())
-            {
+            while ($row = $result->fetch_assoc()){
                 echo "<tr>";
                 echo "<td>" . htmlspecialchars($row['Izena']) . "</td>";
+                echo "<td> 
+                    <form method='get' action='/delete_item'>
+                    <input type='hidden' name='item' value='" . htmlspecialchars($row['Izena'], ENT_QUOTES) . "'>
+                    <button type='submit'>Ezabatu</button>
+                    </form>
+                    </td>";
                 echo "</tr>";
             }
-        } 
-        else // ez badago errenkadarik
-            echo "<tr><td colspan='2'>Ez dago produkturik.</td></tr>";
+        } else {
+        echo "<tr><td colspan='2'>Ez dago produkturik.</td></tr>";
+        }
         ?>
     </table>
 </body>
 </html>
 
 <?php
+$stmt->close();
 $conn->close();
 ?>

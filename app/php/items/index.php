@@ -19,8 +19,12 @@
         die("Error de conexión: " . $conn->connect_error);
     }
 
-    $sql = "SELECT * FROM babarrunak ORDER BY id DESC";
-    $result = $conn->query($sql);
+    $stmt = $conn->prepare("SELECT Izena, Jatorria FROM babarrunak ORDER BY id DESC");
+    if (!$stmt) {
+        die("Errorea kontsultaren sorreran ");
+    }
+    $stmt->execute();
+    $result = $stmt->get_result();
     ?>
   
 <!DOCTYPE html>
@@ -157,5 +161,6 @@
 </html>
 
 <?php
+$stmt->close();
 $conn->close();
 ?>

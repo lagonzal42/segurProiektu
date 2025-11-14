@@ -48,14 +48,22 @@
         $denbora = trim($_POST["denbora"] ?? '');
 
         if ($izena !== '' && $jatorria !== '' && $kolorea !== '' && $denbora !== '') {
-            // Query insegura (vulnerable a SQL Injection)
-            $sql = "INSERT INTO babarrunak (Izena, Jatorria, Kolorea, Egozketa_denb_min) VALUES ('$izena', '$jatorria', '$kolorea', $denbora)";
-            if ($conn->query($sql)) {
-                echo "<p style='color:green;'>Babarruna ondo gehitu da!</p>";
-            
-                $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-                $_SESSION['csrf_time'] = time();
-            } else {
+            $stmt = $conn->prepare("INSERT INTO babarrunak (Izena, Jatorria, Kolorea, Egozketa_denb_min) VALUES (?, ?, ?, ?)");
+
+            if ($stmt) {
+                $stmt->bind_param("sssi", $izena, $jatorria, $kolorea, $denbora);
+
+                if ($stmt->execute()) {
+                    $message = "<p style='color:green;'>✅ Babarruna ondo gehitu da!</p>";
+                    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+                    $_SESSION['csrf_time'] = time();
+                } else {
+                    $message = "<p style='color:red;'>❌ Errore bat gertatu da: " . htmlspecialchars($stmt->error) . "</p>";
+                }
+                $stmt->close();
+
+
+            }else {
                 echo "<p style='color:red;'>Errore bat gertatu da: </p>";
             }
         } else {
@@ -172,13 +180,7 @@
     <h1>Babarruna gehitu</h1>
 
     <?php
-    // Las etiquetas <p> de mensaje ahora se imprimirán con el estilo sobrio aplicado
-    // Se asegura que los mensajes se vean en un contenedor para aplicar los estilos de fondo
     echo '<div class="message">';
-    // El código PHP para imprimir el mensaje se ejecuta aquí:
-    // if ($conn->query($sql)) { ... } else { ... }
-    // El mensaje de conexión exitosa/error se imprime dentro de este bloque
-    // Usé un div 'message' para centrar y dar estilos al feedback.
     ?>
 
     <form id="item_add_form" method="POST" action="add_items">
