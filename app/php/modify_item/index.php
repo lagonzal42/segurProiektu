@@ -39,9 +39,18 @@ if (empty($_SESSION['csrf_token']) || empty($_SESSION['csrf_time']) || ($_SESSIO
     $_SESSION['csrf_time'] = time();
 }
 
-// 2. Irakurketaren, edizioaren eta eguneratzearen logika
 if (isset($_GET['id'])) {
-    $id = intval($_GET['id']); // id integer bezala tratatu
+    $id_raw = $_GET['id'];
+
+    if (filter_var($id_raw, FILTER_VALIDATE_INT) === false) {
+        http_response_code(400);
+        die('ID no válido.');
+    }
+
+    $id = (int)$id_raw;
+} else {
+    $id = null;  
+}
 
     // Formularioa (POST) bidali bada, eguneratu
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -87,7 +96,6 @@ if (isset($_GET['id'])) {
         }
         $stmt->close();
     }
-}
 
 // ✅ Taularako datu guztiak eskuratu
 $result = $conn->query("SELECT * FROM babarrunak ORDER BY id DESC");
