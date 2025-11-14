@@ -13,7 +13,8 @@ session_regenerate_id(true);
 $csp_nonce = base64_encode(random_bytes(16));
 
 header_remove("X-Powered-By");
-header("Server: SegurServer");
+header_remove("Server");
+//header("Server: SegurServer");
 header("X-Content-Type-Options: nosniff");
 header("X-Frame-Options: DENY");
 header("X-XSS-Protection: 1; mode=block");
