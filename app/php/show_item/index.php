@@ -31,14 +31,19 @@ if ($conn->connect_error) {
 $user = null;
 $message = "";
 
-$id_raw = $_GET['id'] ?? '';
-if (filter_var($id_raw, FILTER_VALIDATE_INT) === false || preg_match('/\D/', $id_raw)) {
-    http_response_code(400);
-    die('ID no válido.');
-}
-$id = (int)$id_raw;
+if (isset($_GET['id'])) {
+    $id_raw = $_GET['id'];
 
-// ======== Consulta segura con prepared statement ========
+    if (filter_var($id_raw, FILTER_VALIDATE_INT) === false) {
+        http_response_code(400);
+        die('ID no válido.');
+    }
+
+    $id = (int)$id_raw;
+} else {
+    $id = null;  
+}
+
 $stmt = $conn->prepare("
     SELECT id, Izena, Jatorria, Kolorea, Egozketa_denb_min
     FROM babarrunak
