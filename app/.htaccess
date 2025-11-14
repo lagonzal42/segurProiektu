@@ -1,19 +1,25 @@
-# Activa mod_rewrite
-RewriteEngine On
+<IfModule mod_rewrite.c>
+  RewriteEngine On
 
-# Si el archivo o directorio no existe
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_URI} ^/(robots\.txt|sitemap\.xml|readme\.txt|phpinfo\.php|composer\.(json|lock)|package\.json|yarn\.lock|webpack\.config\.js|server-status|config\.php|\.env|\.git|\.svn|backup|bak|zip|tar|gz) [NC]
+  RewriteRule ^ - [R=204,L]
 
-# Reescribe las peticiones sin extensión a su .php correspondiente
-RewriteRule ^([^/]+)$ $1.php [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
 
-<IfModule mod_headers.c>
-    <FilesMatch "\.js$">
-        Header set X-Content-Type-Options "nosniff"
-    </FilesMatch>
+  RewriteRule ^([^/]+)$ $1.php [L]
 </IfModule>
 
 <IfModule mod_headers.c>
-    Header always edit Set-Cookie "(?i)(^.*)$" "$1; SameSite=Lax"
+  <FilesMatch "\.js$">
+      Header set X-Content-Type-Options "nosniff"
+  </FilesMatch>
+
+  Header always edit Set-Cookie "(?i)(^.*)$" "$1; SameSite=Lax"
 </IfModule>
+
+Options -Indexes
+
+ErrorDocument 403 "Acceso denegado."
+ErrorDocument 404 "Recurso no encontrado."
+ErrorDocument 500 "Error interno del servidor."

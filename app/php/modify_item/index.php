@@ -1,75 +1,96 @@
 <?php
-    session_start();
+session_set_cookie_params([
+    'lifetime' => 0,
+    'path'     => '/',
+    'secure'   => false,
+    'httponly' => true,
+    'samesite' => 'Strict',
+]);
+session_start();
 
-    header_remove("X-Powered-By");
-    header("Server: SegurServer");
-    header("X-Content-Type-Options: nosniff");
-    header("X-Frame-Options: DENY");
-    header("X-XSS-Protection: 1; mode=block");
+$csp_nonce = base64_encode(random_bytes(16));
 
-    // 1. Datu-basearen konfigurazioa 
-    $hostname = "db";
-    $username = "admin";
-    $password = "test";
-    $db = "segurproiektua";
+header_remove("X-Powered-By");
+header("Server: SegurServer");
+header("X-Content-Type-Options: nosniff");
+header("X-Frame-Options: DENY");
+header("X-XSS-Protection: 1; mode=block");
+header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'nonce-$csp_nonce'; img-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self';");
 
-    // Datu-basearen konexioa
-    $conn = new mysqli($hostname, $username, $password, $db);
-    if ($conn->connect_error) {
-        // Jardunbide egokia da ekoizpen-errorearen xehetasunik ez adieraztea 
-        die("Error de conexión: " . $conn->connect_error);
-    }
 
-    $user = null;
-    $message = "";
+// 1. Datu-basearen konfigurazioa
+$hostname = "db";
+$username = "admin";
+$password = "test";
+$db = "segurproiektua";
 
-    if (empty($_SESSION['csrf_token']) || empty($_SESSION['csrf_time']) || ($_SESSION['csrf_time'] + 3600) < time()) {
-        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-        $_SESSION['csrf_time'] = time();
-    }
+// Datu-basearen konexioa
+$conn = new mysqli($hostname, $username, $password, $db);
+if ($conn->connect_error) {
+    die("Error de conexión.");
+}
 
-    // 2. Irakurketaren, edizioaren eta eguneratzearen logika 
-    if (isset($_GET['id'])) {
-        $id = $_GET['id'];
+$user = null;
+$message = "";
 
-        // Formularioa (POST) bidali bada, eguneratu 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+// CSRF token berritu
+if (empty($_SESSION['csrf_token']) || empty($_SESSION['csrf_time']) || ($_SESSION['csrf_time'] + 3600) < time()) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    $_SESSION['csrf_time'] = time();
+}
 
-            $posted_token = $_POST['csrf_token'] ?? '';
-            if (empty($posted_token) || !hash_equals($_SESSION['csrf_token'], $posted_token)) {
-                http_response_code(403);
-                echo "<p style='color:red;'>CSRF token falta da edo ez da egokia.</p>";
-                exit();
-            }
+// 2. Irakurketaren, edizioaren eta eguneratzearen logika
+if (isset($_GET['id'])) {
+    $id = intval($_GET['id']); // id integer bezala tratatu
 
-            $izena = $_POST['Izena'] ?? '';
-            $jatorria = $_POST['Jatorria'] ?? '';
-            $kolorea = $_POST['Kolorea'] ?? '';
-            $denbora = $_POST['Egozketa_denb_min'] ?? '';
+    // Formularioa (POST) bidali bada, eguneratu
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-            // Query ez-segurua (SQL Injectionekiko kaltebera) 
-            $sql = "UPDATE babarrunak SET Izena = '$izena', Jatorria = '$jatorria', Kolorea = '$kolorea', Egozketa_denb_min = '$denbora' WHERE id = $id";
-            if ($conn->query($sql)) {
+        $posted_token = $_POST['csrf_token'] ?? '';
+        if (empty($posted_token) || !hash_equals($_SESSION['csrf_token'], $posted_token)) {
+            http_response_code(403);
+            echo "<p style='color:red;'>CSRF token falta da edo ez da egokia.</p>";
+            exit();
+        }
+
+        $izena = $_POST['Izena'] ?? '';
+        $jatorria = $_POST['Jatorria'] ?? '';
+        $kolorea = $_POST['Kolorea'] ?? '';
+        $denbora = $_POST['Egozketa_denb_min'] ?? '';
+
+        $stmt = $conn->prepare("UPDATE babarrunak 
+                                SET Izena = ?, Jatorria = ?, Kolorea = ?, Egozketa_denb_min = ? 
+                                WHERE id = ?");
+        if ($stmt) {
+            $stmt->bind_param("sssii", $izena, $jatorria, $kolorea, $denbora, $id);
+            if ($stmt->execute()) {
                 $message = "<p style='color:green;'>Datuak eguneratu dira.</p>";
-                
                 $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
                 $_SESSION['csrf_time'] = time();
             } else {
-                $message = "<p style='color:red;'>Errore bat gertatu da: " . htmlspecialchars($conn->error) . "</p>";
+                $message = "<p style='color:red;'>Errore bat gertatu da: " . htmlspecialchars($stmt->error) . "</p>";
             }
-        }
-
-        // Babarrunen egungo datuak lortzea, inprimakian erakusteko (ez da segurua) 
-        $sql = "SELECT id, Izena, Jatorria, Kolorea, Egozketa_denb_min FROM babarrunak WHERE id = $id";
-        $result_user = $conn->query($sql);
-        if ($result_user && $result_user->num_rows > 0) {
-            $user = $result_user->fetch_assoc();
+            $stmt->close();
+        } else {
+            $message = "<p style='color:red;'>Ezin izan da prestatu adierazpena.</p>";
         }
     }
 
-    // Taularako datu guztiak eskuratu (beti exekutatzen da) 
-    $sql = "SELECT * FROM babarrunak ORDER BY id DESC";
-    $result = $conn->query($sql);
+    // ✅ Babarrunen egungo datuak lortzea (SELECT segurua)
+    $stmt = $conn->prepare("SELECT id, Izena, Jatorria, Kolorea, Egozketa_denb_min FROM babarrunak WHERE id = ?");
+    if ($stmt) {
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result_user = $stmt->get_result();
+        if ($result_user && $result_user->num_rows > 0) {
+            $user = $result_user->fetch_assoc();
+        }
+        $stmt->close();
+    }
+}
+
+// ✅ Taularako datu guztiak eskuratu
+$result = $conn->query("SELECT * FROM babarrunak ORDER BY id DESC");
 ?>
 
 <!DOCTYPE html>
@@ -77,7 +98,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Babarrunak Kudeatu</title>
-    <style>
+    <style nonce="<?= htmlspecialchars($csp_nonce, ENT_QUOTES) ?>">
+        /* --- estilo original mantenduta --- */
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
             background: #fcfcfc; 
@@ -261,7 +283,6 @@
         <h3>Aldatu Babarruna: ID #<?= htmlspecialchars($user['id']) ?></h3>
         
         <form method="POST" action="?id=<?= htmlspecialchars($user['id']) ?>">
-
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES) ?>">
 
             <div>
@@ -296,7 +317,7 @@
             <th>Egozketa denbora</th>
             <th>Ekintza</th>
         </tr>
-        <?php if ($result->num_rows > 0): ?>
+        <?php if ($result && $result->num_rows > 0): ?>
             <?php while ($row = $result->fetch_assoc()): ?>
                 <tr>
                     <td><?= htmlspecialchars($row['id']) ?></td>
@@ -305,8 +326,8 @@
                     <td><?= htmlspecialchars($row['Kolorea']) ?></td>
                     <td><?= htmlspecialchars($row['Egozketa_denb_min']) ?></td>
                     <td>
-                        <a href="?id=<?= $row['id'] ?>" class="button action-button">
-                           Aldatu
+                        <a href="?id=<?= htmlspecialchars($row['id']) ?>" class="button action-button">
+                            Aldatu
                         </a>
                     </td>
                 </tr>
@@ -319,6 +340,5 @@
 </html>
 
 <?php
-// 5. Konexioa itxi
 $conn->close();
 ?>

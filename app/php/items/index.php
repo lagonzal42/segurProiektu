@@ -1,31 +1,34 @@
 <?php
 
-header_remove("X-Powered-By");
-header("Server: SegurServer");
-header("X-Content-Type-Options: nosniff");
-header("X-Frame-Options: DENY");
-header("X-XSS-Protection: 1; mode=block");
+    $csp_nonce = base64_encode(random_bytes(16));
 
-$hostname = "db";
-$username = "admin";
-$password = "test";
-$db = "segurproiektua";
+    header_remove("X-Powered-By");
+    header("Server: SegurServer");
+    header("X-Content-Type-Options: nosniff");
+    header("X-Frame-Options: DENY");
+    header("X-XSS-Protection: 1; mode=block");
+    header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'nonce-$csp_nonce'; img-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self';");
 
-$conn = new mysqli($hostname, $username, $password, $db);
-if ($conn->connect_error) {
-    die("Error de conexión: " . $conn->connect_error);
-}
+    $hostname = "db";
+    $username = "admin";
+    $password = "test";
+    $db = "segurproiektua";
 
-$sql = "SELECT * FROM babarrunak ORDER BY id DESC";
-$result = $conn->query($sql);
-?>
+    $conn = new mysqli($hostname, $username, $password, $db);
+    if ($conn->connect_error) {
+        die("Error de conexión: " . $conn->connect_error);
+    }
+
+    $sql = "SELECT * FROM babarrunak ORDER BY id DESC";
+    $result = $conn->query($sql);
+    ?>
   
 <!DOCTYPE html>
 <html lang="eu">
 <head>
     <meta charset="UTF-8">
     <title>Babarrunak</title>
-    <style>
+    <style nonce="<?= htmlspecialchars($csp_nonce, ENT_QUOTES) ?>">
        
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;

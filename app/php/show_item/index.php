@@ -1,48 +1,66 @@
 <?php
-    // 1. Datu-basearen konfigurazioa 
+    $csp_nonce = base64_encode(random_bytes(16));
+
     header_remove("X-Powered-By");
     header("Server: SegurServer");
     header("X-Content-Type-Options: nosniff");
     header("X-Frame-Options: DENY");
     header("X-XSS-Protection: 1; mode=block");
-
+    header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'nonce-$csp_nonce'; img-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self';");
+    
     $hostname = "db";
     $username = "admin";
     $password = "test";
     $db = "segurproiektua";
+header_remove("X-Powered-By");
+header("Server: SegurServer");
+header("X-Content-Type-Options: nosniff");
+header("X-Frame-Options: DENY");
+header("X-XSS-Protection: 1; mode=block");
 
-    // Datu-basearen konexioa
-    $conn = new mysqli($hostname, $username, $password, $db);
-    if ($conn->connect_error) {
-        die("Error de conexión: " . $conn->connect_error);
-    }
+$hostname = "db";
+$username = "admin";
+$password = "test";
+$db = "segurproiektua";
 
-    $user = null;
-    $message = "";
+$conn = new mysqli($hostname, $username, $password, $db);
+if ($conn->connect_error) {
+    die("Error de conexión con la base de datos.");
+}
 
-    // 2. Irakurketaren, edizioaren eta eguneratzearen logika 
-    if (isset($_GET['id'])) {
-        $id = $_GET['id'];
+$user = null;
+$message = "";
 
-        // Query ez-segurua (SQL Injectionekiko kaltebera) 
-        $sql = "SELECT id, Izena, Jatorria, Kolorea, Egozketa_denb_min FROM babarrunak WHERE id = $id";
-        $result_user = $conn->query($sql);
-        if ($result_user && $result_user->num_rows > 0) {
-            $user = $result_user->fetch_assoc();
-        }
-    }
+$id_raw = $_GET['id'] ?? '';
+if (filter_var($id_raw, FILTER_VALIDATE_INT) === false || preg_match('/\D/', $id_raw)) {
+    http_response_code(400);
+    die('ID no válido.');
+}
+$id = (int)$id_raw;
 
-    // Taularako datu guztiak eskuratu (beti exekutatzen da) 
-    $sql = "SELECT * FROM babarrunak ORDER BY id DESC";
-    $result = $conn->query($sql);
+// ======== Consulta segura con prepared statement ========
+$stmt = $conn->prepare("
+    SELECT id, Izena, Jatorria, Kolorea, Egozketa_denb_min
+    FROM babarrunak
+    WHERE id = ?
+");
+$stmt->bind_param("i", $id);
+$stmt->execute();
+$result_user = $stmt->get_result();
+if ($result_user && $result_user->num_rows > 0) {
+    $user = $result_user->fetch_assoc();
+}
+$stmt->close();
+
+// Consulta general (no depende de input, ok)
+$result = $conn->query("SELECT id, Izena FROM babarrunak ORDER BY id DESC");
 ?>
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <title>Babarrunak Ikusi</title>
-    <style>
+    <style nonce="<?= htmlspecialchars($csp_nonce, ENT_QUOTES) ?>">
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
             background: #fcfcfc; 
@@ -202,28 +220,19 @@
     </div>
 
     <?= $message ?>
-    
+
     <?php if ($user): ?>
         <hr>
         <h3>Babarruna: ID #<?= htmlspecialchars($user['id']) ?></h3>
-        
         <form>
-            <div>
-                <label for="Izena">Izena:</label>
-                <input type="text" id="Izena" name="Izena" value="<?= htmlspecialchars($user['Izena']) ?>" readonly>
-            </div>
-            <div>
-                <label for="Jatorria">Jatorria:</label>
-                <input type="text" id="Jatorria" name="Jatorria" value="<?= htmlspecialchars($user['Jatorria']) ?>" readonly>
-            </div>
-            <div>
-                <label for="Kolorea">Kolorea:</label>
-                <input type="text" id="Kolorea" name="Kolorea" value="<?= htmlspecialchars($user['Kolorea']) ?>" readonly>
-            </div>
-            <div>
-                <label for="Egozketa_denb_min">Egozketa denbora (min):</label>
-                <input type="number" id="Egozketa_denb_min" name="Egozketa_denb_min" value="<?= htmlspecialchars($user['Egozketa_denb_min']) ?>" readonly>
-            </div>
+            <label>Izena:</label>
+            <input type="text" value="<?= htmlspecialchars($user['Izena']) ?>" readonly>
+            <label>Jatorria:</label>
+            <input type="text" value="<?= htmlspecialchars($user['Jatorria']) ?>" readonly>
+            <label>Kolorea:</label>
+            <input type="text" value="<?= htmlspecialchars($user['Kolorea']) ?>" readonly>
+            <label>Egozketa denbora (min):</label>
+            <input type="number" value="<?= htmlspecialchars($user['Egozketa_denb_min']) ?>" readonly>
         </form>
         <hr>
     <?php endif; ?>
@@ -234,15 +243,13 @@
             <th>Izena</th>
             <th>Ekintza</th>
         </tr>
-        <?php if ($result->num_rows > 0): ?>
+        <?php if ($result && $result->num_rows > 0): ?>
             <?php while ($row = $result->fetch_assoc()): ?>
                 <tr>
                     <td><?= htmlspecialchars($row['id']) ?></td>
                     <td><?= htmlspecialchars($row['Izena']) ?></td>
                     <td>
-                        <a href="?id=<?= $row['id'] ?>" class="icon-button" title="Ikusi xehetasunak">
-                           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M288 144a110.5 110.5 0 0 0 -3.4 220.1C260 384 274.6 384 288 384c70.7 0 128-57.3 128-128s-57.3-128-128-128zm0 224a96 96 0 1 1 0-192 96 96 0 1 1 0 192zM288 0C134.5 0 8 119.5 8 256s126.5 256 280 256 272-119.5 272-256S441.5 0 288 0zm0 464c-119.1 0-216-96.9-216-216S168.9 40 288 40s216 96.9 216 216-96.9 216-216 216z"/></svg>
-                        </a>
+                        <a href="?id=<?= htmlspecialchars($row['id']) ?>" class="icon-button" title="Ikusi xehetasunak">👁️</a>
                     </td>
                 </tr>
             <?php endwhile; ?>
@@ -254,6 +261,5 @@
 </html>
 
 <?php
-// Konexioa itxi
 $conn->close();
 ?>

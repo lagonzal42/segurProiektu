@@ -34,7 +34,7 @@ CREATE TABLE `erabiltzaileak` (
   `Telefonoa` int(9) DEFAULT NULL,
   `Jaio_Data` varchar(10) DEFAULT NULL,
   `Email` varchar(50) DEFAULT NULL,
-  `Pasahitza` varchar(40) NOT NULL,
+  `Pasahitza` varchar(256) NOT NULL,
   `token` varchar(256),
   PRIMARY KEY (`NAN`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

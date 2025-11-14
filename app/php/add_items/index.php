@@ -1,57 +1,61 @@
 <?php
 
-session_start();
+    session_start();
 
-header_remove("X-Powered-By");
-header("Server: SegurServer");
-header("X-Content-Type-Options: nosniff");
-header("X-Frame-Options: DENY");
-header("X-XSS-Protection: 1; mode=block");
+    $csp_nonce = base64_encode(random_bytes(16));
 
-$hostname = "db";
-$username = "admin";
-$password = "test";
-$db = "segurproiektua";
+    header_remove("X-Powered-By");
+    header("Server: SegurServer");
+    header("X-Content-Type-Options: nosniff");
+    header("X-Frame-Options: DENY");
+    header("X-XSS-Protection: 1; mode=block");
+    header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'nonce-$csp_nonce'; img-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self';");
+    
 
-$conn = new mysqli($hostname, $username, $password, $db);
-if ($conn->connect_error) {
-    die("Error de conexión: " . $conn->connect_error);
-}
+    $hostname = "db";
+    $username = "admin";
+    $password = "test";
+    $db = "segurproiektua";
 
-if (empty($_SESSION['csrf_token']) || empty($_SESSION['csrf_time']) || ($_SESSION['csrf_time'] + 3600) < time()) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-    $_SESSION['csrf_time'] = time();
-}
-
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-
-    $posted_token = $_POST['csrf_token'] ?? '';
-    if (empty($posted_token) || !hash_equals($_SESSION['csrf_token'], $posted_token)) {
-        http_response_code(403);
-        echo "<p style='color:red;'>CSRF token falta da edo ez da egokia.</p>";
-        exit();
+    $conn = new mysqli($hostname, $username, $password, $db);
+    if ($conn->connect_error) {
+        die("Error de conexión: " . $conn->connect_error);
     }
 
-    $izena = trim($_POST["izena"] ?? '');
-    $jatorria = trim($_POST["jatorria"] ?? '');
-    $kolorea = trim($_POST["kolorea"] ?? '');
-    $denbora = trim($_POST["denbora"] ?? '');
+    if (empty($_SESSION['csrf_token']) || empty($_SESSION['csrf_time']) || ($_SESSION['csrf_time'] + 3600) < time()) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        $_SESSION['csrf_time'] = time();
+    }
 
-    if ($izena !== '' && $jatorria !== '' && $kolorea !== '' && $denbora !== '') {
-        // Query insegura (vulnerable a SQL Injection)
-        $sql = "INSERT INTO babarrunak (Izena, Jatorria, Kolorea, Egozketa_denb_min) VALUES ('$izena', '$jatorria', '$kolorea', $denbora)";
-        if ($conn->query($sql)) {
-            echo "<p style='color:green;'>Babarruna ondo gehitu da!</p>";
-        
-            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-            $_SESSION['csrf_time'] = time();
-        } else {
-            echo "<p style='color:red;'>Errore bat gertatu da: " . htmlspecialchars($conn->error) . "</p>";
+    if ($_SERVER["REQUEST_METHOD"] === "POST") {
+
+        $posted_token = $_POST['csrf_token'] ?? '';
+        if (empty($posted_token) || !hash_equals($_SESSION['csrf_token'], $posted_token)) {
+            http_response_code(403);
+            echo "<p style='color:red;'>CSRF token falta da edo ez da egokia.</p>";
+            exit();
         }
-    } else {
-        echo "<p style='color:red;'>Datu guztiak bete behar dira.</p>";
+
+        $izena = trim($_POST["izena"] ?? '');
+        $jatorria = trim($_POST["jatorria"] ?? '');
+        $kolorea = trim($_POST["kolorea"] ?? '');
+        $denbora = trim($_POST["denbora"] ?? '');
+
+        if ($izena !== '' && $jatorria !== '' && $kolorea !== '' && $denbora !== '') {
+            // Query insegura (vulnerable a SQL Injection)
+            $sql = "INSERT INTO babarrunak (Izena, Jatorria, Kolorea, Egozketa_denb_min) VALUES ('$izena', '$jatorria', '$kolorea', $denbora)";
+            if ($conn->query($sql)) {
+                echo "<p style='color:green;'>Babarruna ondo gehitu da!</p>";
+            
+                $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+                $_SESSION['csrf_time'] = time();
+            } else {
+                echo "<p style='color:red;'>Errore bat gertatu da: </p>";
+            }
+        } else {
+            echo "<p style='color:red;'>Datu guztiak bete behar dira.</p>";
+        }
     }
-}
 ?>
 
 
@@ -60,7 +64,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <head>
     <meta charset="UTF-8">
     <title>Babarruna Gehitu</title>
-    <style>
+    <style nonce="<?= htmlspecialchars($csp_nonce, ENT_QUOTES) ?>">
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
             background: #fcfcfc; 
