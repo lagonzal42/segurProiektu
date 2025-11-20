@@ -1,10 +1,5 @@
-# Babarrun kudeaketaren web-a
-
-Repositorio honetan garatutako web aplikazioaren beharrezko fitxategi guztiak aurki daitezke.
-
 ## Taldekideak
 - Larrain Gonzalez
-- Surya Ortega
 - Gaizka Divasson
 - Erlantz Loriz
 - Asier Barrio
