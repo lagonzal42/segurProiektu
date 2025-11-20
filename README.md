@@ -10,5 +10,5 @@ Repositorio honetan garatutako web aplikazioaren beharrezko fitxategi guztiak au
 - Asier Barrio
 
 ## Erasoa
-** Erasotu den webgunearen URL-a: ** https://github.com/Yassin-M/docker-lamp
-** Erasotu den taldea: ** Cibergalaktikoak
+- **Erasotu den webgunearen URL-a:** https://github.com/Yassin-M/docker-lamp
+- **Erasotu den taldea:** Cibergalaktikoak
